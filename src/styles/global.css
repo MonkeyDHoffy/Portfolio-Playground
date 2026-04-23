@@ -57,11 +57,26 @@ body {
   );
 }
 
-/* Scrollbar glow effect */
+/* Scrollbar trail effect - enhanced glow in scroll direction */
 html ::-webkit-scrollbar-thumb {
   box-shadow:
     0 0 calc(10px + 14px * var(--scrollbar-glow)) color-mix(in srgb, var(--scrollbar-c2) 72%, transparent),
     inset 0 0 0 1px rgba(255,255,255,0.14);
+}
+
+html.has-scrollbar-trail ::-webkit-scrollbar-track {
+  background: 
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent calc(var(--scrollbar-thumb-pos, 0) * 100% - 80px),
+      rgba(184, 164, 255, 0.4) calc(var(--scrollbar-thumb-pos, 0) * 100% - 20px),
+      rgba(184, 164, 255, 0.16) calc(var(--scrollbar-thumb-pos, 0) * 100% + 20px),
+      transparent calc(var(--scrollbar-thumb-pos, 0) * 100% + 80px),
+      transparent 100%
+    ),
+    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.08));
+  transition: background 120ms ease;
 }
 
 html.is-scrolling ::-webkit-scrollbar-thumb {
