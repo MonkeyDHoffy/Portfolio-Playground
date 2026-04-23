@@ -9,4 +9,4 @@ A lightweight reinterpretation of an older portfolio website, focused on a clean
 
 ## Run locally
 
-Open `/home/runner/work/Portfolio-Playground/Portfolio-Playground/index.html` in a browser.
+Open `index.html` in a browser.
