@@ -63,6 +63,10 @@ export const translations = {
     hoverTip: { de: 'Hover zum Umdrehen.', en: 'Hover to flip.' },
     learningLabel: { de: 'LERNE GERADE', en: 'CURRENTLY LEARNING' },
     learningSub:   { de: 'Es gibt immer was Neues zu lernen.', en: 'Always something new to learn.' },
+    learningBack:  {
+      de: 'Ich arbeite mich schnell und strukturiert in neue Themen ein und lerne gezielt die Technologien, die für ihr Team relevant sind.',
+      en: 'I ramp up quickly in new domains and intentionally learn the technologies that matter for your team.',
+    },
   },
 
   projects: {

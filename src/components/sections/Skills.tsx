@@ -38,7 +38,7 @@ export function Skills() {
           {allSkills.map((s, i) => (
             <SkillTile key={s.label} skill={s} index={i} lang={lang} />
           ))}
-          <GrowthTile label={t('skills.learningLabel')} sub={t('skills.learningSub')} />
+          <GrowthTile label={t('skills.learningLabel')} sub={t('skills.learningSub')} backText={t('skills.learningBack')} />
         </div>
       </div>
       <style>{`
@@ -153,49 +153,88 @@ function SkillTile({ skill, index, lang }: { skill: Skill; index: number; lang: 
   );
 }
 
-function GrowthTile({ label, sub }: { label: string; sub: string }) {
+function GrowthTile({ label, sub, backText }: { label: string; sub: string; backText: string }) {
+  const [hover, setHover] = useState(false);
   return (
-    <div style={{
-      gridColumn: 'span 2', gridRow: 'span 1',
-      position: 'relative',
-      borderRadius: 18, padding: 24,
-      background: `linear-gradient(135deg, ${TEAL}, ${LILAC})`,
-      border: '2px solid #000',
-      boxShadow: '6px 6px 0 #000',
-      transform: 'rotate(-1deg)',
-      display: 'flex', alignItems: 'center', gap: 20,
-      overflow: 'hidden',
-    }}>
-      <div style={{ position: 'absolute', top: 20, right: 20, width: 14, height: 14 }}>
-        <div style={{
-          position: 'absolute', inset: 0, borderRadius: '50%',
-          background: '#fff', opacity: 0.8,
-          animation: 'vc-pulse-ring 1.6s ease-out infinite',
-        }} />
-        <div style={{ position: 'absolute', inset: 3, borderRadius: '50%', background: '#fff' }} />
-      </div>
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        gridColumn: 'span 2',
+        gridRow: 'span 1',
+        perspective: 1000,
+        transition: 'transform 300ms ease',
+        transform: `rotate(-1deg) ${hover ? 'translateY(-6px)' : ''}`,
+        cursor: 'pointer',
+      }}
+    >
       <div style={{
-        flexShrink: 0, width: 72, height: 72, borderRadius: 16,
-        background: '#000', color: '#fff',
-        border: '2px solid #000',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 40, fontWeight: 800,
-      }}>∞</div>
-      <div style={{ color: '#000' }}>
+        position: 'relative', width: '100%', height: '100%',
+        transformStyle: 'preserve-3d',
+        transition: 'transform 500ms cubic-bezier(0.3, 0.7, 0.2, 1)',
+        transform: hover ? 'rotateY(180deg)' : 'rotateY(0deg)',
+      }}>
         <div style={{
-          display: 'inline-block',
-          padding: '3px 10px', marginBottom: 8,
-          background: '#000', color: '#fff',
-          fontFamily: 'var(--ff-mono)', fontSize: 10, fontWeight: 700,
-          letterSpacing: '0.15em', borderRadius: 999,
+          position: 'absolute', inset: 0, backfaceVisibility: 'hidden',
+          borderRadius: 18, padding: 24,
+          background: `linear-gradient(135deg, ${TEAL}, ${LILAC})`,
+          border: '2px solid #000',
+          boxShadow: '6px 6px 0 #000',
+          display: 'flex', alignItems: 'center', gap: 20,
+          overflow: 'hidden',
         }}>
-          {label}
+          <div style={{ position: 'absolute', top: 20, right: 20, width: 14, height: 14 }}>
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: '#fff', opacity: 0.8,
+              animation: 'vc-pulse-ring 1.6s ease-out infinite',
+            }} />
+            <div style={{ position: 'absolute', inset: 3, borderRadius: '50%', background: '#fff' }} />
+          </div>
+          <div style={{
+            flexShrink: 0, width: 72, height: 72, borderRadius: 16,
+            background: '#000', color: '#fff',
+            border: '2px solid #000',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 40, fontWeight: 800,
+          }}>∞</div>
+          <div style={{ color: '#000' }}>
+            <div style={{
+              display: 'inline-block',
+              padding: '3px 10px', marginBottom: 8,
+              background: '#000', color: '#fff',
+              fontFamily: 'var(--ff-mono)', fontSize: 10, fontWeight: 700,
+              letterSpacing: '0.15em', borderRadius: 999,
+            }}>
+              {label}
+            </div>
+            <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
+              Python · Django
+            </div>
+            <div style={{ fontSize: 14, marginTop: 6, color: 'rgba(0,0,0,0.7)', fontWeight: 500 }}>
+              {sub}
+            </div>
+          </div>
         </div>
-        <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
-          Python · Django
-        </div>
-        <div style={{ fontSize: 14, marginTop: 6, color: 'rgba(0,0,0,0.7)', fontWeight: 500 }}>
-          {sub}
+        <div style={{
+          position: 'absolute', inset: 0, backfaceVisibility: 'hidden',
+          transform: 'rotateY(180deg)',
+          borderRadius: 18, padding: 22,
+          background: `linear-gradient(135deg, ${LILAC}, ${TEAL})`,
+          border: '2px solid #000',
+          boxShadow: '6px 6px 0 #000',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+        }}>
+          <div style={{
+            fontFamily: 'var(--ff-mono)', fontSize: 11, color: '#000', opacity: 0.72,
+            display: 'flex', justifyContent: 'space-between',
+          }}>
+            <span>/ growth-mode</span>
+            <span>open</span>
+          </div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#000', lineHeight: 1.4 }}>
+            {backText}
+          </div>
         </div>
       </div>
     </div>

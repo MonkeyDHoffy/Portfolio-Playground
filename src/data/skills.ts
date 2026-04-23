@@ -31,6 +31,7 @@ export const skills: Skill[] = [
   { label: 'n8n',        icon: null,                             years: 1, level: 55, color: PINK,   span: 1, note: { de: 'n8n automatisiert Workflows, indem Apps ueber visuelle Flows verbunden werden.', en: 'n8n automates workflows by connecting apps through visual flows.' } },
   { label: 'Docker',     icon: null,                             years: 1, level: 50, color: SKY,    span: 1, note: { de: 'Docker kapselt Anwendungen in Container fuer konsistente Umgebungen auf jedem System.', en: 'Docker packages applications in containers for consistent environments on any system.' } },
   { label: 'Figma',      icon: null,                             years: 2, level: 70, color: LILAC,  span: 1, note: { de: 'Figma ist ein Tool fuer UI-Design, Prototyping und Team-Kollaboration.', en: 'Figma is a tool for UI design, prototyping, and team collaboration.' } },
+  { label: 'Sonstiges',  icon: null,                             years: 1, level: 60, color: TEAL,   span: 2, note: { de: 'Tailwind, Bootstrap, Supabase, Vite und React Native gehoeren ebenfalls zu meinen Praxis-Tools.', en: 'I have also worked with Tailwind, Bootstrap, Supabase, Vite, and React Native.' } },
 ];
 
 export const growthSkill = {
