@@ -1,0 +1,53 @@
+/* Design tokens — C Playground (dark, playful) */
+:root {
+  /* Colors — mirror of variant-c.jsx */
+  --bg:         #0F0F0F;
+  --bg-soft:    #16161A;
+  --bg-deeper:  #0a0a0a;
+  --ink:        #ffffff;
+  --ink-soft:   rgba(255, 255, 255, 0.85);
+  --ink-mute:   rgba(255, 255, 255, 0.55);
+  --line:       rgba(255, 255, 255, 0.12);
+  --line-soft:  rgba(255, 255, 255, 0.06);
+
+  --teal:       #3DCFB6;
+  --peach:      #FFB27A;
+  --lilac:      #B8A4FF;
+  --yellow:     #F4E06D;
+  --pink:       #FF6D8A;
+  --sky:        #6EB3FF;
+
+  /* Type */
+  --ff-sans: "Karla", system-ui, -apple-system, sans-serif;
+  --ff-mono: "Fira Code", ui-monospace, "SF Mono", monospace;
+
+  /* Spacing */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+  --s-10: 128px;
+
+  /* Radii */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-full: 999px;
+
+  --maxw: 1180px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
