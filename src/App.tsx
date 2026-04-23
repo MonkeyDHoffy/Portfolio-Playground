@@ -11,6 +11,7 @@ import { Runner } from './components/sections/Runner';
 import { Contact } from './components/sections/Contact';
 import { GradientBlobs } from './components/fx/GradientBlobs';
 import { Spotlight } from './components/fx/Spotlight';
+import { ScrollbarController } from './components/fx/ScrollbarController';
 import { useAutoScrollReveal } from './hooks/useAnim';
 
 export function App() {
@@ -21,17 +22,19 @@ export function App() {
     <div ref={rootRef}>
       <GradientBlobs />
       <Spotlight />
+      <ScrollbarController />
       <Header />
       <main>
         <Hero />
         <Ticker />
         <About />
-        <Runner />
+        
         <Skills />
         <Projects />
          
         <Voices />
         <Contact />
+        <Runner />
       </main>
       <Footer />
     </div>

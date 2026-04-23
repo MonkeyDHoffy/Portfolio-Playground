@@ -18,19 +18,19 @@ const PINK   = '#FF6D8A';
 const SKY    = '#6EB3FF';
 
 export const skills: Skill[] = [
-  { label: 'HTML',       icon: '/assets/skills/html.png',       years: 2, level: 85, color: PEACH,  span: 1, note: { de: 'Semantisch, zugänglich, solide.',       en: 'Semantic, accessible, solid.' } },
-  { label: 'CSS',        icon: '/assets/skills/css.png',        years: 2, level: 82, color: SKY,    span: 1, note: { de: 'Grid, Flex, Animationen.',              en: 'Grid, flex, animations.' } },
-  { label: 'JavaScript', icon: '/assets/skills/javascript.png', years: 2, level: 80, color: YELLOW, span: 2, note: { de: 'Mein tägliches Brot seit 2 Jahren.',    en: 'My daily bread for 2 years.' } },
-  { label: 'TypeScript', icon: '/assets/skills/typescript.png', years: 1, level: 70, color: SKY,    span: 1, note: { de: 'Typsicher und aufgeräumt.',             en: 'Type-safe and tidy.' } },
-  { label: 'Angular',    icon: '/assets/skills/angular.png',    years: 1, level: 75, color: PINK,   span: 2, note: { de: 'Meine Haupt-Waffe bei großen Apps.',    en: 'My main weapon on big apps.' } },
-  { label: 'React',      icon: '/assets/skills/react.png',      years: 1, level: 65, color: TEAL,   span: 1, note: { de: 'Für alles Schnelle und Spielerische.',  en: 'For everything fast and playful.' } },
-  { label: 'Firebase',   icon: '/assets/skills/firebase.png',   years: 1, level: 60, color: YELLOW, span: 1, note: { de: 'Auth, Firestore, Hosting.',             en: 'Auth, Firestore, hosting.' } },
-  { label: 'Git',        icon: '/assets/skills/git.png',        years: 2, level: 75, color: PEACH,  span: 1, note: { de: 'Saubere Commits, klare Branches.',      en: 'Clean commits, clear branches.' } },
-  { label: 'REST-API',   icon: '/assets/skills/api.png',        years: 1, level: 65, color: LILAC,  span: 1, note: { de: 'Clean fetch, clean errors.',            en: 'Clean fetch, clean errors.' } },
-  { label: 'Scrum',      icon: '/assets/skills/scrum.png',      years: 1, level: 60, color: LILAC,  span: 1, note: { de: 'Stand-ups, Sprints, Retros.',           en: 'Stand-ups, sprints, retros.' } },
-  { label: 'n8n',        icon: null,                             years: 1, level: 55, color: PINK,   span: 1, note: { de: 'Automation-Flows.',                     en: 'Automation flows.' } },
-  { label: 'Docker',     icon: null,                             years: 1, level: 50, color: SKY,    span: 1, note: { de: 'Lokale Dev-Umgebungen.',                en: 'Local dev environments.' } },
-  { label: 'Figma',      icon: null,                             years: 2, level: 70, color: LILAC,  span: 1, note: { de: 'Design → Code Handoff.',                en: 'Design → code handoff.' } },
+  { label: 'HTML',       icon: '/assets/skills/html.png',       years: 2, level: 85, color: PEACH,  span: 1, note: { de: 'HTML strukturiert Inhalte semantisch und bildet das Grundgeruest jeder Webseite.', en: 'HTML structures content semantically and forms the foundation of every website.' } },
+  { label: 'CSS',        icon: '/assets/skills/css.png',        years: 2, level: 82, color: SKY,    span: 1, note: { de: 'CSS steuert Layout, Farben, Typografie und Animationen fuer das visuelle Design.', en: 'CSS controls layout, colors, typography, and animations for visual design.' } },
+  { label: 'JavaScript', icon: '/assets/skills/javascript.png', years: 2, level: 80, color: YELLOW, span: 2, note: { de: 'JavaScript macht Webseiten interaktiv und steuert Logik direkt im Browser.', en: 'JavaScript makes websites interactive and runs logic directly in the browser.' } },
+  { label: 'TypeScript', icon: '/assets/skills/typescript.png', years: 1, level: 70, color: SKY,    span: 1, note: { de: 'TypeScript erweitert JavaScript um Typen und reduziert Fehler schon beim Entwickeln.', en: 'TypeScript adds types to JavaScript and reduces errors during development.' } },
+  { label: 'Angular',    icon: '/assets/skills/angular.png',    years: 1, level: 75, color: PINK,   span: 2, note: { de: 'Angular ist ein Framework fuer grosse, strukturierte Single-Page-Webanwendungen.', en: 'Angular is a framework for large, structured single-page web applications.' } },
+  { label: 'React',      icon: '/assets/skills/react.png',      years: 1, level: 65, color: TEAL,   span: 1, note: { de: 'React baut Benutzeroberflaechen aus wiederverwendbaren Komponenten und State-Logik.', en: 'React builds UIs from reusable components and state-driven logic.' } },
+  { label: 'Firebase',   icon: '/assets/skills/firebase.png',   years: 1, level: 60, color: YELLOW, span: 1, note: { de: 'Firebase bietet Backend-Dienste wie Authentifizierung, Datenbank und Hosting aus einer Hand.', en: 'Firebase provides backend services like auth, database, and hosting in one platform.' } },
+  { label: 'Git',        icon: '/assets/skills/git.png',        years: 2, level: 75, color: PEACH,  span: 1, note: { de: 'Git versioniert Code, erleichtert Zusammenarbeit und haelt Aenderungen nachvollziehbar.', en: 'Git versions code, improves collaboration, and keeps changes traceable.' } },
+  { label: 'REST-API',   icon: '/assets/skills/api.png',        years: 1, level: 65, color: LILAC,  span: 1, note: { de: 'REST-APIs verbinden Frontend und Backend ueber standardisierte HTTP-Endpunkte.', en: 'REST APIs connect frontend and backend through standardized HTTP endpoints.' } },
+  { label: 'Scrum',      icon: '/assets/skills/scrum.png',      years: 1, level: 60, color: LILAC,  span: 1, note: { de: 'Scrum ist ein agiles Vorgehensmodell mit Sprints, Rollen und regelmaessigen Reviews.', en: 'Scrum is an agile framework with sprints, roles, and regular reviews.' } },
+  { label: 'n8n',        icon: null,                             years: 1, level: 55, color: PINK,   span: 1, note: { de: 'n8n automatisiert Workflows, indem Apps ueber visuelle Flows verbunden werden.', en: 'n8n automates workflows by connecting apps through visual flows.' } },
+  { label: 'Docker',     icon: null,                             years: 1, level: 50, color: SKY,    span: 1, note: { de: 'Docker kapselt Anwendungen in Container fuer konsistente Umgebungen auf jedem System.', en: 'Docker packages applications in containers for consistent environments on any system.' } },
+  { label: 'Figma',      icon: null,                             years: 2, level: 70, color: LILAC,  span: 1, note: { de: 'Figma ist ein Tool fuer UI-Design, Prototyping und Team-Kollaboration.', en: 'Figma is a tool for UI design, prototyping, and team collaboration.' } },
 ];
 
 export const growthSkill = {

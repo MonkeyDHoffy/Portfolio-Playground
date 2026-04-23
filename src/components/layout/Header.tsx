@@ -1,9 +1,18 @@
+import { useEffect, useState } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { LangToggle } from './LangToggle';
 
 const LINE = 'rgba(255,255,255,0.12)';
 
-const navLink: React.CSSProperties = { color: '#fff', textDecoration: 'none', opacity: 0.8 };
+const NAV_IDS = ['about', 'skills', 'projects', 'contact'] as const;
+
+const navLink: React.CSSProperties = {
+  color: '#fff',
+  textDecoration: 'none',
+  opacity: 0.8,
+  position: 'relative',
+  paddingBottom: 3,
+};
 const iconLink: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
   width: 34, height: 34, borderRadius: 999,
@@ -16,6 +25,31 @@ const iconLink: React.CSSProperties = {
 
 export function Header() {
   const { t } = useLang();
+  const [activeNav, setActiveNav] = useState<string>('');
+
+  useEffect(() => {
+    const updateActive = () => {
+      const markerY = window.scrollY + window.innerHeight * 0.45;
+      let current = NAV_IDS[0] as string;
+
+      NAV_IDS.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (markerY >= el.offsetTop - 12) current = id;
+      });
+
+      setActiveNav(current);
+    };
+
+    updateActive();
+    window.addEventListener('scroll', updateActive, { passive: true });
+    window.addEventListener('resize', updateActive);
+    return () => {
+      window.removeEventListener('scroll', updateActive);
+      window.removeEventListener('resize', updateActive);
+    };
+  }, []);
+
   return (
     <nav
       style={{
@@ -36,10 +70,10 @@ export function Header() {
         <span style={{ fontWeight: 700, fontSize: 15 }}>jannik.hoff</span>
       </a>
       <div style={{ display: 'flex', gap: 28, fontSize: 13, fontWeight: 500 }} className="nav-links">
-        <a href="#about" style={navLink}>{t('nav.about')}</a>
-        <a href="#skills" style={navLink}>{t('nav.skills')}</a>
-        <a href="#projects" style={navLink}>{t('nav.projects')}</a>
-        <a href="#contact" style={navLink}>{t('nav.contact')}</a>
+        <a href="#about" className={`nav-link${activeNav === 'about' ? ' nav-link-active' : ''}`} style={navLink} aria-current={activeNav === 'about' ? 'page' : undefined}>{t('nav.about')}</a>
+        <a href="#skills" className={`nav-link${activeNav === 'skills' ? ' nav-link-active' : ''}`} style={navLink} aria-current={activeNav === 'skills' ? 'page' : undefined}>{t('nav.skills')}</a>
+        <a href="#projects" className={`nav-link${activeNav === 'projects' ? ' nav-link-active' : ''}`} style={navLink} aria-current={activeNav === 'projects' ? 'page' : undefined}>{t('nav.projects')}</a>
+        <a href="#contact" className={`nav-link${activeNav === 'contact' ? ' nav-link-active' : ''}`} style={navLink} aria-current={activeNav === 'contact' ? 'page' : undefined}>{t('nav.contact')}</a>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <a href="https://github.com/MonkeyDHoffy" target="_blank" rel="noreferrer" aria-label="GitHub" style={iconLink}>
@@ -56,6 +90,44 @@ export function Header() {
         <LangToggle />
       </div>
       <style>{`
+        .nav-link {
+          transition: color 240ms ease, opacity 240ms ease;
+        }
+        .nav-link::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: -2px;
+          height: 2px;
+          border-radius: 999;
+          background: rgba(61, 207, 182, 0.9);
+          transform: scaleX(0);
+          transform-origin: left center;
+          opacity: 0;
+          transition: transform 240ms cubic-bezier(.22,.9,.3,1), opacity 240ms ease;
+        }
+        .nav-link:hover,
+        .nav-link:focus-visible {
+          color: #fff;
+          opacity: 0.98 !important;
+        }
+        .nav-link:hover::after,
+        .nav-link:focus-visible::after,
+        .nav-link-active::after {
+          transform: scaleX(1);
+          opacity: 1;
+        }
+        .nav-link-active {
+          color: #c7fff5;
+          opacity: 1 !important;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .nav-link,
+          .nav-link::after {
+            transition: none;
+          }
+        }
         @media (max-width: 780px) {
           .nav-links { display: none !important; }
         }

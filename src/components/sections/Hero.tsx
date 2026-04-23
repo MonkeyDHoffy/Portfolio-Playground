@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
-import { useMousePos } from '../../hooks/useAnim';
+import { useInViewOnce, useMousePos } from '../../hooks/useAnim';
 
 const TEAL   = '#3DCFB6';
 const PEACH  = '#FFB27A';
@@ -46,7 +46,9 @@ const btnGhost: React.CSSProperties = {
 export function Hero() {
   const { t } = useLang();
   const ref = useRef<HTMLElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
   const mouse = useMousePos(ref);
+  const ctasInView = useInViewOnce(ctaRef, { rootMargin: '-20% 0px -20% 0px', threshold: 0.2 });
 
   return (
     <section
@@ -119,9 +121,13 @@ export function Hero() {
           {t('hero.blurb')}
         </p>
 
-        <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="#projects" className="cta-fx cta-teal" style={btnPrimary}>{t('hero.workCta')} →</a>
-          <a href="#contact" className="cta-fx cta-peach" style={btnGhost}>{t('hero.contactCta')}</a>
+        <div ref={ctaRef} style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div className={`cta-enter cta-enter-left ${ctasInView ? 'cta-in' : ''}`}>
+            <a href="#projects" className="cta-fx cta-teal" style={btnPrimary}>{t('hero.workCta')} →</a>
+          </div>
+          <div className={`cta-enter cta-enter-right ${ctasInView ? 'cta-in' : ''}`}>
+            <a href="#contact" className="cta-fx cta-peach" style={btnGhost}>{t('hero.contactCta')}</a>
+          </div>
         </div>
       </div>
     </section>
