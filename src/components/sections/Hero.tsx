@@ -60,6 +60,7 @@ export function Hero() {
       style={{
         position: 'relative', zIndex: 1,
         minHeight: '88vh', padding: '80px 40px',
+        overflowX: 'clip',
         display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
         textAlign: 'center',
       }}

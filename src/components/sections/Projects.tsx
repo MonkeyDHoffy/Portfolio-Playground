@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { projects } from '../../data/projects';
 import { SectionLabel } from '../ui/SectionLabel';
@@ -13,7 +13,14 @@ export function Projects() {
   const { t, lang } = useLang();
   const [active, setActive] = useState(0);
   const [flipped, setFlipped] = useState<Set<string>>(new Set());
+  const [isPhone, setIsPhone] = useState(() => window.innerWidth <= 860);
   const count = projects.length;
+
+  useEffect(() => {
+    const onResize = () => setIsPhone(window.innerWidth <= 860);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const go = (dir: -1 | 1) => setActive((a) => (a + dir + count) % count);
   const toggleFlip = (key: string) => setFlipped((s) => {
@@ -23,7 +30,7 @@ export function Projects() {
   });
 
   return (
-    <section id="projects" style={{ padding: 'clamp(48px, 8vw, 64px) 40px', position: 'relative', zIndex: 1 }}>
+    <section id="projects" className="projects-section" style={{ padding: 'clamp(48px, 8vw, 64px) clamp(16px, 5vw, 40px)', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1240, margin: '0 auto' }}>
         <SectionLabel n={t('projects.index')} text={t('projects.label')} />
         <h2 style={{
@@ -47,11 +54,12 @@ export function Projects() {
             className="pc-stage"
             style={{
               position: 'relative',
-              height: 620,
+              height: isPhone ? 540 : 620,
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              perspective: 1400,
+              perspective: isPhone ? 900 : 1400,
+              overflow: 'hidden',
             }}
           >
             {projects.map((p, i) => {
@@ -67,24 +75,30 @@ export function Projects() {
               const rot = [-3, 2, -1.5][i % 3];
               const color = COLORS[i % COLORS.length];
               const isFlipped = flipped.has(p.key);
+              const isActive = abs === 0;
               return (
                 <div
                   key={p.key}
-                  className={`pc-card ${abs === 0 ? 'pc-card-active' : 'pc-card-side'}`}
+                  className={`pc-card ${isActive ? 'pc-card-active' : 'pc-card-side'}${isPhone ? ' pc-card-mobile' : ''}`}
                   style={{
-                    position: 'absolute',
-                    width: 360,
+                    position: isPhone ? 'relative' : 'absolute',
+                    width: isPhone ? 'min(100%, 360px)' : 360,
+                    maxWidth: isPhone ? '100%' : undefined,
                     aspectRatio: '3/4',
-                    transform: `translateX(${translateX}px) scale(${scale}) rotateY(${rotateY}deg) rotate(${abs === 0 ? rot : 0}deg)`,
-                    opacity,
-                    zIndex,
+                    transform: isPhone
+                      ? `scale(1) rotate(${isActive ? rot * 0.35 : 0}deg)`
+                      : `translateX(${translateX}px) scale(${scale}) rotateY(${rotateY}deg) rotate(${isActive ? rot : 0}deg)`,
+                    opacity: isPhone ? (isActive ? 1 : 0) : opacity,
+                    zIndex: isPhone ? (isActive ? 10 : 0) : zIndex,
                     transition: 'transform 600ms cubic-bezier(.22,.9,.3,1), opacity 400ms ease',
-                    pointerEvents: abs > 1 ? 'none' : 'auto',
-                    filter: abs === 0 ? 'none' : 'brightness(0.55) saturate(0.9)',
-                    cursor: abs === 0 ? 'pointer' : 'pointer',
+                    pointerEvents: isPhone ? (isActive ? 'auto' : 'none') : (abs > 1 ? 'none' : 'auto'),
+                    filter: isPhone ? 'none' : (isActive ? 'none' : 'brightness(0.55) saturate(0.9)'),
+                    cursor: 'pointer',
+                    display: isPhone ? (isActive ? 'block' : 'none') : 'block',
+                    margin: isPhone ? '0 auto' : undefined,
                   }}
                   onClick={() => {
-                    if (abs === 0) toggleFlip(p.key);
+                    if (isActive) toggleFlip(p.key);
                     else setActive(i);
                   }}
                 >
@@ -177,12 +191,24 @@ export function Projects() {
             display: 'flex', justifyContent: 'center', alignItems: 'center',
             gap: 16, marginTop: 24,
           }}>
-            <button onClick={() => go(-1)} aria-label={t('projects.prev')} style={navBtn}>←</button>
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                go(-1);
+                e.currentTarget.blur();
+              }}
+              aria-label={t('projects.prev')}
+              style={navBtn}
+            >←</button>
             <div style={{ display: 'flex', gap: 8 }}>
               {projects.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setActive(i)}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={(e) => {
+                    setActive(i);
+                    e.currentTarget.blur();
+                  }}
                   aria-label={`Go to project ${i + 1}`}
                   style={{
                     width: i === active ? 28 : 10, height: 10, borderRadius: 999,
@@ -193,7 +219,15 @@ export function Projects() {
                 />
               ))}
             </div>
-            <button onClick={() => go(1)} aria-label={t('projects.next')} style={navBtn}>→</button>
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                go(1);
+                e.currentTarget.blur();
+              }}
+              aria-label={t('projects.next')}
+              style={navBtn}
+            >→</button>
           </div>
         </div>
       </div>
@@ -232,8 +266,24 @@ export function Projects() {
           from { transform: rotate(18deg) translateX(-260%); }
           to   { transform: rotate(18deg) translateX(520%); }
         }
+        @media (max-width: 860px) {
+          .projects-section {
+            overflow-x: clip;
+          }
+          .pc-stage {
+            height: 540px !important;
+          }
+          .pc-card-mobile {
+            width: min(100%, 360px) !important;
+          }
+        }
         @media (max-width: 560px) {
-          .pc-stage { height: 560px !important; }
+          .pc-stage {
+            height: 520px !important;
+          }
+          .pc-card-mobile {
+            width: min(100%, 332px) !important;
+          }
         }
         @media (prefers-reduced-motion: reduce) {
           .pc-card:hover {
