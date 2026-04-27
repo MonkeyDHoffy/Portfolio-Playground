@@ -103,20 +103,6 @@ export function Contact() {
             <p style={{ fontSize: 19, lineHeight: 1.55, color: 'rgba(255,255,255,0.85)', margin: '0 0 32px' }}>
               {t('contact.blurb')}
             </p>
-            <a
-              href="mailto:hoffjannik95@gmail.com"
-              className="cta-fx cta-peach"
-              style={{
-                display: 'inline-block',
-                padding: '14px 26px', background: PEACH, color: '#000',
-                borderRadius: 999, fontWeight: 700, fontSize: 15,
-                border: '2px solid #000',
-                boxShadow: '4px 4px 0 #000',
-                textDecoration: 'none',
-              }}
-            >
-              hoffjannik95@gmail.com →
-            </a>
           </div>
 
           <form onSubmit={onSubmit} noValidate style={{
