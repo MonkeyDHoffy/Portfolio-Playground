@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { projects } from '../../data/projects';
 import { SectionLabel } from '../ui/SectionLabel';
@@ -14,7 +14,13 @@ export function Projects() {
   const [active, setActive] = useState(0);
   const [flipped, setFlipped] = useState<Set<string>>(new Set());
   const [isPhone, setIsPhone] = useState(() => window.innerWidth <= 860);
+  const [swipeAnim, setSwipeAnim] = useState<'left' | 'right' | null>(null);
   const count = projects.length;
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const touchDelta = useRef({ x: 0, y: 0 });
+  const suppressTapUntil = useRef(0);
+  const SWIPE_THRESHOLD = 56;
+  const SWIPE_LOCK_RATIO = 1.15;
 
   useEffect(() => {
     const onResize = () => setIsPhone(window.innerWidth <= 860);
@@ -28,6 +34,40 @@ export function Projects() {
     if (n.has(key)) n.delete(key); else n.add(key);
     return n;
   });
+
+  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isPhone || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+    touchDelta.current = { x: 0, y: 0 };
+  };
+
+  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isPhone || !touchStart.current || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    touchDelta.current = { x: dx, y: dy };
+
+    // Lock vertical page scroll only during clear horizontal swipes.
+    if (Math.abs(dx) > Math.abs(dy) * SWIPE_LOCK_RATIO) {
+      e.preventDefault();
+    }
+  };
+
+  const onTouchEnd = () => {
+    if (!isPhone || !touchStart.current) return;
+    const { x: dx, y: dy } = touchDelta.current;
+
+    if (Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * SWIPE_LOCK_RATIO) {
+      setSwipeAnim(dx < 0 ? 'left' : 'right');
+      go(dx < 0 ? 1 : -1);
+      suppressTapUntil.current = Date.now() + 320;
+    }
+
+    touchStart.current = null;
+    touchDelta.current = { x: 0, y: 0 };
+  };
 
   return (
     <section id="projects" className="projects-section" style={{ padding: 'clamp(48px, 8vw, 64px) clamp(16px, 5vw, 40px)', position: 'relative', zIndex: 1 }}>
@@ -60,7 +100,12 @@ export function Projects() {
               alignItems: 'center',
               perspective: isPhone ? 900 : 1400,
               overflow: 'hidden',
+              touchAction: isPhone ? 'pan-y' : 'auto',
             }}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            onTouchCancel={onTouchEnd}
           >
             {projects.map((p, i) => {
               const offset = ((i - active + count) % count);
@@ -91,13 +136,20 @@ export function Projects() {
                     opacity: isPhone ? (isActive ? 1 : 0) : opacity,
                     zIndex: isPhone ? (isActive ? 10 : 0) : zIndex,
                     transition: 'transform 600ms cubic-bezier(.22,.9,.3,1), opacity 400ms ease',
+                    animation: isPhone && isActive && swipeAnim
+                      ? `${swipeAnim === 'left' ? 'pc-swipe-in-left' : 'pc-swipe-in-right'} 320ms cubic-bezier(.22,.9,.3,1)`
+                      : undefined,
                     pointerEvents: isPhone ? (isActive ? 'auto' : 'none') : (abs > 1 ? 'none' : 'auto'),
                     filter: isPhone ? 'none' : (isActive ? 'none' : 'brightness(0.55) saturate(0.9)'),
                     cursor: 'pointer',
                     display: isPhone ? (isActive ? 'block' : 'none') : 'block',
                     margin: isPhone ? '0 auto' : undefined,
                   }}
+                  onAnimationEnd={() => {
+                    if (swipeAnim) setSwipeAnim(null);
+                  }}
                   onClick={() => {
+                    if (Date.now() < suppressTapUntil.current) return;
                     if (isActive) toggleFlip(p.key);
                     else setActive(i);
                   }}
@@ -119,10 +171,10 @@ export function Projects() {
                     }}>
                       <div style={{
                         padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        color: '#000', fontFamily: 'var(--ff-mono)', fontSize: 11, fontWeight: 600,
+                        color: '#000', fontFamily: 'var(--ff-mono)', fontSize: 14, fontWeight: 700,
                       }}>
-                        <span>{p.index} · {p.year}</span>
-                        <span style={{ padding: '3px 8px', background: 'rgba(0,0,0,0.1)', borderRadius: 999 }}>
+                        <span style={{ fontSize: 24, letterSpacing: '0.06em', fontWeight: 900, lineHeight: 1 }}>{p.index}</span>
+                        <span style={{ padding: '8px 14px', fontSize: 16, letterSpacing: '0.04em', background: 'rgba(0,0,0,0.1)', borderRadius: 999, fontWeight: 900, lineHeight: 1 }}>
                           ↻ {t('projects.flip')}
                         </span>
                       </div>
@@ -169,12 +221,14 @@ export function Projects() {
                         ))}
                       </div>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }} onClick={(e) => e.stopPropagation()}>
-                        <a href={p.live} target="_blank" rel="noreferrer" style={{
-                          flex: 1, padding: '10px 14px', background: color, color: '#000', borderRadius: 10,
-                          fontWeight: 700, fontSize: 13, textDecoration: 'none', textAlign: 'center',
-                        }}>{t('projects.liveDemo')} ↗</a>
+                        {p.live && (
+                          <a href={p.live} target="_blank" rel="noreferrer" style={{
+                            flex: 1, padding: '10px 14px', background: color, color: '#000', borderRadius: 10,
+                            fontWeight: 700, fontSize: 13, textDecoration: 'none', textAlign: 'center',
+                          }}>{t('projects.liveDemo')} ↗</a>
+                        )}
                         <a href={p.github} target="_blank" rel="noreferrer" style={{
-                          flex: 1, padding: '10px 14px', background: 'transparent', color: '#fff',
+                          flex: p.live ? 1 : '1 1 100%', padding: '10px 14px', background: 'transparent', color: '#fff',
                           border: `1px solid ${LINE}`, borderRadius: 10,
                           fontWeight: 600, fontSize: 13, textDecoration: 'none', textAlign: 'center',
                         }}>GitHub</a>
@@ -265,6 +319,26 @@ export function Projects() {
         @keyframes vc-project-card-shimmer {
           from { transform: rotate(18deg) translateX(-260%); }
           to   { transform: rotate(18deg) translateX(520%); }
+        }
+        @keyframes pc-swipe-in-left {
+          from {
+            transform: translateX(52px) scale(0.98);
+            opacity: 0.55;
+          }
+          to {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+          }
+        }
+        @keyframes pc-swipe-in-right {
+          from {
+            transform: translateX(-52px) scale(0.98);
+            opacity: 0.55;
+          }
+          to {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+          }
         }
         @media (max-width: 860px) {
           .projects-section {
