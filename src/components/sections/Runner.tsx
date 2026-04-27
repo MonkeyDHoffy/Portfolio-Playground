@@ -8,26 +8,41 @@ const LILAC  = '#B8A4FF';
 const LINE   = 'rgba(255,255,255,0.12)';
 const DIM    = 'rgba(255,255,255,0.55)';
 
-type Obstacle = { id: number; x: number; h: number; passed?: boolean; hit?: boolean };
-type Coin     = { id: number; x: number; y: number; taken?: boolean };
+type Pipe = { id: number; x: number; gapY: number; gapH: number; passed?: boolean };
+type PointPickup = { id: number; x: number; y: number };
 type Particle = { id: number; x: number; y: number; vx: number; vy: number; life: number; color: string };
 type Cloud    = { x: number; y: number; w: number; speed: number };
 type Hill     = { x: number; w: number; h: number };
 
-const BEST_KEY = 'jh.runner.best';
+const WORLD_W = 960;
+const WORLD_H = 200;
+const PIPE_W = 30;
+const BIRD_X = 140;
+const BIRD_SIZE = 30;
+const BIRD_HALF = BIRD_SIZE / 2;
+const BIRD_IMG = '/assets/aboutme/avatar.png';
+const PICKUP_SIZE = 18;
+const PICKUP_HALF = PICKUP_SIZE / 2;
+const PICKUP_BONUS = 1;
+const TOTAL_POINTS_KEY = 'portfolio.runner.totalPointsEarned';
+const DISTANCE_HIGHSCORE_KEY = 'portfolio.runner.distanceHighscore';
 
 export function Runner() {
   const { t } = useLang();
   const [score, setScore] = useState(0);
-  const [best, setBest] = useState(() => {
+  const [totalPointsEarned, setTotalPointsEarned] = useState(() => {
     if (typeof window === 'undefined') return 0;
-    return parseInt(window.localStorage.getItem(BEST_KEY) || '0', 10) || 0;
+    return parseInt(window.localStorage.getItem(TOTAL_POINTS_KEY) || '0', 10) || 0;
   });
-  const [running, setRunning] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [y, setY] = useState(0);
-  const [obstacles, setObstacles] = useState<Obstacle[]>([]);
-  const [coins, setCoins] = useState<Coin[]>([]);
+  const [distanceHighscore, setDistanceHighscore] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    return parseInt(window.localStorage.getItem(DISTANCE_HIGHSCORE_KEY) || '0', 10) || 0;
+  });
+  const [status, setStatus] = useState<'ready' | 'running' | 'gameover'>('ready');
+  const [birdY, setBirdY] = useState(WORLD_H * 0.5);
+  const [pipes, setPipes] = useState<Pipe[]>([]);
+  const [pickups, setPickups] = useState<PointPickup[]>([]);
+  const [pointsCaught, setPointsCaught] = useState(0);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [clouds, setClouds] = useState<Cloud[]>([
     { x: 120, y: 28, w: 60, speed: 14 },
@@ -41,74 +56,109 @@ export function Runner() {
   ]);
 
   const vyRef = useRef(0);
+  const birdYRef = useRef(WORLD_H * 0.5);
   const lastRef = useRef(0);
   const runningRef = useRef(false);
-  const canJumpRef = useRef(true);
+  const statusRef = useRef<'ready' | 'running' | 'gameover'>('ready');
   const scoreRef = useRef(0);
-  const yRef = useRef(0);
+  const pointsCaughtRef = useRef(0);
+  const distRef = useRef(0);
+  const speedRef = useRef(170);
+  const sessionCommittedRef = useRef(false);
 
-  runningRef.current = running;
+  const makePickupForPipe = useCallback((pipe: Pipe): PointPickup => ({
+    id: Math.random(),
+    x: pipe.x + PIPE_W * 0.5,
+    y: pipe.gapY + pipe.gapH * 0.5,
+  }), []);
+
+  runningRef.current = status === 'running';
+  statusRef.current = status;
   scoreRef.current = score;
-  yRef.current = y;
+  pointsCaughtRef.current = pointsCaught;
+  birdYRef.current = birdY;
 
-  const jump = useCallback(() => {
+  const flap = useCallback(() => {
     if (!runningRef.current) return;
-    if (!canJumpRef.current) return;
-    vyRef.current = 720;
-    canJumpRef.current = false;
-    // burst particles on jump
+    vyRef.current = -320;
     setParticles((ps) => [
       ...ps,
-      ...Array.from({ length: 8 }, (_, i) => ({
+      ...Array.from({ length: 7 }, (_, i) => ({
         id: Math.random() + i,
-        x: 58,
-        y: 16,
-        vx: (Math.random() - 0.5) * 140,
-        vy: Math.random() * 120,
+        x: BIRD_X - 8,
+        y: birdYRef.current,
+        vx: -80 - Math.random() * 120,
+        vy: (Math.random() - 0.5) * 120,
         life: 0.5,
         color: [TEAL, PEACH, YELLOW][i % 3],
       })),
     ]);
   }, []);
 
+  const seedPipes = () => {
+    const firstGapH = 126;
+    const firstGapY = 8 + Math.random() * (WORLD_H - 16 - firstGapH);
+    return [{ id: Math.random(), x: 650, gapY: firstGapY, gapH: firstGapH }];
+  };
+
   const start = useCallback(() => {
     setScore(0);
-    setY(0);
+    setPointsCaught(0);
+    distRef.current = 0;
+    speedRef.current = 118;
+    sessionCommittedRef.current = false;
+    setBirdY(WORLD_H * 0.5);
     vyRef.current = 0;
-    canJumpRef.current = true;
-    setObstacles([{ id: 1, x: 700, h: 20 }]);
-    setCoins([{ id: 10, x: 1000, y: 50 }]);
+    const initialPipes = seedPipes();
+    setPipes(initialPipes);
+    setPickups(initialPipes.map(makePickupForPipe));
     setParticles([]);
-    setGameOver(false);
-    setRunning(true);
-  }, []);
+    setStatus('running');
+  }, [makePickupForPipe]);
 
   const endGame = useCallback(() => {
-    setRunning(false);
-    setGameOver(true);
-    setBest((b) => {
-      const nb = Math.max(b, scoreRef.current);
-      if (typeof window !== 'undefined') window.localStorage.setItem(BEST_KEY, String(nb));
-      return nb;
-    });
+    setStatus('gameover');
   }, []);
 
-  // Keyboard: Space / Up / W
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
-        if (!runningRef.current && !gameOver) { start(); e.preventDefault(); return; }
-        if (runningRef.current) { jump(); e.preventDefault(); }
+      if (e.code !== 'Space') return;
+      if (statusRef.current === 'ready' || statusRef.current === 'gameover') {
+        start();
+        e.preventDefault();
+        return;
       }
-      if (e.code === 'Enter' && gameOver) { start(); e.preventDefault(); }
+      flap();
+      e.preventDefault();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [jump, start, gameOver]);
+  }, [flap, start]);
 
-  // Main loop
   useEffect(() => {
-    if (!running) return;
+    if (status !== 'gameover' || sessionCommittedRef.current) return;
+    sessionCommittedRef.current = true;
+    const sessionDistance = Math.floor(distRef.current / 10);
+
+    setTotalPointsEarned((prev) => {
+      const next = prev + pointsCaughtRef.current;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(TOTAL_POINTS_KEY, String(next));
+      }
+      return next;
+    });
+
+    setDistanceHighscore((prev) => {
+      const next = Math.max(prev, sessionDistance);
+      if (next > prev && typeof window !== 'undefined') {
+        window.localStorage.setItem(DISTANCE_HIGHSCORE_KEY, String(next));
+      }
+      return next;
+    });
+  }, [status]);
+
+  useEffect(() => {
+    if (status !== 'running') return;
     let raf = 0;
     lastRef.current = 0;
     const loop = (tm: number) => {
@@ -116,136 +166,194 @@ export function Runner() {
       const dt = Math.min((tm - lastRef.current) / 1000, 0.032);
       lastRef.current = tm;
 
-      // gravity
-      vyRef.current -= 1800 * dt;
-      setY((py) => {
+      vyRef.current += 1250 * dt;
+      setBirdY((py) => {
         let ny = py + vyRef.current * dt;
-        if (ny <= 0) {
-          ny = 0;
-          vyRef.current = 0;
-          canJumpRef.current = true;
+        if (ny < BIRD_HALF) {
+          ny = BIRD_HALF;
+          if (vyRef.current < 0) vyRef.current = 0;
         }
-        if (ny >= 95) ny = 95;
+        if (ny > WORLD_H - BIRD_HALF) {
+          ny = WORLD_H - BIRD_HALF;
+          if (vyRef.current > 0) vyRef.current = 0;
+        }
+        birdYRef.current = ny;
         return ny;
       });
 
-      const speed = 200 + scoreRef.current * 12;
+      const speed = Math.min(185, speedRef.current + scoreRef.current * 0.14);
 
-      // clouds & hills (parallax)
       setClouds((cs) => cs.map((c) => {
         let nx = c.x - c.speed * dt;
-        if (nx < -c.w) nx = 960 + Math.random() * 200;
+        if (nx < -c.w) nx = WORLD_W + Math.random() * 220;
         return { ...c, x: nx };
       }));
       setHills((hs) => hs.map((h) => {
         let nx = h.x - (speed * 0.35) * dt;
-        if (nx + h.w < 0) nx = 960 + Math.random() * 200;
+        if (nx + h.w < 0) nx = WORLD_W + Math.random() * 260;
         return { ...h, x: nx };
       }));
 
-      // obstacles
-      setObstacles((obs) => {
-        let next = obs.map((o) => ({ ...o, x: o.x - speed * dt })).filter((o) => o.x > -30);
-        const tail = next[next.length - 1];
-        const spacing = 320 + Math.random() * 180;
-        if (!tail || tail.x < 700 - spacing) {
-          next.push({ id: Math.random(), x: 720, h: 20 + Math.random() * 16 });
+      setPipes((prev) => {
+        const moved = prev.map((p) => ({ ...p, x: p.x - speed * dt })).filter((p) => p.x + PIPE_W > -20);
+        const tail = moved[moved.length - 1];
+        const spacing = 290 + Math.random() * 130;
+        const spawned: Pipe[] = [];
+        if (!tail || tail.x < WORLD_W - spacing) {
+          const progress = Math.min(1, scoreRef.current / 220);
+          const gapH = 124 - progress * 8;
+          const gapY = 8 + Math.random() * (WORLD_H - 16 - gapH);
+          const pipe = { id: Math.random(), x: WORLD_W + 24, gapY, gapH };
+          moved.push(pipe);
+          spawned.push(pipe);
         }
-        return next;
+
+        if (spawned.length > 0) {
+          setPickups((prevPickups) => [
+            ...prevPickups.filter((pickup) => pickup.x + PICKUP_HALF > -16),
+            ...spawned.map(makePickupForPipe),
+          ]);
+        } else {
+          setPickups((prevPickups) => prevPickups
+            .map((pickup) => ({ ...pickup, x: pickup.x - speed * dt }))
+            .filter((pickup) => pickup.x + PICKUP_HALF > -16)
+          );
+        }
+        return moved;
       });
 
-      // coins
-      setCoins((cs) => {
-        let next = cs.map((c) => ({ ...c, x: c.x - speed * dt })).filter((c) => c.x > -20);
-        const tail = next[next.length - 1];
-        if (!tail || tail.x < 700 - 280 - Math.random() * 200) {
-          next.push({ id: Math.random(), x: 750, y: 40 + Math.random() * 50 });
-        }
-        return next;
-      });
-
-      // particles
       setParticles((ps) =>
         ps
           .map((p) => ({
             ...p,
             x: p.x + p.vx * dt,
             y: p.y + p.vy * dt,
-            vy: p.vy - 400 * dt,
+            vy: p.vy + 260 * dt,
             life: p.life - dt,
           }))
           .filter((p) => p.life > 0)
       );
 
+      distRef.current += speed * dt;
+          setScore(Math.floor(distRef.current / 10));
+
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [running]);
+  }, [status]);
 
-  // Collision + scoring
   useEffect(() => {
-    if (!running) return;
-    const playerLeft = 50, playerRight = 64, playerBottom = 10 + y, playerTop = 26 + y;
-    // obstacles
-    let pointsThisFrame = 0;
-    let hit = false;
-    setObstacles((obs) => obs.map((o) => {
-      if (!o.passed && o.x + 10 < 50) { pointsThisFrame += 1; return { ...o, passed: true }; }
-      const overlapX = playerRight > o.x && playerLeft < o.x + 10;
-      const overlapY = playerBottom < (10 + o.h) && playerTop > 10;
-      if (!o.hit && overlapX && overlapY) { hit = true; return { ...o, hit: true }; }
-      return o;
-    }));
-    // coins
-    setCoins((cs) => cs.map((c) => {
-      if (c.taken) return c;
-      const overlapX = playerRight > c.x && playerLeft < c.x + 16;
-      const overlapY = playerTop > c.y && playerBottom < c.y + 16;
-      if (overlapX && overlapY) {
-        pointsThisFrame += 3;
-        setParticles((ps) => [
-          ...ps,
-          ...Array.from({ length: 10 }, (_, i) => ({
-            id: Math.random() + i,
-            x: c.x + 8,
-            y: c.y + 8,
-            vx: (Math.random() - 0.5) * 180,
-            vy: (Math.random() - 0.3) * 160,
-            life: 0.6,
-            color: YELLOW,
-          })),
-        ]);
-        return { ...c, taken: true, x: -999 };
-      }
-      return c;
-    }));
-    if (pointsThisFrame > 0) setScore((s) => s + pointsThisFrame);
-    if (hit) endGame();
-  }, [y, obstacles.map((o) => Math.round(o.x)).join(','), coins.map((c) => Math.round(c.x)).join(','), running, endGame]);
+    if (status !== 'running') return;
 
-  const handleClick = () => {
-    if (!running && !gameOver) { start(); return; }
-    if (gameOver) { start(); return; }
-    jump();
+    const birdLeft = BIRD_X - BIRD_HALF;
+    const birdRight = BIRD_X + BIRD_HALF;
+    const birdTop = birdY - BIRD_HALF;
+    const birdBottom = birdY + BIRD_HALF;
+
+    let collided = false;
+    let passBurst = 0;
+
+    for (const p of pipes) {
+      if (!p.passed && p.x + PIPE_W < BIRD_X - BIRD_HALF) {
+        passBurst += 1;
+      }
+
+      const overlapX = birdRight >= p.x && birdLeft <= p.x + PIPE_W;
+      if (!overlapX) continue;
+
+      const gapTop = p.gapY;
+      const gapBottom = p.gapY + p.gapH;
+      if (birdTop <= gapTop || birdBottom >= gapBottom) {
+        collided = true;
+        break;
+      }
+    }
+
+    if (passBurst > 0) {
+      setPipes((prev) => prev.map((p) =>
+        !p.passed && p.x + PIPE_W < BIRD_X - BIRD_HALF ? { ...p, passed: true } : p
+      ));
+    }
+
+    if (passBurst > 0) {
+      setParticles((ps) => [
+        ...ps,
+        ...Array.from({ length: passBurst * 7 }, (_, i) => ({
+          id: Math.random() + i,
+          x: BIRD_X,
+          y: birdY,
+          vx: (Math.random() - 0.5) * 200,
+          vy: (Math.random() - 0.5) * 200,
+          life: 0.35 + Math.random() * 0.25,
+          color: [TEAL, PEACH, YELLOW, LILAC][i % 4],
+        })),
+      ]);
+    }
+
+    const collected = pickups.filter((pickup) => {
+      const overlapX = birdRight >= pickup.x - PICKUP_HALF && birdLeft <= pickup.x + PICKUP_HALF;
+      const overlapY = birdBottom >= pickup.y - PICKUP_HALF && birdTop <= pickup.y + PICKUP_HALF;
+      return overlapX && overlapY;
+    });
+
+    if (collected.length > 0) {
+      setPickups((prev) => prev.filter((pickup) => !collected.some((c) => c.id === pickup.id)));
+      const collectedPoints = collected.length * PICKUP_BONUS;
+      setPointsCaught((n) => n + collectedPoints);
+      setParticles((ps) => [
+        ...ps,
+        ...collected.flatMap((pickup, pickupIndex) =>
+          Array.from({ length: 10 }, (_, i) => ({
+            id: Math.random() + pickupIndex + i,
+            x: pickup.x,
+            y: pickup.y,
+            vx: (Math.random() - 0.5) * 220,
+            vy: (Math.random() - 0.5) * 220,
+            life: 0.4 + Math.random() * 0.2,
+            color: [YELLOW, PEACH, TEAL][i % 3],
+          }))
+        ),
+      ]);
+    }
+
+    if (collided) endGame();
+  }, [
+    birdY,
+    pipes.map((p) => `${Math.round(p.x)}:${Math.round(p.gapY)}`).join(','),
+    pickups.map((pickup) => `${Math.round(pickup.x)}:${Math.round(pickup.y)}`).join(','),
+    status,
+    endGame,
+  ]);
+
+  const handlePress = () => {
+    if (status === 'ready' || status === 'gameover') {
+      start();
+      return;
+    }
+    flap();
   };
 
-  const groundY = 16; // px from bottom
   const skyGradient = `linear-gradient(180deg,
     rgba(61,207,182,0.10) 0%,
     rgba(184,164,255,0.10) 45%,
     rgba(255,178,122,0.10) 100%)`;
+  const liveTotalPoints = totalPointsEarned + (sessionCommittedRef.current ? 0 : pointsCaught);
+  const liveDistanceHighscore = Math.max(distanceHighscore, score);
 
   return (
     <section style={{ padding: '40px 40px 80px', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <div style={{ fontSize: 13, color: DIM, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ width: 24, height: 1, background: TEAL }} />
-          {t('runner.hint')}
+          <span>{t('runner.distanceHighscore')}</span>
+          <span style={{ color: TEAL, fontFamily: 'var(--ff-mono)', fontWeight: 700 }}>{liveDistanceHighscore}</span>
+          <span>{t('runner.totalPointsEarned')}</span>
+          <span style={{ color: YELLOW, fontFamily: 'var(--ff-mono)', fontWeight: 700 }}>{liveTotalPoints}</span>
         </div>
 
         <div
-          onClick={handleClick}
+          onPointerDown={handlePress}
           role="button"
           tabIndex={0}
           style={{
@@ -253,20 +361,19 @@ export function Runner() {
             background: skyGradient,
             border: `1px solid ${LINE}`, overflow: 'hidden', cursor: 'pointer',
             userSelect: 'none',
+            touchAction: 'manipulation',
           }}
         >
-          {/* Stars */}
           {Array.from({ length: 18 }).map((_, i) => (
             <div key={`s${i}`} aria-hidden style={{
               position: 'absolute',
               top: 10 + (i * 37) % 90,
-              left: (i * 53) % 960,
+              left: (i * 53) % WORLD_W,
               width: 2, height: 2, borderRadius: '50%', background: 'rgba(255,255,255,0.3)',
               opacity: 0.5 + ((i * 7) % 5) / 10,
             }} />
           ))}
 
-          {/* Clouds */}
           {clouds.map((c, i) => (
             <div key={`c${i}`} aria-hidden style={{
               position: 'absolute',
@@ -279,11 +386,10 @@ export function Runner() {
             }} />
           ))}
 
-          {/* Hills (parallax) */}
           {hills.map((h, i) => (
             <div key={`h${i}`} aria-hidden style={{
               position: 'absolute',
-              bottom: groundY,
+              bottom: 0,
               left: h.x,
               width: h.w, height: h.h,
               background: `linear-gradient(180deg, ${LILAC}22, ${LILAC}08)`,
@@ -292,90 +398,121 @@ export function Runner() {
             }} />
           ))}
 
-          {/* HUD */}
           <div style={{
             position: 'absolute', top: 16, left: 20, display: 'flex', gap: 18,
             fontFamily: 'var(--ff-mono)', fontSize: 11,
           }}>
             <div style={{ color: DIM }}>
-              {t('runner.score')}: <span style={{ color: TEAL, fontSize: 18, fontWeight: 700 }}>{String(score).padStart(3, '0')}</span>
+              {t('runner.distance')}: <span style={{ color: TEAL, fontSize: 18, fontWeight: 700 }}>{String(score).padStart(3, '0')}m</span>
             </div>
             <div style={{ color: DIM }}>
-              {t('runner.best')}: <span style={{ color: YELLOW, fontSize: 14, fontWeight: 700 }}>{String(best).padStart(3, '0')}</span>
+              {t('runner.points')}: <span style={{ color: YELLOW, fontSize: 14, fontWeight: 700 }}>{pointsCaught}</span>
             </div>
           </div>
 
-          {/* Ground line */}
           <div style={{
-            position: 'absolute', bottom: groundY, left: 0, right: 0, height: 1,
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: 2,
             background: TEAL, opacity: 0.5,
             boxShadow: `0 0 8px ${TEAL}77`,
           }} />
-          <div style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, height: groundY,
-            background: 'linear-gradient(180deg, rgba(61,207,182,0.06), transparent)',
-          }} />
 
-          {/* Player */}
           <div style={{
-            position: 'absolute', bottom: groundY + y, left: 50,
-            width: 14, height: 16, borderRadius: 4,
-            background: TEAL,
-            boxShadow: `0 0 20px ${TEAL}, 0 0 4px ${TEAL}`,
-            transform: `rotate(${Math.min(30, vyRef.current * 0.02)}deg)`,
+            position: 'absolute',
+            top: birdY - BIRD_HALF,
+            left: BIRD_X - BIRD_HALF,
+            width: BIRD_SIZE,
+            height: BIRD_SIZE,
+            borderRadius: '50%',
+            background: `url(${BIRD_IMG}) center/cover no-repeat, ${TEAL}`,
+            border: `2px solid ${TEAL}`,
+            boxShadow: `0 0 16px ${TEAL}AA, 0 0 3px #000`,
+            transform: `rotate(${Math.max(-28, Math.min(32, vyRef.current * 0.05))}deg)`,
             transition: 'transform 80ms ease',
           }}>
-            {/* trail */}
             <div style={{
-              position: 'absolute', left: -6, top: 4, width: 6, height: 8,
+              position: 'absolute', left: -9, top: 10, width: 8, height: 8,
               background: `linear-gradient(90deg, transparent, ${TEAL}88)`,
-              borderRadius: 4,
+              borderRadius: '50%',
             }} />
           </div>
 
-          {/* Obstacles */}
-          {obstacles.map((o) => (
-            <div key={o.id} style={{
-              position: 'absolute', bottom: groundY, left: o.x,
-              width: 10, height: o.h, background: PEACH, borderRadius: 2,
-              boxShadow: `0 0 12px ${PEACH}80`,
+          {pipes.map((p) => (
+            <div key={`top-${p.id}`} style={{
+              position: 'absolute',
+              top: 0,
+              left: p.x,
+              width: PIPE_W,
+              height: p.gapY,
+              background: `linear-gradient(180deg, ${PEACH}EE, ${YELLOW}AA)`,
+              border: `1px solid ${PEACH}AA`,
+              borderTopLeftRadius: 0,
+              borderTopRightRadius: 0,
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
+              boxShadow: `0 0 18px ${PEACH}66`,
             }}>
               <div style={{
-                position: 'absolute', top: -2, left: 0, right: 0, height: 3,
-                background: '#000', borderRadius: 2, opacity: 0.25,
+                position: 'absolute', bottom: -5, left: -3, right: -3, height: 8,
+                borderRadius: 8,
+                background: `linear-gradient(180deg, ${YELLOW}CC, ${PEACH}CC)`,
               }} />
             </div>
           ))}
 
-          {/* Coins */}
-          {coins.map((c) => !c.taken && (
-            <div key={c.id} style={{
-              position: 'absolute', bottom: groundY + c.y, left: c.x,
-              width: 16, height: 16, borderRadius: '50%',
-              background: YELLOW,
-              border: '2px solid #000',
-              boxShadow: `0 0 18px ${YELLOW}99`,
-              animation: 'vc-spin 1.2s linear infinite',
+          {pipes.map((p) => (
+            <div key={`bottom-${p.id}`} style={{
+              position: 'absolute',
+              top: p.gapY + p.gapH,
+              left: p.x,
+              width: PIPE_W,
+              bottom: 0,
+              background: `linear-gradient(180deg, ${PEACH}EE, ${YELLOW}AA)`,
+              border: `1px solid ${PEACH}AA`,
+              borderTopLeftRadius: 10,
+              borderTopRightRadius: 10,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+              boxShadow: `0 0 18px ${PEACH}66`,
             }}>
               <div style={{
-                position: 'absolute', inset: 3, borderRadius: '50%',
-                background: '#000', opacity: 0.2,
+                position: 'absolute', top: -5, left: -3, right: -3, height: 8,
+                borderRadius: 8,
+                background: `linear-gradient(180deg, ${YELLOW}CC, ${PEACH}CC)`,
               }} />
             </div>
           ))}
 
-          {/* Particles */}
+          {pickups.map((pickup) => (
+            <div key={pickup.id} style={{
+              position: 'absolute',
+              top: pickup.y - PICKUP_HALF,
+              left: pickup.x - PICKUP_HALF,
+              width: PICKUP_SIZE,
+              height: PICKUP_SIZE,
+              borderRadius: '50%',
+              background: `radial-gradient(circle at 30% 30%, #fff7b8, ${YELLOW} 45%, ${PEACH})`,
+              border: '1px solid rgba(0,0,0,0.55)',
+              boxShadow: `0 0 14px ${YELLOW}99`,
+            }}>
+              <div style={{
+                position: 'absolute',
+                inset: 4,
+                borderRadius: '50%',
+                border: '1px solid rgba(0,0,0,0.28)',
+              }} />
+            </div>
+          ))}
+
           {particles.map((p) => (
             <div key={p.id} style={{
-              position: 'absolute', bottom: groundY + p.y, left: p.x,
+              position: 'absolute', top: p.y, left: p.x,
               width: 4, height: 4, borderRadius: '50%', background: p.color,
               opacity: Math.min(1, p.life * 2),
               pointerEvents: 'none',
             }} />
           ))}
 
-          {/* Ready overlay */}
-          {!running && !gameOver && (
+          {status === 'ready' && (
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
@@ -393,8 +530,7 @@ export function Runner() {
             </div>
           )}
 
-          {/* Game over overlay */}
-          {gameOver && (
+          {status === 'gameover' && (
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
@@ -405,9 +541,9 @@ export function Runner() {
                   fontFamily: 'var(--ff-mono)', fontSize: 13, color: PEACH, letterSpacing: '0.25em',
                   marginBottom: 8, animation: 'vc-blink 1s infinite',
                 }}>{t('runner.gameOver')}</div>
-                <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>{score}</div>
+                <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>{score}m</div>
                 <div style={{ fontSize: 12, color: DIM, marginBottom: 12 }}>
-                  {t('runner.best')}: {best}
+                  SPACE · CLICK · TAP
                 </div>
                 <div style={{
                   display: 'inline-block',

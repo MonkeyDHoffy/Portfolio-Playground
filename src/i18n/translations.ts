@@ -72,8 +72,8 @@ export const translations = {
   projects: {
     label: { de: 'Portfolio', en: 'Portfolio' },
     index: { de: '03', en: '03' },
-    titleA: { de: 'Sachen die ich', en: "Things I've" },
-    titleB: { de: 'gebaut habe', en: 'built' },
+    titleA: { de: 'Meine', en: 'My' },
+    titleB: { de: 'Projekte', en: 'projects' },
     intro: {
       de: 'Hier findest du eine Auswahl meiner Arbeiten – interagiere mit den Projekten, um meine Skills im Einsatz zu sehen.',
       en: 'Explore a selection of my work — interact with projects to see my skills in action.',
@@ -96,7 +96,11 @@ export const translations = {
   },
 
   runner: {
-    hint:     { de: 'Pause zum Spielen — Space oder Klick zum Springen', en: 'Pause to play — Space or click to jump' },
+    hint:     { de: 'Pause zum Spielen — Space, Klick oder Tap zum Flattern', en: 'Pause to play — Space, click, or tap to flap' },
+    totalPointsEarned: { de: 'total points earned:', en: 'total points earned:' },
+    distanceHighscore: { de: 'distance highscore:', en: 'distance highscore:' },
+    distance: { de: 'DISTANZ', en: 'DISTANCE' },
+    points:   { de: 'POINTS', en: 'POINTS' },
     score:    { de: 'SCORE', en: 'SCORE' },
     best:     { de: 'BEST',  en: 'BEST' },
     restart:  { de: 'Noch mal?', en: 'Try again?' },

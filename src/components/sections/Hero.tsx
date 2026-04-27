@@ -49,6 +49,9 @@ export function Hero() {
   const ctaRef = useRef<HTMLDivElement>(null);
   const mouse = useMousePos(ref);
   const ctasInView = useInViewOnce(ctaRef, { rootMargin: '-20% 0px -20% 0px', threshold: 0.2 });
+  const blurb = t('hero.blurb');
+  const heroName = 'Jannik Hoff';
+  const hasLeadingName = blurb.startsWith(heroName);
 
   return (
     <section
@@ -118,7 +121,16 @@ export function Hero() {
           fontSize: 20, maxWidth: 640, margin: '0 auto 40px',
           color: 'rgba(255,255,255,0.7)', lineHeight: 1.55,
         }}>
-          {t('hero.blurb')}
+          {hasLeadingName ? (
+            <>
+              <span style={{
+                color: '#fff',
+                fontWeight: 800,
+                textShadow: `0 0 22px ${TEAL}33`,
+              }}>{heroName}</span>
+              {blurb.slice(heroName.length)}
+            </>
+          ) : blurb}
         </p>
 
         <div ref={ctaRef} style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>

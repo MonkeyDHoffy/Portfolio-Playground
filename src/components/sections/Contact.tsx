@@ -4,6 +4,7 @@ import { SectionLabel } from '../ui/SectionLabel';
 
 const TEAL  = '#3DCFB6';
 const PEACH = '#FFB27A';
+const LILAC = '#B8A4FF';
 const LINE  = 'rgba(255,255,255,0.12)';
 const DIM   = 'rgba(255,255,255,0.6)';
 
@@ -97,7 +98,9 @@ export function Contact() {
             }}>
               {t('contact.titleA')}{' '}
               <em style={{
-                fontStyle: 'italic', fontWeight: 400, color: TEAL,
+                fontStyle: 'italic', fontWeight: 400,
+                background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               }}>{t('contact.titleB')}</em>.
             </h2>
             <p style={{ fontSize: 19, lineHeight: 1.55, color: 'rgba(255,255,255,0.85)', margin: '0 0 32px' }}>
