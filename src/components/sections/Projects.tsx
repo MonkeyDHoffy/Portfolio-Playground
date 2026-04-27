@@ -23,7 +23,7 @@ export function Projects() {
   });
 
   return (
-    <section id="projects" style={{ padding: '120px 40px', position: 'relative', zIndex: 1 }}>
+    <section id="projects" style={{ padding: 'clamp(48px, 8vw, 64px) 40px', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1240, margin: '0 auto' }}>
         <SectionLabel n={t('projects.index')} text={t('projects.label')} />
         <h2 style={{

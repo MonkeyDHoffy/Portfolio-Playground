@@ -9,7 +9,7 @@ const LILAC = '#B8A4FF';
 export function Skills() {
   const { t, lang } = useLang();
   return (
-    <section id="skills" style={{ padding: '120px 40px', position: 'relative', zIndex: 1 }}>
+    <section id="skills" style={{ padding: 'clamp(48px, 8vw, 64px) 40px', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <SectionLabel n={t('skills.index')} text={t('skills.label')} />
         <h2 style={{

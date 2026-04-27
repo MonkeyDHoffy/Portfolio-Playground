@@ -1,14 +1,145 @@
+import { useEffect, useRef, useState } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { voices } from '../../data/voices';
 import { SectionLabel } from '../ui/SectionLabel';
 
 const LINE = 'rgba(255,255,255,0.12)';
+const AUTOPLAY_SPEED = 42;
+const DRAG_THRESHOLD_PX = 10;
+const INERTIA_FALLOFF = 3.2;
+const SWIPE_DIRECTION_MIN_VELOCITY = 40;
 
 export function Voices() {
   const { t, lang } = useLang();
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const lastFrameRef = useRef(0);
+  const offsetRef = useRef(0);
+  const pointerIdRef = useRef<number | null>(null);
+  const dragStartXRef = useRef(0);
+  const dragStartOffsetRef = useRef(0);
+  const lastPointerXRef = useRef(0);
+  const lastPointerTimeRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const didDragRef = useRef(false);
+  const inertiaVelocityRef = useRef(0);
+  const autoplaySpeedRef = useRef(AUTOPLAY_SPEED);
+  const suppressClickUntilRef = useRef(0);
+  const [isDragging, setIsDragging] = useState(false);
   const marqueeVoices = [...voices, ...voices];
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    let raf = 0;
+
+    const loop = (time: number) => {
+      if (!lastFrameRef.current) lastFrameRef.current = time;
+      const dt = Math.min((time - lastFrameRef.current) / 1000, 0.032);
+      lastFrameRef.current = time;
+
+      const loopWidth = track.scrollWidth / 2;
+      if (loopWidth > 0 && !isDraggingRef.current) {
+        offsetRef.current += (autoplaySpeedRef.current + inertiaVelocityRef.current) * dt;
+        inertiaVelocityRef.current *= Math.exp(-INERTIA_FALLOFF * dt);
+        if (Math.abs(inertiaVelocityRef.current) < 4) inertiaVelocityRef.current = 0;
+      }
+
+      if (loopWidth > 0) {
+        if (offsetRef.current >= loopWidth) offsetRef.current -= loopWidth;
+        if (offsetRef.current < 0) offsetRef.current += loopWidth;
+      }
+
+      track.style.transform = `translateX(${-offsetRef.current}px)`;
+      raf = requestAnimationFrame(loop);
+    };
+
+    raf = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(raf);
+      lastFrameRef.current = 0;
+    };
+  }, []);
+
+  const startDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    pointerIdRef.current = e.pointerId;
+    isDraggingRef.current = true;
+    setIsDragging(true);
+    didDragRef.current = false;
+    inertiaVelocityRef.current = 0;
+    dragStartXRef.current = e.clientX;
+    dragStartOffsetRef.current = offsetRef.current;
+    lastPointerXRef.current = e.clientX;
+    lastPointerTimeRef.current = e.timeStamp;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const moveDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || pointerIdRef.current !== e.pointerId) return;
+
+    const dx = e.clientX - dragStartXRef.current;
+    if (!didDragRef.current && Math.abs(dx) >= DRAG_THRESHOLD_PX) {
+      didDragRef.current = true;
+    }
+
+    if (didDragRef.current) {
+      offsetRef.current = dragStartOffsetRef.current - dx;
+      const dt = (e.timeStamp - lastPointerTimeRef.current) / 1000;
+      if (dt > 0) {
+        const pointerDx = e.clientX - lastPointerXRef.current;
+        const sampleVelocity = -(pointerDx / dt);
+        inertiaVelocityRef.current = inertiaVelocityRef.current * 0.35 + sampleVelocity * 0.65;
+      }
+    }
+
+    lastPointerXRef.current = e.clientX;
+    lastPointerTimeRef.current = e.timeStamp;
+  };
+
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (pointerIdRef.current !== e.pointerId) return;
+
+    isDraggingRef.current = false;
+    setIsDragging(false);
+    if (didDragRef.current) {
+      const totalDx = lastPointerXRef.current - dragStartXRef.current;
+      const velocity = inertiaVelocityRef.current;
+      let direction = 0;
+
+      if (Math.abs(velocity) >= SWIPE_DIRECTION_MIN_VELOCITY) {
+        direction = Math.sign(velocity);
+      } else if (Math.abs(totalDx) >= DRAG_THRESHOLD_PX) {
+        direction = -Math.sign(totalDx);
+      }
+
+      if (direction !== 0) {
+        autoplaySpeedRef.current = direction * Math.abs(AUTOPLAY_SPEED);
+      }
+
+      suppressClickUntilRef.current = Date.now() + 260;
+    } else {
+      inertiaVelocityRef.current = 0;
+    }
+
+    pointerIdRef.current = null;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore release errors from edge cases
+    }
+  };
+
+  const cancelDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (pointerIdRef.current !== e.pointerId) return;
+    isDraggingRef.current = false;
+    setIsDragging(false);
+    pointerIdRef.current = null;
+    inertiaVelocityRef.current = 0;
+  };
+
   return (
-    <section style={{ padding: '120px 40px', position: 'relative', zIndex: 1 }}>
+    <section className="voices-section" style={{ padding: '40px 40px', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <SectionLabel n={t('voices.index')} text={t('voices.label')} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, color: 'rgba(255,255,255,0.5)' }}>
@@ -33,8 +164,18 @@ export function Voices() {
           </span>
         </div>
 
-        <div className="voices-marquee-viewport" style={{ marginTop: 40 }}>
-          <div className="voices-marquee-track">
+        <div
+          className={`voices-marquee-viewport${isDragging ? ' is-dragging' : ''}`}
+          style={{ marginTop: 40 }}
+          onPointerDown={startDrag}
+          onPointerMove={moveDrag}
+          onPointerUp={endDrag}
+          onPointerCancel={cancelDrag}
+        >
+          <div
+            ref={trackRef}
+            className="voices-marquee-track"
+          >
             {marqueeVoices.map((v, i) => (
               <article
                 key={`${v.id}-${i}`}
@@ -55,6 +196,7 @@ export function Voices() {
                 }}
                 onClick={() => {
                   if (!v.profileUrl) return;
+                  if (Date.now() < suppressClickUntilRef.current) return;
                   window.open(v.profileUrl, '_blank', 'noopener,noreferrer');
                 }}
               >
@@ -122,17 +264,18 @@ export function Voices() {
           transform: translateX(-50%);
           overflow: hidden;
           mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+          touch-action: pan-y;
+          cursor: grab;
+          user-select: none;
+        }
+        .voices-marquee-viewport.is-dragging {
+          cursor: grabbing;
         }
         .voices-marquee-track {
           display: flex;
           gap: 16px;
           width: max-content;
-          animation: vc-voices-marquee 72s linear infinite;
           will-change: transform;
-        }
-        .voices-marquee-viewport:hover .voices-marquee-track,
-        .voices-marquee-viewport:focus-within .voices-marquee-track {
-          animation-play-state: paused;
         }
         .voice-card:hover {
           background: rgba(255,255,255,0.06) !important;
@@ -145,23 +288,18 @@ export function Voices() {
         .voice-card:hover .voice-card-copy {
           transform: scale(1.04);
         }
-        @keyframes vc-voices-marquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(calc(-50% - 8px)); }
-        }
         @media (max-width: 860px) {
+          .voices-section {
+            padding: 28px 20px !important;
+          }
           .voices-marquee-track {
             gap: 12px;
-            animation-duration: 60s;
           }
           .voice-card {
             width: min(84vw, 460px) !important;
           }
         }
         @media (prefers-reduced-motion: reduce) {
-          .voices-marquee-track {
-            animation: none;
-          }
           .voice-card:hover {
             transform: none !important;
             box-shadow: none;
