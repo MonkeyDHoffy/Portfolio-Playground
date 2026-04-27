@@ -120,8 +120,8 @@ export const translations = {
     titleA: { de: "Lass uns", en: "Let's" },
     titleB: { de: 'zusammenarbeiten', en: 'work together' },
     blurb: {
-      de: 'Beschreibe kurz dein Projekt oder die Rolle. Ich bringe mich pragmatisch ein und liefere zuverlässig.',
-      en: 'Describe your project or the role. I contribute pragmatically and deliver reliably.',
+      de: 'Erzähl mir kurz von deinem Projekt, deinem Team oder der Rolle. Ich arbeite mich schnell in neue Themen ein, denke pragmatisch mit und freue mich darauf, mich in einem starken Team weiterzuentwickeln.',
+      en: 'Tell me a bit about your project, team, or role. I ramp up quickly in new areas, think pragmatically, and look forward to growing within a strong team.',
     },
     sayHello: { de: 'Sag Hallo →', en: 'Say Hello →' },
     form: {

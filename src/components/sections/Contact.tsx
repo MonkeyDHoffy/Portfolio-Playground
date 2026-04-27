@@ -186,17 +186,123 @@ export function Contact() {
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               }}>{t('contact.titleB')}</em>.
             </h2>
-            <p style={{ fontSize: 19, lineHeight: 1.55, color: 'rgba(255,255,255,0.85)', margin: '0 0 32px' }}>
+            <p style={{ fontSize: 19, lineHeight: 1.55, color: 'rgba(255,255,255,0.85)', margin: '0 0 16px' }}>
               {t('contact.blurb')}
             </p>
+            <div style={{ display: 'grid', gap: 10, margin: '0 0 32px' }}>
+              <a
+                href="mailto:hoffjannik95@gmail.com"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  width: 'fit-content',
+                  background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textDecoration: 'none',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1.4,
+                  paddingBottom: 3,
+                  borderBottom: '1px solid transparent',
+                  borderImage: `linear-gradient(90deg, ${TEAL}, ${LILAC}) 1`,
+                  textShadow: '0 0 18px rgba(61,207,182,0.12)',
+                  transition: 'filter 180ms ease, transform 180ms ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateX(2px)';
+                  e.currentTarget.style.filter = 'brightness(1.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateX(0)';
+                  e.currentTarget.style.filter = 'none';
+                }}
+              >
+                <span style={{ fontSize: 13, fontFamily: 'var(--ff-mono)', letterSpacing: '0.08em' }}>MAIL</span>
+                hoffjannik95@gmail.com
+              </a>
+              <a
+                href="https://www.linkedin.com/in/jannik-hoff/"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  width: 'fit-content',
+                  background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textDecoration: 'none',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1.4,
+                  paddingBottom: 3,
+                  borderBottom: '1px solid transparent',
+                  borderImage: `linear-gradient(90deg, ${TEAL}, ${LILAC}) 1`,
+                  textShadow: '0 0 18px rgba(61,207,182,0.12)',
+                  transition: 'filter 180ms ease, transform 180ms ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateX(2px)';
+                  e.currentTarget.style.filter = 'brightness(1.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateX(0)';
+                  e.currentTarget.style.filter = 'none';
+                }}
+              >
+                <span style={{ fontSize: 13, fontFamily: 'var(--ff-mono)', letterSpacing: '0.08em' }}>LINKEDIN</span>
+                linkedin.com/in/jannik-hoff
+              </a>
+              <a
+                href="https://github.com/MonkeyDHoffy"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  width: 'fit-content',
+                  background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textDecoration: 'none',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1.4,
+                  paddingBottom: 3,
+                  borderBottom: '1px solid transparent',
+                  borderImage: `linear-gradient(90deg, ${TEAL}, ${LILAC}) 1`,
+                  textShadow: '0 0 18px rgba(61,207,182,0.12)',
+                  transition: 'filter 180ms ease, transform 180ms ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateX(2px)';
+                  e.currentTarget.style.filter = 'brightness(1.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateX(0)';
+                  e.currentTarget.style.filter = 'none';
+                }}
+              >
+                <span style={{ fontSize: 13, fontFamily: 'var(--ff-mono)', letterSpacing: '0.08em' }}>GITHUB</span>
+                github.com/MonkeyDHoffy
+              </a>
+            </div>
           </div>
 
-          <form onSubmit={onSubmit} noValidate style={{
+          <form onSubmit={onSubmit} noValidate className="contact-form" style={{
             display: 'flex', flexDirection: 'column', gap: 18,
             padding: 28,
             background: 'rgba(255,255,255,0.03)',
             border: `1px solid ${LINE}`,
             borderRadius: 20,
+            alignSelf: 'stretch',
           }}>
             <input
               type="text" name="company" value={form.company} onChange={onChange}
@@ -223,6 +329,7 @@ export function Contact() {
               className="cta-fx cta-teal"
               style={{
                 alignSelf: 'flex-start',
+                marginTop: 'auto',
                 padding: '14px 28px',
                 background: TEAL, color: '#000',
                 borderRadius: 999, fontWeight: 700, fontSize: 15,
@@ -271,6 +378,17 @@ export function Contact() {
       )}
 
       <style>{`
+        @media (min-width: 861px) {
+          .contact-form {
+            min-height: 100%;
+          }
+
+          .contact-form textarea[name="message"] {
+            min-height: 220px !important;
+            flex: 1 1 auto;
+          }
+        }
+
         @media (max-width: 860px) {
           .contact-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
         }
