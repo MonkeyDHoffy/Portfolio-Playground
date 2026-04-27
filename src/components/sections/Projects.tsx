@@ -66,6 +66,7 @@ export function Projects() {
               return (
                 <div
                   key={p.key}
+                  className={`pc-card ${abs === 0 ? 'pc-card-active' : 'pc-card-side'}`}
                   style={{
                     position: 'absolute',
                     width: 360,
@@ -90,7 +91,7 @@ export function Projects() {
                     transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
                   }}>
                     {/* Front */}
-                    <div style={{
+                    <div className="pc-front" style={{
                       position: 'absolute', inset: 0, backfaceVisibility: 'hidden',
                       borderRadius: 20, overflow: 'hidden',
                       background: color,
@@ -193,8 +194,52 @@ export function Projects() {
         </div>
       </div>
       <style>{`
+        .pc-front::after {
+          content: '';
+          position: absolute;
+          top: -120%;
+          left: -42%;
+          width: 26%;
+          height: 340%;
+          background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.14) 45%, rgba(255,255,255,0.46) 50%, rgba(255,255,255,0.14) 55%, transparent 100%);
+          transform: rotate(18deg) translateX(-260%);
+          pointer-events: none;
+          z-index: 3;
+          opacity: 0;
+        }
+        .pc-card:hover {
+          animation: vc-project-card-wobble 480ms ease;
+        }
+        .pc-card:hover .pc-front::after {
+          opacity: 1;
+          animation: vc-project-card-shimmer 680ms ease;
+        }
+        .pc-card-side:hover {
+          filter: brightness(0.9) saturate(1) !important;
+        }
+        @keyframes vc-project-card-wobble {
+          0% { rotate: 0deg; }
+          24% { rotate: -1.1deg; }
+          48% { rotate: 0.9deg; }
+          72% { rotate: -0.45deg; }
+          100% { rotate: 0deg; }
+        }
+        @keyframes vc-project-card-shimmer {
+          from { transform: rotate(18deg) translateX(-260%); }
+          to   { transform: rotate(18deg) translateX(520%); }
+        }
         @media (max-width: 560px) {
           .pc-stage { height: 560px !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .pc-card:hover {
+            animation: none;
+          }
+          .pc-front::after,
+          .pc-card:hover .pc-front::after {
+            display: none;
+            animation: none;
+          }
         }
       `}</style>
     </section>
