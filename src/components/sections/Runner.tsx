@@ -350,7 +350,7 @@ export function Runner() {
   const readyAccentGradient = `linear-gradient(135deg, ${TEAL}, ${LILAC} 55%, ${PEACH})`;
 
   return (
-    <section style={{ padding: '40px 40px 80px', position: 'relative', zIndex: 1 }}>
+    <section className="runner-section" style={{ padding: '40px 40px 80px', position: 'relative', zIndex: 1 }}>
       <style>{`
         @keyframes runner-ready-bob {
           0%, 100% { transform: translateY(0) scale(1); }
@@ -378,9 +378,27 @@ export function Runner() {
           0%, 100% { transform: scale(0.92); opacity: 0.45; }
           50% { transform: scale(1.12); opacity: 1; }
         }
+
+        @media (max-width: 860px) {
+          .runner-section {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+          }
+          .runner-shell {
+            max-width: none !important;
+          }
+          .runner-meta {
+            padding: 0 12px;
+          }
+          .runner-arena {
+            border-left: 0 !important;
+            border-right: 0 !important;
+            border-radius: 0 !important;
+          }
+        }
       `}</style>
-      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
-        <div style={{ fontSize: 13, color: DIM, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="runner-shell" style={{ maxWidth: 1180, margin: '0 auto' }}>
+        <div className="runner-meta" style={{ fontSize: 13, color: DIM, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ width: 24, height: 1, background: TEAL }} />
           <span>{t('runner.distanceHighscore')}</span>
           <span style={{ color: TEAL, fontFamily: 'var(--ff-mono)', fontWeight: 700 }}>{liveDistanceHighscore}</span>
@@ -389,6 +407,7 @@ export function Runner() {
         </div>
 
         <div
+          className="runner-arena"
           onPointerDown={handlePress}
           role="button"
           tabIndex={0}

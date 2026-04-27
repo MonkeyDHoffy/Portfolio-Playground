@@ -168,7 +168,7 @@ export function Header() {
             <a href="#contact" className={`nav-link${activeNav === 'contact' ? ' nav-link-active' : ''}`} style={navLink} aria-current={activeNav === 'contact' ? 'page' : undefined}>{t('nav.contact')}</a>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <a href="/assets/cv/Jannik-Hoff-CV.pdf" download className="cv-download" style={cvLink}>
+            <a href="/assets/cv/Jannik_Hoff_Lebenslauf.pdf" download className="cv-download" style={cvLink}>
               CV ↓
             </a>
             <a href="https://github.com/MonkeyDHoffy" target="_blank" rel="noreferrer" aria-label="GitHub" className="social-link" style={iconLink}>
@@ -192,7 +192,7 @@ export function Header() {
           <a href="#skills" onClick={closeMenu} className={`mobile-nav-link${activeNav === 'skills' ? ' is-active' : ''}`}>{t('nav.skills')}</a>
           <a href="#projects" onClick={closeMenu} className={`mobile-nav-link${activeNav === 'projects' ? ' is-active' : ''}`}>{t('nav.projects')}</a>
           <a href="#contact" onClick={closeMenu} className={`mobile-nav-link${activeNav === 'contact' ? ' is-active' : ''}`}>{t('nav.contact')}</a>
-          <a href="/assets/cv/Jannik-Hoff-CV.pdf" download className="mobile-nav-action mobile-nav-cv" onClick={closeMenu}>
+          <a href="/assets/cv/Jannik_Hoff_Lebenslauf.pdf" download className="mobile-nav-action mobile-nav-cv" onClick={closeMenu}>
             CV herunterladen
           </a>
           <div className="mobile-nav-actions">
