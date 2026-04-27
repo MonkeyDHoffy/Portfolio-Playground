@@ -9,7 +9,7 @@ export type Project = {
   description: Record<Lang, string>;
   stack: string[];
   image: string;
-  live: string;
+  live?: string;
   github: string;
 };
 
@@ -58,5 +58,93 @@ export const projects: Project[] = [
     image: '/assets/projects/bubble.png',
     live: 'https://pokedex.hoffja.de',
     github: 'https://github.com/MonkeyDHoffy/Pok-dex',
+  },
+  {
+    key: 'github-profile',
+    index: '04',
+    title: 'GitHub Repository',
+    year: '2026',
+    tag: {
+      de: 'Viele Projekte und laufend neue Updates',
+      en: 'Many projects with frequent new updates',
+    },
+    description: {
+      de: 'Hier findest du eine Übersicht meiner Repositories mit unterschiedlichen Projekten. Ich erweitere mein GitHub-Profil laufend um neue Arbeiten und Verbesserungen.',
+      en: 'This profile gives an overview of my repositories across different project types. I continuously add new work and improvements to keep it growing.',
+    },
+    stack: ['GitHub', 'Open Source', 'TypeScript'],
+    image: '/assets/projects/gitprofile.png',
+    github: 'https://github.com/MonkeyDHoffy',
+  },
+  {
+    key: 'old-portfolio',
+    index: '05',
+    title: 'Altes Portfolio',
+    year: '2023',
+    tag: {
+      de: 'Portfolio in Angular und React',
+      en: 'Portfolio built in Angular and React',
+    },
+    description: {
+      de: 'Ein früheres Portfolio-Projekt, das ich in zwei Varianten umgesetzt habe: einmal mit Angular und einmal mit React. Die Live-Demo zeigt die Angular-Version.',
+      en: 'An earlier portfolio project that I built in two versions: one with Angular and one with React. The live demo currently shows the Angular version.',
+    },
+    stack: ['Angular', 'React', 'TypeScript', 'SCSS'],
+    image: '/assets/projects/oldportfolio.png',
+    live: 'https://angular.hoffja.de',
+    github: 'https://github.com/MonkeyDHoffy',
+  },
+  {
+    key: 'pollapp',
+    index: '06',
+    title: 'PollApp',
+    year: '2026',
+    tag: {
+      de: 'Web-App für Umfragen und Sharing',
+      en: 'Web app for creating and sharing polls',
+    },
+    description: {
+      de: 'Webanwendung zum Erstellen und Teilen von Umfragen. Hauptsächlich entwickelt mit TypeScript, Angular und Supabase.',
+      en: 'Web application for creating and sharing polls. Primarily built with TypeScript, Angular, and Supabase.',
+    },
+    stack: ['TypeScript', 'Angular', 'Supabase'],
+    image: '/assets/projects/pollapp.png',
+    live: 'https://pollapp.hoffja.de',
+    github: 'https://github.com/MonkeyDHoffy/PollApp',
+  },
+  {
+    key: 'memory',
+    index: '07',
+    title: 'Memory',
+    year: '2024',
+    tag: {
+      de: 'Memory-Spiel als Webanwendung',
+      en: 'Memory game as a web application',
+    },
+    description: {
+      de: 'Interaktive Memory-Webanwendung mit Angular. Fokus auf sauberes State-Handling, Spiel-Logik und eine schnelle, responsive User Experience.',
+      en: 'Interactive memory web app built with Angular. Focused on clean state handling, game logic, and a fast responsive user experience.',
+    },
+    stack: ['Angular', 'TypeScript', 'SCSS'],
+    image: '/assets/projects/memory.png',
+    live: 'https://memory.hoffja.de',
+    github: 'https://github.com/MonkeyDHoffy/Memory-with-angular',
+  },
+  {
+    key: 'misc-lab',
+    index: '08',
+    title: 'Specials',
+    year: '2026',
+    tag: {
+      de: 'Specials',
+      en: 'Specials',
+    },
+    description: {
+      de: 'Ich tüftel oft an privaten Projekten und experimentiere aktuell mit React-Native-Apps, zum Beispiel einem Habit-Tracker-Game und einer Bewerbungsapp. Außerdem habe ich bereits das Backend für meinen eigenen Server mit Docker-Containern aufgebaut, über den ich meine Websites verwalte. Hier entstehen oft neue Projekte, bevor sie offiziell live gehen. Wenn du sehen willst, woran ich gerade arbeite, schau am besten regelmäßig in mein GitHub-Repository.',
+      en: 'I often tinker with private projects and I am currently building React Native apps, including a habit tracker game and a job application app. I also built the backend for my own server using Docker containers to manage and host my websites. New projects often start here before they officially go live. If you want to see what I am currently working on, the best place to check is my GitHub repository.',
+    },
+    stack: ['React Native', 'TypeScript', 'Docker', 'Backend'],
+    image: '/assets/aboutme/thedeveloper.jpg',
+    github: 'https://github.com/MonkeyDHoffy',
   },
 ];

@@ -64,7 +64,7 @@ export const translations = {
     learningLabel: { de: 'LERNE GERADE', en: 'CURRENTLY LEARNING' },
     learningSub:   { de: 'Es gibt immer was Neues zu lernen.', en: 'Always something new to learn.' },
     learningBack:  {
-      de: 'Ich arbeite mich schnell und strukturiert in neue Themen ein und lerne gezielt die Technologien, die für ihr Team relevant sind.',
+      de: 'Ich arbeite mich schnell und strukturiert in neue Themen ein und lerne gezielt die Technologien, die für Ihr Team relevant sind.',
       en: 'I ramp up quickly in new domains and intentionally learn the technologies that matter for your team.',
     },
   },
@@ -75,8 +75,8 @@ export const translations = {
     titleA: { de: 'Meine', en: 'My' },
     titleB: { de: 'Projekte', en: 'projects' },
     intro: {
-      de: 'Hier findest du eine Auswahl meiner Arbeiten – interagiere mit den Projekten, um meine Skills im Einsatz zu sehen.',
-      en: 'Explore a selection of my work — interact with projects to see my skills in action.',
+      de: 'Hier findest du eine Auswahl meiner Arbeiten. Ich habe Spaß daran, ständig Neues auszuprobieren und an verschiedenen Projekten zu arbeiten. Die aktuellste Übersicht findest du immer auf meinem GitHub.',
+      en: 'Here is a selection of my work. I enjoy constantly trying new things and building different projects. You will always find the most up-to-date overview on my GitHub.',
     },
     clickHint: { de: 'Klick eine Karte zum Umdrehen.', en: 'Click a card to flip.' },
     flip:      { de: 'UMDREHEN', en: 'FLIP' },

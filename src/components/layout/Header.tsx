@@ -108,7 +108,7 @@ export function Header() {
       {isCompact && menuOpen && (
         <button
           type="button"
-          aria-label="Menue schliessen"
+          aria-label="Menü schließen"
           className="mobile-nav-backdrop"
           onClick={closeMenu}
         />
@@ -136,7 +136,7 @@ export function Header() {
       {isCompact ? (
         <button
           type="button"
-          aria-label={menuOpen ? 'Menue schliessen' : 'Menue oeffnen'}
+          aria-label={menuOpen ? 'Menü schließen' : 'Menü öffnen'}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
           className="menu-toggle"

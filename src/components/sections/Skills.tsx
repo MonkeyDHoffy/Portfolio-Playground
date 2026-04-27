@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLang } from '../../i18n/LanguageContext';
 import { skills as allSkills } from '../../data/skills';
 import { SectionLabel } from '../ui/SectionLabel';
@@ -8,6 +9,14 @@ const LILAC = '#B8A4FF';
 
 export function Skills() {
   const { t, lang } = useLang();
+  const [isPhone, setIsPhone] = useState(() => window.innerWidth <= 860);
+
+  useEffect(() => {
+    const onResize = () => setIsPhone(window.innerWidth <= 860);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   return (
     <section id="skills" style={{ padding: 'clamp(48px, 8vw, 64px) 40px', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
@@ -36,14 +45,57 @@ export function Skills() {
           }}
         >
           {allSkills.map((s, i) => (
-            <SkillTile key={s.label} skill={s} index={i} lang={lang} />
+            <SkillTile key={s.label} skill={s} index={i} lang={lang} isPhone={isPhone} />
           ))}
           <GrowthTile label={t('skills.learningLabel')} sub={t('skills.learningSub')} backText={t('skills.learningBack')} />
         </div>
       </div>
       <style>{`
+        .skills-back-note-clamp {
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 4;
+          overflow: hidden;
+        }
+        .skills-sheet-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.62);
+          backdrop-filter: blur(3px);
+          z-index: 80;
+          display: block;
+        }
+        .skills-sheet {
+          position: absolute;
+          left: 10px;
+          right: 10px;
+          bottom: 0;
+          width: min(720px, calc(100% - 20px));
+          margin-inline: auto;
+          border-radius: 18px 18px 12px 12px;
+          background: #16161A;
+          border: 2px solid #000;
+          box-shadow: 0 -4px 18px rgba(0,0,0,0.32);
+          padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+          transform: translateY(18px);
+          animation: skills-sheet-in 220ms cubic-bezier(0.22, 0.9, 0.3, 1) forwards;
+        }
+        .skills-sheet-handle {
+          width: 44px;
+          height: 5px;
+          border-radius: 999px;
+          margin: 0 auto 10px;
+          background: rgba(255,255,255,0.25);
+        }
+        @keyframes skills-sheet-in {
+          from { transform: translateY(18px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
         @media (max-width: 860px) {
           .skills-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .skills-back-note-clamp {
+            -webkit-line-clamp: 3;
+          }
         }
       `}</style>
     </section>
@@ -52,29 +104,68 @@ export function Skills() {
 
 type Skill = typeof allSkills[number];
 
-function SkillTile({ skill, index, lang }: { skill: Skill; index: number; lang: 'de' | 'en' }) {
+function SkillTile({
+  skill,
+  index,
+  lang,
+  isPhone,
+}: {
+  skill: Skill;
+  index: number;
+  lang: 'de' | 'en';
+  isPhone: boolean;
+}) {
   const [hover, setHover] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const color = skill.color;
   const span = skill.span;
   const rot = (index % 2 ? 1 : -1) * 0.8;
+  const showBack = isPhone ? flipped : hover;
+  const shortNote = skill.noteShort?.[lang] ?? skill.note[lang];
+
+  useEffect(() => {
+    if (!isPhone) {
+      setFlipped(false);
+      setSheetOpen(false);
+    }
+  }, [isPhone]);
+
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [sheetOpen]);
+
   return (
-    <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        gridColumn: `span ${span}`,
-        perspective: 1000,
-        transition: 'transform 300ms ease',
-        transform: `rotate(${rot}deg) ${hover ? 'translateY(-6px)' : ''}`,
-        cursor: 'pointer',
-      }}
-    >
-      <div style={{
-        position: 'relative', width: '100%', height: '100%',
-        transformStyle: 'preserve-3d',
-        transition: 'transform 500ms cubic-bezier(0.3, 0.7, 0.2, 1)',
-        transform: hover ? 'rotateY(180deg)' : 'rotateY(0deg)',
-      }}>
+    <>
+      <div
+        onMouseEnter={() => {
+          if (!isPhone) setHover(true);
+        }}
+        onMouseLeave={() => {
+          if (!isPhone) setHover(false);
+        }}
+        onClick={() => {
+          if (isPhone) setFlipped((v) => !v);
+        }}
+        style={{
+          gridColumn: `span ${span}`,
+          perspective: 1000,
+          transition: 'transform 300ms ease',
+          transform: `rotate(${rot}deg) ${(hover && !isPhone) ? 'translateY(-6px)' : ''}`,
+          cursor: 'pointer',
+        }}
+      >
+        <div style={{
+          position: 'relative', width: '100%', height: '100%',
+          transformStyle: 'preserve-3d',
+          transition: 'transform 500ms cubic-bezier(0.3, 0.7, 0.2, 1)',
+          transform: showBack ? 'rotateY(180deg)' : 'rotateY(0deg)',
+        }}>
         {/* Front */}
         <div style={{
           position: 'absolute', inset: 0, backfaceVisibility: 'hidden',
@@ -85,7 +176,7 @@ function SkillTile({ skill, index, lang }: { skill: Skill; index: number; lang: 
           display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
           overflow: 'hidden',
         }}>
-          {hover && (
+          {showBack && (
             <div style={{
               position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%) rotate(-4deg)',
               width: 60, height: 18,
@@ -131,11 +222,12 @@ function SkillTile({ skill, index, lang }: { skill: Skill; index: number; lang: 
         <div style={{
           position: 'absolute', inset: 0, backfaceVisibility: 'hidden',
           transform: 'rotateY(180deg)',
-          borderRadius: 18, padding: 22,
+          borderRadius: 18, padding: isPhone ? 18 : 22,
           background: color,
           border: '2px solid #000',
           boxShadow: '5px 5px 0 #000',
           display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+          gap: 10,
         }}>
           <div style={{
             fontFamily: 'var(--ff-mono)', fontSize: 11, color: '#000', opacity: 0.7,
@@ -144,12 +236,72 @@ function SkillTile({ skill, index, lang }: { skill: Skill; index: number; lang: 
             <span>/ {skill.label.toLowerCase()}</span>
             <span>{skill.level}%</span>
           </div>
-          <div style={{ fontSize: 15, fontWeight: 600, color: '#000', lineHeight: 1.35 }}>
-            {skill.note[lang]}
+          <div
+            className={isPhone ? 'skills-back-note-clamp' : undefined}
+            style={{ fontSize: isPhone ? 14 : 15, fontWeight: 600, color: '#000', lineHeight: 1.35 }}
+          >
+            {isPhone ? shortNote : skill.note[lang]}
           </div>
+          {isPhone && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSheetOpen(true);
+              }}
+              style={{
+                alignSelf: 'flex-start',
+                padding: '6px 12px',
+                borderRadius: 999,
+                border: '1px solid rgba(0,0,0,0.4)',
+                background: 'rgba(0,0,0,0.12)',
+                color: '#000',
+                fontWeight: 700,
+                fontSize: 12,
+                cursor: 'pointer',
+              }}
+            >
+              {lang === 'de' ? 'Mehr' : 'More'}
+            </button>
+          )}
         </div>
       </div>
-    </div>
+      </div>
+
+      {isPhone && sheetOpen && typeof document !== 'undefined' && createPortal(
+        <div
+          className="skills-sheet-overlay"
+          onClick={() => setSheetOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={lang === 'de' ? `${skill.label} Details` : `${skill.label} details`}
+        >
+          <div className="skills-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="skills-sheet-handle" />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <strong style={{ fontSize: 18 }}>{skill.label}</strong>
+              <button
+                onClick={() => setSheetOpen(false)}
+                style={{
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  background: 'rgba(255,255,255,0.06)',
+                  color: '#fff',
+                  padding: '4px 10px',
+                  borderRadius: 999,
+                  fontSize: 12,
+                  cursor: 'pointer',
+                }}
+              >
+                {lang === 'de' ? 'Schließen' : 'Close'}
+              </button>
+            </div>
+            <div style={{ fontSize: 15, lineHeight: 1.55, color: 'rgba(255,255,255,0.86)' }}>
+              {skill.note[lang]}
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
+    </>
   );
 }
 
