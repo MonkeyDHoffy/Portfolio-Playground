@@ -161,6 +161,8 @@ export function Runner() {
     let raf = 0;
     lastRef.current = 0;
     const loop = (tm: number) => {
+      let hitGround = false;
+
       if (!lastRef.current) lastRef.current = tm;
       const dt = Math.min((tm - lastRef.current) / 1000, 0.032);
       lastRef.current = tm;
@@ -174,11 +176,16 @@ export function Runner() {
         }
         if (ny > WORLD_H - BIRD_HALF) {
           ny = WORLD_H - BIRD_HALF;
-          if (vyRef.current > 0) vyRef.current = 0;
+          hitGround = true;
         }
         birdYRef.current = ny;
         return ny;
       });
+
+      if (hitGround) {
+        endGame();
+        return;
+      }
 
       const speed = Math.min(185, speedRef.current + scoreRef.current * 0.14);
 
@@ -240,7 +247,7 @@ export function Runner() {
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [status]);
+  }, [status, endGame]);
 
   useEffect(() => {
     if (status !== 'running') return;

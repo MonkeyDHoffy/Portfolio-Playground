@@ -16,9 +16,9 @@ export type Voice = {
 export const voices: Voice[] = [
   {
     id: 'copilot',
+    avatar: { initials: 'GC', color: '#6EB3FF', image: '/assets/voices/copilot.png' },
     sender: 'GitHub Copilot',
     handle: '@copilot',
-    avatar: { initials: 'GC', color: '#6EB3FF' },
     when: { de: 'vor 2h', en: '2h' },
     text: {
       de: 'Klarer Code, gute Tests und sinnvolle Komponenten. Jannik Hoffs Frontend-Workflows sind effizient und professionell.',
@@ -55,7 +55,8 @@ export const voices: Voice[] = [
     id: 'nico',
     sender: 'Nicolas Tran',
     handle: '@nico_t',
-    avatar: { initials: 'NT', color: '#B8A4FF' },
+    avatar: { initials: 'NT', color: '#B8A4FF', image: '/assets/voices/tran.jpg' },
+    profileUrl: 'https://www.linkedin.com/in/lenitran/',
     when: { de: 'vor 3 Tagen', en: '3d' },
     text: {
       de: 'Jannik kombiniert eine steile Lernkurve mit beneidenswerter Zielstrebigkeit. Er wartet nicht auf Lösungen, er erarbeitet sie sich.',
@@ -65,9 +66,9 @@ export const voices: Voice[] = [
   },
   {
     id: 'vscode',
-    sender: 'Visual Studio Code',
-    handle: '@vscode',
-    avatar: { initials: 'VS', color: '#F4E06D' },
+    sender: 'Claude Code',
+    handle: '@claudecode',
+    avatar: { initials: 'CC', color: '#F4E06D' },
     when: { de: 'vor 1h', en: '1h' },
     text: {
       de: 'Produktiv, fokussiert und schnell. Er nutzt das Tooling sinnvoll und hält das Projekt sauber.',
