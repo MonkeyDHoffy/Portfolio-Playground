@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { SectionLabel } from '../ui/SectionLabel';
 
@@ -40,22 +41,7 @@ export function About() {
                 {t('about.stickerA')}<br />{t('about.stickerB')}<br />{t('about.stickerC')}
               </span>
             </div>
-            <div style={{
-              borderRadius: 24, overflow: 'hidden',
-              border: `3px solid ${TEAL}`,
-              transform: 'rotate(-2deg)',
-              boxShadow: `0 20px 60px ${TEAL}30`,
-            }}>
-              <img
-                src="/assets/aboutme/thedeveloper.jpg"
-                alt="Jannik"
-                loading="lazy"
-                style={{
-                  width: '100%', aspectRatio: '3/4', objectFit: 'cover',
-                  filter: 'grayscale(30%) contrast(1.05)', display: 'block',
-                }}
-              />
-            </div>
+            <AboutPhotoFlip />
           </div>
           <div>
             <h2 style={{
@@ -93,5 +79,69 @@ export function About() {
         }
       `}</style>
     </section>
+  );
+}
+
+function AboutPhotoFlip() {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        perspective: 1200,
+        cursor: 'pointer',
+        transform: 'rotate(-2deg)',
+      }}
+    >
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        aspectRatio: '3/4',
+        transformStyle: 'preserve-3d',
+        transition: 'transform 620ms cubic-bezier(0.3, 0.7, 0.2, 1)',
+        transform: hover ? 'rotateY(180deg)' : 'rotateY(0deg)',
+        borderRadius: 24,
+        boxShadow: `0 20px 60px ${TEAL}30`,
+      }}>
+        {/* Vorderseite: Cartoon */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          borderRadius: 24, overflow: 'hidden',
+          border: `3px solid ${PEACH}`,
+        }}>
+          <img
+            src="/assets/aboutme/avatar.png"
+            alt="Jannik Cartoon"
+            loading="lazy"
+            style={{
+              width: '100%', height: '100%', objectFit: 'cover',
+              display: 'block',
+            }}
+          />
+        </div>
+        {/* Rückseite: echtes Foto */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          transform: 'rotateY(180deg)',
+          borderRadius: 24, overflow: 'hidden',
+          border: `3px solid ${TEAL}`,
+        }}>
+          <img
+            src="/assets/aboutme/thedeveloper.jpg"
+            alt="Jannik"
+            loading="lazy"
+            style={{
+              width: '100%', height: '100%', objectFit: 'cover',
+              filter: 'grayscale(30%) contrast(1.05)', display: 'block',
+            }}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

@@ -11,7 +11,7 @@ export const translations = {
   },
 
   hero: {
-    status:      { de: 'Offen für neue Rollen', en: 'Open to roles' },
+    status:      { de: 'Offen für Arbeit', en: 'Open to work' },
     title1:      { de: 'Software mit', en: 'Software with' },
     titleAccent: { de: 'good vibes', en: 'good vibes' },
     titleEnd:    { de: '.', en: '.' },
