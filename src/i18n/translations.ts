@@ -93,6 +93,12 @@ export const translations = {
     reply: { de: 'Antworten', en: 'Reply' },
     repost: { de: 'Teilen', en: 'Repost' },
     like:   { de: 'Gefällt mir', en: 'Like' },
+    leverLabel: { de: 'Carousel-Hebel', en: 'Carousel lever' },
+    leverReverse: { de: 'Links', en: 'Left' },
+    leverStop: { de: 'Stopp', en: 'Stop' },
+    leverForward: { de: 'Rechts', en: 'Right' },
+    leverHint: { de: 'Nach links für rückwärts, mittig zum Stoppen, nach rechts für mehr Zug.', en: 'Left for reverse, center to stop, right for more pull.' },
+    leverStopAction: { de: 'Anhalten', en: 'Stop' },
   },
 
   runner: {

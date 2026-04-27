@@ -165,7 +165,7 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" style={{ padding: '120px 40px', position: 'relative', zIndex: 1 }}>
+    <section id="contact" style={{ padding: 'clamp(48px, 8vw, 64px) 40px', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <div className="contact-grid" style={{
           display: 'grid',
