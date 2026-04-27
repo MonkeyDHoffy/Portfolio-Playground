@@ -31,7 +31,11 @@ export function Projects() {
           letterSpacing: '-0.03em', margin: '0 0 20px',
         }}>
           {t('projects.titleA')}{' '}
-          <em style={{ fontStyle: 'italic', fontWeight: 400, color: TEAL }}>{t('projects.titleB')}</em>.
+          <em style={{
+            fontStyle: 'italic', fontWeight: 400,
+            background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>{t('projects.titleB')}</em>.
         </h2>
         <p style={{ maxWidth: 600, fontSize: 17, color: 'rgba(255,255,255,0.7)', margin: '0 0 48px' }}>
           {t('projects.intro')} <span style={{ color: TEAL }}>{t('projects.clickHint')}</span>
