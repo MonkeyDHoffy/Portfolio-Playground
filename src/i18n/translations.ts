@@ -89,6 +89,7 @@ export const translations = {
     label: { de: 'stimmen', en: 'voices' },
     index: { de: '04', en: '04' },
     title: { de: 'Was andere sagen.', en: 'What others say.' },
+    demo: { de: 'Demo-Voices', en: 'Demo voices' },
     reply: { de: 'Antworten', en: 'Reply' },
     repost: { de: 'Teilen', en: 'Repost' },
     like:   { de: 'Gefällt mir', en: 'Like' },

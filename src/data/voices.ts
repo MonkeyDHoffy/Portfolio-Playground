@@ -4,7 +4,8 @@ export type Voice = {
   id: string;
   sender: string;
   handle: string;
-  avatar: { initials: string; color: string };
+  avatar: { initials: string; color: string; image?: string };
+  profileUrl?: string;
   when: Record<Lang, string>;
   text: Record<Lang, string>;
   likes: number;
@@ -29,7 +30,8 @@ export const voices: Voice[] = [
     id: 'alex',
     sender: 'Alexander Schulz',
     handle: '@alex_s',
-    avatar: { initials: 'AS', color: '#FFB27A' },
+    avatar: { initials: 'AS', color: '#FFB27A', image: '/assets/voices/schulz.jpg' },
+    profileUrl: 'https://www.linkedin.com/in/alexander-schulz-aa012a209/',
     when: { de: 'gestern', en: 'yesterday' },
     text: {
       de: 'Zuverlässig, performant und gut gepflegt. Jannik hält sein Dev-Setup schlank und sorgt für reibungslose Workflows.',

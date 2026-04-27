@@ -50,7 +50,10 @@ export function About() {
             }}>
               {t('about.title')}
             </h2>
-            <p style={{ fontSize: 19, lineHeight: 1.55, margin: '0 0 24px', color: 'rgba(255,255,255,0.85)' }}>
+            <p
+              className="about-intro-hover"
+              style={{ fontSize: 19, lineHeight: 1.55, margin: '0 0 24px', color: 'rgba(255,255,255,0.85)' }}
+            >
               {t('about.p1')}
             </p>
             <div style={{ display: 'grid', gap: 16, marginTop: 32 }}>
@@ -74,6 +77,14 @@ export function About() {
         </div>
       </div>
       <style>{`
+        .about-intro-hover {
+          transition: color 220ms ease, transform 220ms ease;
+          transform-origin: left center;
+        }
+        .about-intro-hover:hover {
+          color: #fff;
+          transform: scale(1.015);
+        }
         @media (max-width: 860px) {
           .about-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
         }
