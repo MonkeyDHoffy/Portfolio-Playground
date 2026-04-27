@@ -212,14 +212,17 @@ export function Voices() {
                   opacity: 0.62,
                   pointerEvents: 'none',
                 }} />
-                <div style={{
+                <div
+                  className="voice-avatar"
+                  style={{
                   width: 48, height: 48, borderRadius: '50%',
                   background: v.avatar.color, color: '#000',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontFamily: 'var(--ff-mono)', fontWeight: 700, fontSize: 14,
                   border: '2px solid #000',
                   overflow: 'hidden',
-                }}>
+                  }}
+                >
                   {v.avatar.image ? (
                     <img
                       src={v.avatar.image}
@@ -232,7 +235,7 @@ export function Voices() {
                   )}
                 </div>
                 <div className="voice-card-copy" style={{ transformOrigin: 'left center', transition: 'transform 220ms ease' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                  <div className="voice-card-meta" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                     <span style={{ fontWeight: 700, fontSize: 15 }}>{v.sender}</span>
                     <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13 }}>{v.handle}</span>
                     <span style={{ color: 'rgba(255,255,255,0.35)' }}>·</span>
@@ -246,7 +249,7 @@ export function Voices() {
                   <p style={{ margin: '0 0 12px', fontSize: 15.5, lineHeight: 1.5, color: 'rgba(255,255,255,0.9)' }}>
                     {v.text[lang]}
                   </p>
-                  <div style={{ display: 'flex', gap: 20, color: 'rgba(255,255,255,0.55)', fontSize: 13 }}>
+                  <div className="voice-card-stats" style={{ display: 'flex', gap: 20, color: 'rgba(255,255,255,0.55)', fontSize: 13 }}>
                     <Stat icon="💬" count={v.replies} label={t('voices.reply')} />
                     <Stat icon="↻" count={v.reposts} label={t('voices.repost')} />
                     <Stat icon="♡" count={v.likes} label={t('voices.like')} color="#FF6D8A" />
@@ -297,6 +300,37 @@ export function Voices() {
           }
           .voice-card {
             width: min(84vw, 460px) !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .voices-marquee-viewport {
+            width: 100%;
+            margin-left: 0;
+            transform: none;
+            mask-image: none;
+          }
+          .voices-marquee-track {
+            gap: 10px;
+          }
+          .voice-card {
+            width: min(86vw, 360px) !important;
+            min-height: 230px;
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+            padding: 16px !important;
+          }
+          .voice-avatar {
+            width: 44px !important;
+            height: 44px !important;
+          }
+          .voice-card-copy {
+            min-width: 0;
+          }
+          .voice-card-meta {
+            gap: 6px !important;
+          }
+          .voice-card-stats {
+            display: none !important;
           }
         }
         @media (prefers-reduced-motion: reduce) {
