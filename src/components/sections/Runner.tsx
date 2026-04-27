@@ -28,7 +28,7 @@ const TOTAL_POINTS_KEY = 'portfolio.runner.totalPointsEarned';
 const DISTANCE_HIGHSCORE_KEY = 'portfolio.runner.distanceHighscore';
 
 export function Runner() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [score, setScore] = useState(0);
   const [totalPointsEarned, setTotalPointsEarned] = useState(() => {
     if (typeof window === 'undefined') return 0;
@@ -59,7 +59,6 @@ export function Runner() {
   const birdYRef = useRef(WORLD_H * 0.5);
   const lastRef = useRef(0);
   const runningRef = useRef(false);
-  const statusRef = useRef<'ready' | 'running' | 'gameover'>('ready');
   const scoreRef = useRef(0);
   const pointsCaughtRef = useRef(0);
   const distRef = useRef(0);
@@ -73,7 +72,6 @@ export function Runner() {
   }), []);
 
   runningRef.current = status === 'running';
-  statusRef.current = status;
   scoreRef.current = score;
   pointsCaughtRef.current = pointsCaught;
   birdYRef.current = birdY;
@@ -121,24 +119,25 @@ export function Runner() {
   }, []);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.code !== 'Space') return;
-      if (statusRef.current === 'ready' || statusRef.current === 'gameover') {
-        start();
-        e.preventDefault();
-        return;
-      }
-      flap();
-      e.preventDefault();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [flap, start]);
-
-  useEffect(() => {
     if (status !== 'gameover' || sessionCommittedRef.current) return;
     sessionCommittedRef.current = true;
     const sessionDistance = Math.floor(distRef.current / 10);
+    const isNewHighscore = sessionDistance > distanceHighscore;
+
+    if (isNewHighscore) {
+      const message = lang === 'de'
+        ? `Hallo Jannik, ich habe gerade einen Highscore von ${sessionDistance} erreicht. Gerne würde ich auch deine Skills noch besser kennenlernen und gemeinsam etwas entwickeln ;)`
+        : `Hi Jannik, I just explored your portfolio and reached a highscore of ${sessionDistance}. I'd love to get to know your skills even better and build something together ;)`;
+
+      window.dispatchEvent(new CustomEvent('runner:send-highscore', {
+        detail: {
+          message,
+          speedMs: 30,
+          focusField: true,
+          scrollToContact: true,
+        },
+      }));
+    }
 
     setTotalPointsEarned((prev) => {
       const next = prev + pointsCaughtRef.current;
@@ -155,7 +154,7 @@ export function Runner() {
       }
       return next;
     });
-  }, [status]);
+  }, [status, distanceHighscore, lang]);
 
   useEffect(() => {
     if (status !== 'running') return;
@@ -327,10 +326,11 @@ export function Runner() {
   ]);
 
   const handlePress = () => {
-    if (status === 'ready' || status === 'gameover') {
+    if (status === 'ready') {
       start();
       return;
     }
+    if (status === 'gameover') return;
     flap();
   };
 
@@ -340,9 +340,38 @@ export function Runner() {
     rgba(255,178,122,0.10) 100%)`;
   const liveTotalPoints = totalPointsEarned + (sessionCommittedRef.current ? 0 : pointsCaught);
   const liveDistanceHighscore = Math.max(distanceHighscore, score);
+  const readyAccentGradient = `linear-gradient(135deg, ${TEAL}, ${LILAC} 55%, ${PEACH})`;
 
   return (
     <section style={{ padding: '40px 40px 80px', position: 'relative', zIndex: 1 }}>
+      <style>{`
+        @keyframes runner-ready-bob {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-5px) scale(1.04); }
+        }
+
+        @keyframes runner-ready-glow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(61, 207, 182, 0.18), 0 18px 40px rgba(0, 0, 0, 0.22); }
+          50% { box-shadow: 0 0 0 12px rgba(61, 207, 182, 0.04), 0 24px 56px rgba(61, 207, 182, 0.18); }
+        }
+
+        @keyframes runner-ready-arrow {
+          0%, 100% { transform: translateX(0); opacity: 0.72; }
+          50% { transform: translateX(8px); opacity: 1; }
+        }
+
+        @keyframes runner-ready-sheen {
+          0% { transform: translateX(-140%) skewX(-18deg); opacity: 0; }
+          20% { opacity: 0.55; }
+          60% { opacity: 0.15; }
+          100% { transform: translateX(180%) skewX(-18deg); opacity: 0; }
+        }
+
+        @keyframes runner-ready-spark {
+          0%, 100% { transform: scale(0.92); opacity: 0.45; }
+          50% { transform: scale(1.12); opacity: 1; }
+        }
+      `}</style>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <div style={{ fontSize: 13, color: DIM, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ width: 24, height: 1, background: TEAL }} />
@@ -516,15 +545,79 @@ export function Runner() {
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(15,15,15,0.35)', backdropFilter: 'blur(2px)',
+              background: 'radial-gradient(circle at center, rgba(61,207,182,0.08), rgba(15,15,15,0.52) 70%)', backdropFilter: 'blur(3px)',
             }}>
-              <div style={{ textAlign: 'center' }}>
+              <div style={{
+                position: 'relative',
+                minWidth: 250,
+                padding: '10px 20px',
+                textAlign: 'center',
+                overflow: 'hidden',
+                animation: 'runner-ready-bob 2.1s ease-in-out infinite',
+              }}>
+                <div aria-hidden style={{
+                  position: 'absolute',
+                  inset: '-20% auto -20% -35%',
+                  width: '45%',
+                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent)',
+                  animation: 'runner-ready-sheen 2.8s ease-in-out infinite',
+                }} />
                 <div style={{
-                  fontFamily: 'var(--ff-mono)', fontSize: 14, color: TEAL, letterSpacing: '0.1em',
-                  marginBottom: 6,
-                }}>▶ {t('runner.ready')}</div>
-                <div style={{ fontSize: 11, color: DIM, fontFamily: 'var(--ff-mono)' }}>
-                  SPACE · CLICK · TAP
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '5px 10px',
+                  marginBottom: 10,
+                  borderRadius: 999,
+                  fontFamily: 'var(--ff-mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  color: '#08110f',
+                  background: readyAccentGradient,
+                  boxShadow: `0 0 18px ${TEAL}44`,
+                }}>
+                  <span aria-hidden style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    background: '#08110f',
+                    animation: 'runner-ready-spark 1s ease-in-out infinite',
+                  }} />
+                  START RUN
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 10,
+                  marginBottom: 8,
+                  fontFamily: 'var(--ff-mono)',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: TEAL,
+                  letterSpacing: '0.08em',
+                  textShadow: `0 0 18px ${TEAL}55`,
+                }}>
+                  <span aria-hidden style={{
+                    display: 'inline-block',
+                    fontSize: 18,
+                    animation: 'runner-ready-arrow 1s ease-in-out infinite',
+                  }}>▶</span>
+                  <span>{t('runner.ready')}</span>
+                  <span aria-hidden style={{
+                    display: 'inline-block',
+                    fontSize: 18,
+                    animation: 'runner-ready-arrow 1s ease-in-out infinite',
+                    animationDelay: '0.16s',
+                  }}>▶</span>
+                </div>
+                <div style={{
+                  fontSize: 11,
+                  color: 'rgba(255,255,255,0.78)',
+                  fontFamily: 'var(--ff-mono)',
+                  letterSpacing: '0.12em',
+                }}>
+                  CLICK · TAP
                 </div>
               </div>
             </div>
@@ -543,15 +636,19 @@ export function Runner() {
                 }}>{t('runner.gameOver')}</div>
                 <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>{score}m</div>
                 <div style={{ fontSize: 12, color: DIM, marginBottom: 12 }}>
-                  SPACE · CLICK · TAP
+                  CLICK · TAP
                 </div>
-                <div style={{
-                  display: 'inline-block',
-                  padding: '8px 16px', borderRadius: 999,
-                  background: TEAL, color: '#000',
-                  border: '2px solid #000', boxShadow: '3px 3px 0 #000',
-                  fontSize: 13, fontWeight: 700,
-                }}>{t('runner.restart')} ↵</div>
+                <button
+                  type="button"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => start()}
+                  style={{
+                    padding: '8px 16px', borderRadius: 999,
+                    background: TEAL, color: '#000',
+                    border: '2px solid #000', boxShadow: '3px 3px 0 #000',
+                    fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                  }}
+                >{t('runner.restart')} ↵</button>
               </div>
             </div>
           )}
