@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Datenschutz | Jannik Hoff</title>
+    <meta
+      name="description"
+      content="Datenschutzerklärung für das Portfolio von Jannik Hoff unter hoffja.de."
+    />
+    <style>
+      :root {
+        --bg: #0f0f0f;
+        --bg-soft: #16161a;
+        --ink: #ffffff;
+        --muted: rgba(255, 255, 255, 0.72);
+        --line: rgba(255, 255, 255, 0.12);
+        --teal: #3dcfb6;
+        --peach: #ffb27a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Karla, system-ui, sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(61, 207, 182, 0.12), transparent 32%),
+          radial-gradient(circle at bottom right, rgba(255, 178, 122, 0.12), transparent 30%),
+          var(--bg);
+        color: var(--ink);
+        line-height: 1.65;
+      }
+
+      main {
+        width: min(980px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 72px;
+      }
+
+      .card {
+        background: rgba(22, 22, 26, 0.92);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: clamp(24px, 5vw, 40px);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(10px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        color: var(--teal);
+        font: 600 12px/1 "Fira Code", monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1, h2, h3 {
+        line-height: 1.12;
+        letter-spacing: -0.03em;
+      }
+
+      h1 {
+        font-size: clamp(40px, 7vw, 72px);
+        margin: 20px 0 12px;
+      }
+
+      h2 {
+        margin-top: 40px;
+        font-size: clamp(24px, 4vw, 34px);
+      }
+
+      h3 {
+        margin-top: 26px;
+        font-size: 20px;
+      }
+
+      p, li, address {
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      ul {
+        padding-left: 20px;
+      }
+
+      a {
+        color: var(--teal);
+      }
+
+      .divider {
+        height: 1px;
+        background: var(--line);
+        margin: 32px 0;
+      }
+
+      .lang-block + .lang-block {
+        margin-top: 52px;
+      }
+
+      .back-link {
+        display: inline-flex;
+        margin-top: 28px;
+        color: var(--ink);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="card">
+        <span class="eyebrow">Privacy</span>
+        <h1>Datenschutzerklärung</h1>
+        <p>
+          Diese Datenschutzerklärung gilt für das Portfolio unter hoffja.de und die darüber erreichbaren Funktionen,
+          insbesondere das Kontaktformular.
+        </p>
+
+        <div class="lang-block">
+          <h2>Deutsch</h2>
+
+          <h3>1. Verantwortlicher</h3>
+          <address>
+            Jannik Hoff<br />
+            Im Vogelsang 9<br />
+            66740 Saarlouis<br />
+            Deutschland<br />
+            E-Mail: <a href="mailto:hoffjannik95@gmail.com">hoffjannik95@gmail.com</a>
+          </address>
+
+          <h3>2. Hosting und Server-Logfiles</h3>
+          <p>
+            Diese Website sowie die zugehörige Formular-API werden auf meinem eigenen Server betrieben. Beim Aufruf der
+            Website werden durch den Server technisch erforderliche Daten verarbeitet, insbesondere IP-Adresse, Datum und
+            Uhrzeit des Zugriffs, angeforderte Datei, übertragene Datenmenge, Browsertyp, Betriebssystem und Referrer-URL,
+            sofern diese vom Browser übermittelt wird.
+          </p>
+          <p>
+            Die Verarbeitung erfolgt zur Gewährleistung eines stabilen und sicheren Betriebs der Website auf Grundlage von
+            Artikel 6 Absatz 1 Buchstabe f DSGVO.
+          </p>
+
+          <h3>3. Kontaktformular</h3>
+          <p>
+            Wenn Sie mir über das Kontaktformular schreiben, verarbeite ich die von Ihnen eingegebenen Daten
+            (Name, E-Mail-Adresse und Nachricht), um Ihre Anfrage zu bearbeiten und gegebenenfalls zu beantworten.
+          </p>
+          <p>
+            Die Verarbeitung erfolgt auf Grundlage von Artikel 6 Absatz 1 Buchstabe b DSGVO, soweit Ihre Anfrage auf die
+            Anbahnung eines Kontakts oder einer beruflichen Gelegenheit gerichtet ist, und im Übrigen auf Grundlage von
+            Artikel 6 Absatz 1 Buchstabe f DSGVO.
+          </p>
+          <p>
+            Die Formulardaten werden über die API unter api.hoffja.de an meinen eigenen Server übertragen und dort nur so
+            lange gespeichert, wie dies für die Bearbeitung der Anfrage erforderlich ist oder gesetzliche Aufbewahrungspflichten
+            bestehen.
+          </p>
+
+          <h3>4. Einbindung von Google Fonts</h3>
+          <p>
+            Auf der Startseite werden Schriftarten von Google Fonts eingebunden. Beim Laden der Seite wird dabei eine Verbindung
+            zu Servern von Google hergestellt. Hierbei kann insbesondere Ihre IP-Adresse an Google übermittelt werden.
+          </p>
+          <p>
+            Die Nutzung erfolgt auf Grundlage von Artikel 6 Absatz 1 Buchstabe f DSGVO zur konsistenten Darstellung der Website.
+            Es ist möglich, dass Daten dabei in die USA übermittelt werden. Falls Sie dies vermeiden möchten, kann eine lokale
+            Einbindung der Schriftarten in Zukunft umgesetzt werden.
+          </p>
+
+          <h3>5. Externe Links</h3>
+          <p>
+            Diese Website enthält Links zu externen Plattformen, insbesondere GitHub und LinkedIn. Beim Anklicken eines solchen
+            Links verlassen Sie diese Website. Für die Datenverarbeitung auf den verlinkten Plattformen sind ausschließlich deren
+            jeweilige Betreiber verantwortlich.
+          </p>
+
+          <h3>6. Cookies und Tracking</h3>
+          <p>
+            Auf dieser Website werden derzeit keine eigenen Analyse-, Tracking- oder Marketing-Tools eingesetzt. Es werden keine
+            eigenen Cookies zu Analyse- oder Werbezwecken gesetzt.
+          </p>
+
+          <h3>7. Speicherdauer</h3>
+          <p>
+            Personenbezogene Daten werden nur so lange gespeichert, wie dies für die jeweiligen Verarbeitungszwecke erforderlich
+            ist. Nachrichten aus dem Kontaktformular werden gelöscht, sobald die Anfrage abschließend bearbeitet wurde und keine
+            gesetzlichen Aufbewahrungspflichten entgegenstehen.
+          </p>
+
+          <h3>8. Ihre Rechte</h3>
+          <p>Sie haben nach der DSGVO insbesondere folgende Rechte:</p>
+          <ul>
+            <li>Auskunft über die verarbeiteten personenbezogenen Daten</li>
+            <li>Berichtigung unrichtiger Daten</li>
+            <li>Löschung Ihrer Daten, soweit keine gesetzlichen Pflichten entgegenstehen</li>
+            <li>Einschränkung der Verarbeitung</li>
+            <li>Widerspruch gegen Verarbeitungen auf Grundlage von Artikel 6 Absatz 1 Buchstabe f DSGVO</li>
+            <li>Beschwerde bei einer Datenschutz-Aufsichtsbehörde</li>
+          </ul>
+
+          <h3>9. Aktualität</h3>
+          <p>
+            Diese Datenschutzerklärung kann angepasst werden, wenn sich technische Funktionen oder rechtliche Anforderungen
+            ändern.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="lang-block">
+          <h2>English</h2>
+
+          <h3>1. Controller</h3>
+          <address>
+            Jannik Hoff<br />
+            Im Vogelsang 9<br />
+            66740 Saarlouis<br />
+            Germany<br />
+            Email: <a href="mailto:hoffjannik95@gmail.com">hoffjannik95@gmail.com</a>
+          </address>
+
+          <h3>2. Hosting and server log files</h3>
+          <p>
+            This website and the related form API are operated on my own server. When you access the website, technically
+            necessary data may be processed by the server, especially your IP address, date and time of access, requested file,
+            amount of transferred data, browser type, operating system, and referrer URL if provided by your browser.
+          </p>
+          <p>
+            Processing is carried out to ensure a stable and secure operation of the website based on Article 6 paragraph 1
+            lit. f GDPR.
+          </p>
+
+          <h3>3. Contact form</h3>
+          <p>
+            If you contact me via the contact form, I process the data you enter there (name, email address, and message)
+            in order to handle and respond to your request.
+          </p>
+          <p>
+            Processing is based on Article 6 paragraph 1 lit. b GDPR where your request relates to initiating contact or a
+            professional opportunity, and otherwise on Article 6 paragraph 1 lit. f GDPR.
+          </p>
+          <p>
+            Form data is transmitted via the API at api.hoffja.de to my own server and is stored only for as long as necessary
+            to process the request or as required by law.
+          </p>
+
+          <h3>4. Google Fonts</h3>
+          <p>
+            The landing page uses Google Fonts. When the page is loaded, a connection to Google's servers is established. In
+            this process, personal data such as your IP address may be transmitted to Google.
+          </p>
+          <p>
+            This is based on Article 6 paragraph 1 lit. f GDPR for a consistent visual presentation of the website. Data may
+            be transferred to the United States. If you want to avoid this in the future, the fonts can be hosted locally.
+          </p>
+
+          <h3>5. External links</h3>
+          <p>
+            This website contains links to external platforms, especially GitHub and LinkedIn. Once you click such a link,
+            you leave this website. The respective external platform is solely responsible for its own data processing.
+          </p>
+
+          <h3>6. Cookies and tracking</h3>
+          <p>
+            This website currently does not use its own analytics, tracking, or marketing tools. No own cookies are set for
+            analytics or advertising purposes.
+          </p>
+
+          <h3>7. Storage period</h3>
+          <p>
+            Personal data is stored only for as long as necessary for the respective processing purpose. Messages submitted via
+            the contact form are deleted once the request has been fully handled, unless statutory retention obligations apply.
+          </p>
+
+          <h3>8. Your rights</h3>
+          <p>Under the GDPR, you generally have the following rights:</p>
+          <ul>
+            <li>Access to your stored personal data</li>
+            <li>Correction of inaccurate data</li>
+            <li>Erasure of your data where no legal obligation requires retention</li>
+            <li>Restriction of processing</li>
+            <li>Objection to processing based on Article 6 paragraph 1 lit. f GDPR</li>
+            <li>Lodging a complaint with a supervisory authority</li>
+          </ul>
+
+          <h3>9. Updates</h3>
+          <p>
+            This privacy policy may be updated if technical functions or legal requirements change.
+          </p>
+        </div>
+
+        <a class="back-link" href="/">Zurück zur Startseite</a>
+      </section>
+    </main>
+  </body>
+</html>
