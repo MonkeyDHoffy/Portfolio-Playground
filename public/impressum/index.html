@@ -1,197 +1,204 @@
 <!doctype html>
 <html lang="de">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Impressum | Jannik Hoff</title>
-    <meta
-      name="description"
-      content="Impressum von Jannik Hoff für das Portfolio unter hoffja.de."
-    />
+    <meta name="description" content="Impressum von Jannik Hoff für das Portfolio unter hoffja.de." />
     <style>
-      :root {
-        --bg: #0f0f0f;
-        --bg-soft: #16161a;
-        --ink: #ffffff;
-        --muted: rgba(255, 255, 255, 0.72);
-        --line: rgba(255, 255, 255, 0.12);
-        --teal: #3dcfb6;
-        --lilac: #b8a4ff;
-      }
+        :root {
+            --bg: #0f0f0f;
+            --bg-soft: #16161a;
+            --ink: #ffffff;
+            --muted: rgba(255, 255, 255, 0.72);
+            --line: rgba(255, 255, 255, 0.12);
+            --teal: #3dcfb6;
+            --lilac: #b8a4ff;
+        }
 
-      * {
-        box-sizing: border-box;
-      }
+        * {
+            box-sizing: border-box;
+        }
 
-      body {
-        margin: 0;
-        font-family: Karla, system-ui, sans-serif;
-        background:
-          radial-gradient(circle at top left, rgba(61, 207, 182, 0.12), transparent 32%),
-          radial-gradient(circle at top right, rgba(184, 164, 255, 0.12), transparent 28%),
-          var(--bg);
-        color: var(--ink);
-        line-height: 1.6;
-      }
+        body {
+            margin: 0;
+            font-family: Karla, system-ui, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(61, 207, 182, 0.12), transparent 32%),
+                radial-gradient(circle at top right, rgba(184, 164, 255, 0.12), transparent 28%),
+                var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
 
-      main {
-        width: min(920px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 48px 0 72px;
-      }
+        main {
+            width: min(920px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 48px 0 72px;
+        }
 
-      .card {
-        background: rgba(22, 22, 26, 0.92);
-        border: 1px solid var(--line);
-        border-radius: 24px;
-        padding: clamp(24px, 5vw, 40px);
-        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
-        backdrop-filter: blur(10px);
-      }
+        .card {
+            background: rgba(22, 22, 26, 0.92);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: clamp(24px, 5vw, 40px);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(10px);
+        }
 
-      .eyebrow {
-        display: inline-flex;
-        gap: 8px;
-        align-items: center;
-        padding: 6px 12px;
-        border-radius: 999px;
-        border: 1px solid var(--line);
-        color: var(--teal);
-        font: 600 12px/1 "Fira Code", monospace;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
+        .eyebrow {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            color: var(--teal);
+            font: 600 12px/1 "Fira Code", monospace;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
 
-      h1, h2 {
-        line-height: 1.1;
-        letter-spacing: -0.03em;
-      }
+        h1,
+        h2 {
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
 
-      h1 {
-        font-size: clamp(40px, 7vw, 72px);
-        margin: 20px 0 12px;
-      }
+        h1 {
+            font-size: clamp(40px, 7vw, 72px);
+            margin: 20px 0 12px;
+        }
 
-      h2 {
-        margin-top: 36px;
-        font-size: clamp(24px, 4vw, 34px);
-      }
+        h2 {
+            margin-top: 36px;
+            font-size: clamp(24px, 4vw, 34px);
+        }
 
-      p, li, address {
-        color: var(--muted);
-        font-size: 17px;
-      }
+        p,
+        li,
+        address {
+            color: var(--muted);
+            font-size: 17px;
+        }
 
-      address {
-        font-style: normal;
-      }
+        address {
+            font-style: normal;
+        }
 
-      a {
-        color: var(--teal);
-      }
+        a {
+            color: var(--teal);
+        }
 
-      .muted {
-        color: var(--muted);
-      }
+        .muted {
+            color: var(--muted);
+        }
 
-      .divider {
-        height: 1px;
-        background: var(--line);
-        margin: 28px 0;
-      }
+        .divider {
+            height: 1px;
+            background: var(--line);
+            margin: 28px 0;
+        }
 
-      .lang-block + .lang-block {
-        margin-top: 44px;
-      }
+        .lang-block+.lang-block {
+            margin-top: 44px;
+        }
 
-      .back-link {
-        display: inline-flex;
-        margin-top: 28px;
-        color: var(--ink);
-        text-decoration: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      }
+        .back-link {
+            display: inline-flex;
+            margin-top: 28px;
+            color: var(--ink);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
-  </head>
-  <body>
+</head>
+
+<body>
     <main>
-      <section class="card">
-        <span class="eyebrow">Legal</span>
-        <h1>Impressum</h1>
-        <p class="muted">
-          Angaben gemäß Paragraph 5 TMG und Paragraph 18 Absatz 2 MStV für das Bewerbungsportfolio unter hoffja.de.
-        </p>
+        <section class="card">
+            <span class="eyebrow">Legal</span>
+            <h1>Impressum</h1>
+            <p class="muted">
+                Angaben gemäß Paragraph 5 TMG und Paragraph 18 Absatz 2 MStV für das Bewerbungsportfolio unter
+                hoffja.de.
+            </p>
 
-        <div class="lang-block">
-          <h2>Deutsch</h2>
-          <address>
-            Jannik Hoff<br />
-            Im Vogelsang 9<br />
-            66740 Saarlouis<br />
-            Deutschland
-          </address>
+            <div class="lang-block">
+                <h2>Deutsch</h2>
+                <address>
+                    Jannik Hoff<br />
+                    Im Vogelsang 9<br />
+                    66740 Saarlouis<br />
+                    Deutschland
+                </address>
 
-          <p>
-            E-Mail: <a href="mailto:hoffjannik95@gmail.com">hoffjannik95@gmail.com</a>
-          </p>
-          <p>
-            Dieses Portfolio wird als private Bewerbungs- und Präsenzseite betrieben.
-          </p>
-          <p>
-            Verantwortlich für journalistisch-redaktionelle Inhalte gemäß Paragraph 18 Absatz 2 MStV:
-            Jannik Hoff, Anschrift wie oben.
-          </p>
-          <p>
-            Es besteht derzeit keine Umsatzsteuer-Identifikationsnummer.
-          </p>
-          <p>
-            Hinweis: Die Inhalte dieser Website wurden mit größter Sorgfalt erstellt. Für die Richtigkeit,
-            Vollständigkeit und Aktualität der Inhalte wird jedoch keine Gewähr übernommen.
-          </p>
-          <p>
-            Diese Website enthält Links zu externen Websites Dritter, auf deren Inhalte kein Einfluss besteht.
-            Deshalb kann für diese fremden Inhalte auch keine Gewähr übernommen werden. Für die Inhalte der
-            verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber verantwortlich.
-          </p>
-        </div>
+                <p>
+                    E-Mail: <a href="mailto:hoffjannik95@gmail.com">hoffjannik95@gmail.com</a>
+                </p>
+                <p>
+                    Dieses Portfolio wird als private Bewerbungs- und Präsenzseite betrieben.
+                </p>
+                <p>
+                    Verantwortlich für journalistisch-redaktionelle Inhalte gemäß Paragraph 18 Absatz 2 MStV:
+                    Jannik Hoff, Anschrift wie oben.
+                </p>
+                <p>
+                    Es besteht derzeit keine Umsatzsteuer-Identifikationsnummer.
+                </p>
+                <p>
+                    Hinweis: Die Inhalte dieser Website wurden mit größter Sorgfalt erstellt. Für die Richtigkeit,
+                    Vollständigkeit und Aktualität der Inhalte wird jedoch keine Gewähr übernommen.
+                </p>
+                <p>
+                    Diese Website enthält Links zu externen Websites Dritter, auf deren Inhalte kein Einfluss besteht.
+                    Deshalb kann für diese fremden Inhalte auch keine Gewähr übernommen werden. Für die Inhalte der
+                    verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber verantwortlich.
+                </p>
+            </div>
 
-        <div class="divider"></div>
+            <div class="divider"></div>
 
-        <div class="lang-block">
-          <h2>English</h2>
-          <address>
-            Jannik Hoff<br />
-            Im Vogelsang 9<br />
-            66740 Saarlouis<br />
-            Germany
-          </address>
+            <div class="lang-block">
+                <h2>English</h2>
+                <address>
+                    Jannik Hoff<br />
+                    Im Vogelsang 9<br />
+                    66740 Saarlouis<br />
+                    Germany
+                </address>
 
-          <p>
-            Email: <a href="mailto:hoffjannik95@gmail.com">hoffjannik95@gmail.com</a>
-          </p>
-          <p>
-            This website is operated as a private portfolio and application website.
-          </p>
-          <p>
-            Responsible for editorial content in accordance with Section 18 paragraph 2 MStV:
-            Jannik Hoff, address as stated above.
-          </p>
-          <p>
-            There is currently no VAT identification number.
-          </p>
-          <p>
-            The contents of this website were created with great care. However, no guarantee can be given for the
-            accuracy, completeness, or timeliness of the content.
-          </p>
-          <p>
-            This website contains links to external third-party websites. I have no influence on the content of those
-            websites and therefore cannot assume any liability for them. The respective provider or operator is always
-            responsible for the linked pages.
-          </p>
-        </div>
+                <p>
+                    Email: <a href="mailto:hoffjannik95@gmail.com">hoffjannik95@gmail.com</a>
+                </p>
+                <p>
+                    This website is operated as a private portfolio and application website.
+                </p>
+                <p>
+                    Responsible for editorial content in accordance with Section 18 paragraph 2 MStV:
+                    Jannik Hoff, address as stated above.
+                </p>
+                <p>
+                    There is currently no VAT identification number.
+                </p>
+                <p>
+                    The contents of this website were created with great care. However, no guarantee can be given for
+                    the
+                    accuracy, completeness, or timeliness of the content.
+                </p>
+                <p>
+                    This website contains links to external third-party websites. I have no influence on the content of
+                    those
+                    websites and therefore cannot assume any liability for them. The respective provider or operator is
+                    always
+                    responsible for the linked pages.
+                </p>
+            </div>
 
-        <a class="back-link" href="/">Zurück zur Startseite</a>
-      </section>
+            <a class="back-link" href="/">Zurück zur Startseite</a>
+        </section>
     </main>
-  </body>
+</body>
+
 </html>
