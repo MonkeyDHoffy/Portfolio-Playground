@@ -123,6 +123,7 @@ function SkillTile({
   const rot = (index % 2 ? 1 : -1) * 0.8;
   const showBack = isPhone ? flipped : hover;
   const shortNote = skill.noteShort?.[lang] ?? skill.note[lang];
+  const displayLabel = skill.labelI18n?.[lang] ?? skill.label;
 
   useEffect(() => {
     if (!isPhone) {
@@ -157,7 +158,7 @@ function SkillTile({
           perspective: 1000,
           transition: 'transform 300ms ease',
           transform: `rotate(${rot}deg) ${(hover && !isPhone) ? 'translateY(-6px)' : ''}`,
-          cursor: 'pointer',
+          cursor: isPhone ? 'pointer' : 'default',
         }}
       >
         <div style={{
@@ -205,10 +206,10 @@ function SkillTile({
           }}>
             {skill.icon
               ? <img src={skill.icon} alt="" loading="lazy" style={{ width: 30, height: 30, objectFit: 'contain' }} />
-              : <span>{skill.label[0]}</span>}
+              : <span>{displayLabel[0]}</span>}
           </div>
           <div>
-            <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.01em' }}>{skill.label}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.01em' }}>{displayLabel}</div>
             <div style={{
               marginTop: 8, height: 6, borderRadius: 999,
               background: 'rgba(255,255,255,0.08)', overflow: 'hidden',
@@ -233,7 +234,7 @@ function SkillTile({
             fontFamily: 'var(--ff-mono)', fontSize: 11, color: '#000', opacity: 0.7,
             display: 'flex', justifyContent: 'space-between',
           }}>
-            <span>/ {skill.label.toLowerCase()}</span>
+            <span>/ {displayLabel.toLowerCase()}</span>
             <span>{skill.level}%</span>
           </div>
           <div
@@ -273,12 +274,12 @@ function SkillTile({
           onClick={() => setSheetOpen(false)}
           role="dialog"
           aria-modal="true"
-          aria-label={lang === 'de' ? `${skill.label} Details` : `${skill.label} details`}
+          aria-label={lang === 'de' ? `${displayLabel} Details` : `${displayLabel} details`}
         >
           <div className="skills-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="skills-sheet-handle" />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <strong style={{ fontSize: 18 }}>{skill.label}</strong>
+              <strong style={{ fontSize: 18 }}>{displayLabel}</strong>
               <button
                 onClick={() => setSheetOpen(false)}
                 style={{
@@ -317,7 +318,7 @@ function GrowthTile({ label, sub, backText }: { label: string; sub: string; back
         perspective: 1000,
         transition: 'transform 300ms ease',
         transform: `rotate(-1deg) ${hover ? 'translateY(-6px)' : ''}`,
-        cursor: 'pointer',
+        cursor: 'default',
       }}
     >
       <div style={{

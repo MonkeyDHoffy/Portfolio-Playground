@@ -4,7 +4,7 @@ const LINE = 'rgba(255,255,255,0.12)';
 
 export function Footer() {
   const { t, lang } = useLang();
-  const roleText = lang === 'de' ? 'Junior Softwaredeveloper' : 'Junior Software Developer';
+  const roleText = lang === 'de' ? 'Softwaredeveloper' : 'Software Developer';
 
   return (
     <footer
@@ -23,9 +23,16 @@ export function Footer() {
         gap: 16,
       }}
     >
-      <div className="footer-left" style={{ display: 'grid', gap: 6 }}>
-        <span>{t('footer.copyright')}</span>
-        <span style={{ color: 'rgba(255,255,255,0.82)', fontSize: 12, letterSpacing: '0.02em' }}>{roleText}</span>
+      <div className="footer-left" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <img
+          src="/jhicon.png"
+          alt="HOFFJA"
+          style={{ width: 26, height: 26, objectFit: 'cover', display: 'block', flexShrink: 0 }}
+        />
+        <div style={{ display: 'grid', gap: 6 }}>
+          <span>{t('footer.copyright')}</span>
+          <span style={{ color: 'rgba(255,255,255,0.82)', fontSize: 12, letterSpacing: '0.02em' }}>{roleText}</span>
+        </div>
       </div>
 
       <div className="footer-right" style={{ display: 'grid', gap: 10, justifyItems: 'end' }}>

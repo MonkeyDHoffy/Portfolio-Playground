@@ -38,7 +38,7 @@ export function About() {
               animation: 'vc-spin 12s linear infinite',
             }}>
               <span style={{ transform: 'rotate(-12deg)', padding: 8 }}>
-                {t('about.stickerA')}<br />{t('about.stickerB')}<br />{t('about.stickerC')}
+                {t('about.stickerA')}<br />{t('about.stickerB')}
               </span>
             </div>
             <AboutPhotoFlip />

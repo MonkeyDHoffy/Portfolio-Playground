@@ -54,7 +54,7 @@ export const projects: Project[] = [
       de: 'Single-Page-App mit React, React Router und Tailwind. Lädt PokéAPI-Daten dynamisch, cached sie und stellt gefilterte Views bereit.',
       en: 'Single-page app built with React, React Router, and Tailwind. Consumes PokéAPI, caches responses, renders filterable data views.',
     },
-    stack: ['JavaScript', 'HTML', 'CSS'],
+    stack: ['React', 'TypeScript', 'Tailwind', 'React Router'],
     image: '/assets/projects/bubble.png',
     live: 'https://pokedex.hoffja.de',
     github: 'https://github.com/MonkeyDHoffy/Pok-dex',

@@ -59,7 +59,7 @@ export function Hero() {
       ref={ref}
       style={{
         position: 'relative', zIndex: 1,
-        minHeight: '88vh', padding: '80px 40px',
+        minHeight: 'clamp(380px, calc(100dvh - 240px), 85vh)', padding: '80px 40px',
         overflowX: 'clip',
         display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
         textAlign: 'center',

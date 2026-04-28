@@ -251,6 +251,7 @@ export function Voices() {
                   <div className="voice-card-meta" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                     <span style={{ fontWeight: 700, fontSize: 15 }}>{v.sender}</span>
                     <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13 }}>{v.handle}</span>
+                    {v.wink && <span style={{ fontSize: 13 }} title="AI-generated">😉</span>}
                     <span style={{ color: 'rgba(255,255,255,0.35)' }}>·</span>
                     <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13 }}>{v.when[lang]}</span>
                     {v.profileUrl && (

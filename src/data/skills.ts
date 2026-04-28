@@ -2,6 +2,7 @@ import type { Lang } from '../i18n/translations';
 
 export type Skill = {
   label: string;
+  labelI18n?: Record<Lang, string>;
   icon: string | null;
   years: number;
   level: number;
@@ -32,7 +33,7 @@ export const skills: Skill[] = [
   { label: 'n8n',        icon: null,                             years: 1, level: 55, color: PINK,   span: 1, note: { de: 'n8n automatisiert Workflows, indem Apps über visuelle Flows verbunden werden.', en: 'n8n automates workflows by connecting apps through visual flows.' }, noteShort: { de: 'Workflow-Automation über visuelle Flows.', en: 'Workflow automation through visual flows.' } },
   { label: 'Docker',     icon: null,                             years: 1, level: 50, color: SKY,    span: 1, note: { de: 'Docker kapselt Anwendungen in Container für konsistente Umgebungen auf jedem System.', en: 'Docker packages applications in containers for consistent environments on any system.' }, noteShort: { de: 'Container für konsistente Deployments auf jedem System.', en: 'Containers for consistent deployments on any system.' } },
   { label: 'Figma',      icon: null,                             years: 2, level: 70, color: LILAC,  span: 1, note: { de: 'Figma ist ein Tool für UI-Design, Prototyping und Team-Kollaboration.', en: 'Figma is a tool for UI design, prototyping, and team collaboration.' }, noteShort: { de: 'UI-Design, Prototyping und Kollaboration im Team.', en: 'UI design, prototyping, and team collaboration.' } },
-  { label: 'Sonstiges',  icon: null,                             years: 1, level: 60, color: TEAL,   span: 2, note: { de: 'Tailwind, Bootstrap, Supabase, Vite und React Native gehören ebenfalls zu meinen Praxis-Tools. Zusätzlich habe ich Erfahrung im KI-gestützten Programmieren (u. a. mit Copilot und Claude Code) und nutze die Tools verantwortungsvoll für schnellere Umsetzung, sauberen Code und bessere Dokumentation.', en: 'I have also worked with Tailwind, Bootstrap, Supabase, Vite, and React Native. In addition, I have experience with AI-assisted programming (including Copilot and Claude Code) and use these tools responsibly for faster implementation, clean code, and better documentation.' }, noteShort: { de: 'Weitere Praxis-Tools plus KI-gestütztes Programmieren mit Copilot und Claude Code.', en: 'Additional tools plus AI-assisted programming with Copilot and Claude Code.' } },
+  { label: 'Sonstiges',  labelI18n: { de: 'Sonstiges', en: 'Misc' }, icon: null, years: 1, level: 60, color: TEAL, span: 2, note: { de: 'Tailwind, Bootstrap, Supabase, Vite und React Native gehören ebenfalls zu meinen Praxis-Tools. Zusätzlich habe ich Erfahrung im KI-gestützten Programmieren (u. a. mit Copilot und Claude Code) und nutze die Tools verantwortungsvoll für schnellere Umsetzung, sauberen Code und bessere Dokumentation.', en: 'I have also worked with Tailwind, Bootstrap, Supabase, Vite, and React Native. In addition, I have experience with AI-assisted programming (including Copilot and Claude Code) and use these tools responsibly for faster implementation, clean code, and better documentation.' }, noteShort: { de: 'Weitere Praxis-Tools plus KI-gestütztes Programmieren mit Copilot und Claude Code.', en: 'Additional tools plus AI-assisted programming with Copilot and Claude Code.' } },
 ];
 
 export const growthSkill = {
