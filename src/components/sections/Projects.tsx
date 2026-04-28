@@ -72,21 +72,23 @@ export function Projects() {
   return (
     <section id="projects" className="projects-section" style={{ padding: 'clamp(48px, 8vw, 64px) clamp(16px, 5vw, 40px)', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1240, margin: '0 auto' }}>
-        <SectionLabel n={t('projects.index')} text={t('projects.label')} />
-        <h2 style={{
-          fontSize: 'clamp(40px, 6vw, 88px)', fontWeight: 800, lineHeight: 1,
-          letterSpacing: '-0.03em', margin: '0 0 20px',
-        }}>
-          {t('projects.titleA')}{' '}
-          <em style={{
-            fontStyle: 'italic', fontWeight: 400,
-            background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>{t('projects.titleB')}</em>.
-        </h2>
-        <p style={{ maxWidth: 600, fontSize: 17, color: 'rgba(255,255,255,0.7)', margin: '0 0 48px' }}>
-          {t('projects.intro')} <span style={{ color: TEAL }}>{t('projects.clickHint')}</span>
-        </p>
+        <div style={{ maxWidth: 'var(--maxw)', margin: '0 auto 48px' }}>
+          <SectionLabel n={t('projects.index')} text={t('projects.label')} />
+          <h2 style={{
+            fontSize: 'clamp(40px, 6vw, 88px)', fontWeight: 800, lineHeight: 1,
+            letterSpacing: '-0.03em', margin: '0 0 20px',
+          }}>
+            {t('projects.titleA')}{' '}
+            <em style={{
+              fontStyle: 'italic', fontWeight: 400,
+              background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            }}>{t('projects.titleB')}</em>.
+          </h2>
+          <p style={{ maxWidth: 600, fontSize: 17, color: 'rgba(255,255,255,0.7)', margin: 0 }}>
+            {t('projects.intro')} <span style={{ color: TEAL }}>{t('projects.clickHint')}</span>
+          </p>
+        </div>
 
         <div style={{ position: 'relative' }}>
           {/* Stage */}
