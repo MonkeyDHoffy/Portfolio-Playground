@@ -47,8 +47,8 @@ export const voices: Voice[] = [
     profileUrl: 'https://www.linkedin.com/in/till-ganster-179854197/',
     when: { de: 'vor 4h', en: '4h' },
     text: {
-      de: 'Strukturiert, präzise und lösungsorientiert. Jannik kombiniert saubere Architektur mit solider UX.',
-      en: 'Structured, precise, solution-oriented. Jannik combines clean architecture with solid UX.',
+      de: 'Strukturiert, präzise und lösungsorientiert. Jannik kombiniert saubere Architektur mit solider UX. Ich bin Janniks größter Fan.',
+      en: "Structured, precise, solution-oriented. Jannik combines clean architecture with solid UX. I'm Jannik's biggest fan.",
     },
     likes: 203, reposts: 44, replies: 15,
   },
