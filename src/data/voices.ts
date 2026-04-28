@@ -41,9 +41,10 @@ export const voices: Voice[] = [
   },
   {
     id: 'gpt',
-    sender: 'ChatGPT',
-    handle: '@chatgpt',
-    avatar: { initials: 'GPT', color: '#3DCFB6' },
+    sender: 'Till Ganster',
+    handle: '@tillganster',
+    avatar: { initials: 'TG', color: '#3DCFB6', image: '/assets/voices/till.jpg' },
+    profileUrl: 'https://www.linkedin.com/in/till-ganster-179854197/',
     when: { de: 'vor 4h', en: '4h' },
     text: {
       de: 'Strukturiert, präzise und lösungsorientiert. Jannik kombiniert saubere Architektur mit solider UX.',

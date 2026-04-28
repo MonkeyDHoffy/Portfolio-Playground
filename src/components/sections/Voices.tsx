@@ -5,7 +5,7 @@ import { SectionLabel } from '../ui/SectionLabel';
 
 const LINE = 'rgba(255,255,255,0.12)';
 const AUTOPLAY_SPEED = 42;
-const DRAG_THRESHOLD_PX = 10;
+const DRAG_THRESHOLD_PX = 16;
 const INERTIA_FALLOFF = 3.2;
 const SWIPE_DIRECTION_MIN_VELOCITY = 40;
 
@@ -16,10 +16,14 @@ export function Voices() {
   const offsetRef = useRef(0);
   const pointerIdRef = useRef<number | null>(null);
   const dragStartXRef = useRef(0);
+  const dragStartYRef = useRef(0);
   const dragStartOffsetRef = useRef(0);
   const lastPointerXRef = useRef(0);
+  const lastPointerYRef = useRef(0);
   const lastPointerTimeRef = useRef(0);
   const isDraggingRef = useRef(false);
+  const isHoveringRef = useRef(false);
+  const hoverResumeSpeedRef = useRef(AUTOPLAY_SPEED);
   const didDragRef = useRef(false);
   const inertiaVelocityRef = useRef(0);
   const autoplaySpeedRef = useRef(AUTOPLAY_SPEED);
@@ -64,23 +68,26 @@ export function Voices() {
   const startDrag = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
     pointerIdRef.current = e.pointerId;
-    isDraggingRef.current = true;
-    setIsDragging(true);
     didDragRef.current = false;
     inertiaVelocityRef.current = 0;
     dragStartXRef.current = e.clientX;
+    dragStartYRef.current = e.clientY;
     dragStartOffsetRef.current = offsetRef.current;
     lastPointerXRef.current = e.clientX;
+    lastPointerYRef.current = e.clientY;
     lastPointerTimeRef.current = e.timeStamp;
-    e.currentTarget.setPointerCapture(e.pointerId);
   };
 
   const moveDrag = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current || pointerIdRef.current !== e.pointerId) return;
+    if (pointerIdRef.current !== e.pointerId) return;
 
     const dx = e.clientX - dragStartXRef.current;
-    if (!didDragRef.current && Math.abs(dx) >= DRAG_THRESHOLD_PX) {
+    const dy = e.clientY - dragStartYRef.current;
+    if (!didDragRef.current && Math.abs(dx) >= DRAG_THRESHOLD_PX && Math.abs(dx) > Math.abs(dy) + 2) {
       didDragRef.current = true;
+      isDraggingRef.current = true;
+      setIsDragging(true);
+      e.currentTarget.setPointerCapture(e.pointerId);
     }
 
     if (didDragRef.current) {
@@ -94,15 +101,16 @@ export function Voices() {
     }
 
     lastPointerXRef.current = e.clientX;
+    lastPointerYRef.current = e.clientY;
     lastPointerTimeRef.current = e.timeStamp;
   };
 
   const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
     if (pointerIdRef.current !== e.pointerId) return;
 
-    isDraggingRef.current = false;
-    setIsDragging(false);
     if (didDragRef.current) {
+      isDraggingRef.current = false;
+      setIsDragging(false);
       const totalDx = lastPointerXRef.current - dragStartXRef.current;
       const velocity = inertiaVelocityRef.current;
       let direction = 0;
@@ -123,10 +131,12 @@ export function Voices() {
     }
 
     pointerIdRef.current = null;
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      // ignore release errors from edge cases
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        // ignore release errors from edge cases
+      }
     }
   };
 
@@ -136,6 +146,20 @@ export function Voices() {
     setIsDragging(false);
     pointerIdRef.current = null;
     inertiaVelocityRef.current = 0;
+  };
+
+  const pauseAutoplayOnHover = () => {
+    if (isHoveringRef.current) return;
+    isHoveringRef.current = true;
+    hoverResumeSpeedRef.current = autoplaySpeedRef.current === 0 ? AUTOPLAY_SPEED : autoplaySpeedRef.current;
+    autoplaySpeedRef.current = 0;
+    inertiaVelocityRef.current = 0;
+  };
+
+  const resumeAutoplayAfterHover = () => {
+    if (!isHoveringRef.current) return;
+    isHoveringRef.current = false;
+    autoplaySpeedRef.current = hoverResumeSpeedRef.current || AUTOPLAY_SPEED;
   };
 
   return (
@@ -149,19 +173,6 @@ export function Voices() {
           }}>
             {t('voices.title')}
           </h2>
-          <span style={{
-            fontFamily: 'var(--ff-mono)',
-            fontSize: 11,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.5)',
-            border: `1px solid ${LINE}`,
-            borderRadius: 999,
-            padding: '4px 10px',
-            marginTop: 8,
-          }}>
-            {t('voices.demo')}
-          </span>
         </div>
 
         <div
@@ -171,6 +182,8 @@ export function Voices() {
           onPointerMove={moveDrag}
           onPointerUp={endDrag}
           onPointerCancel={cancelDrag}
+          onMouseEnter={pauseAutoplayOnHover}
+          onMouseLeave={resumeAutoplayAfterHover}
         >
           <div
             ref={trackRef}
