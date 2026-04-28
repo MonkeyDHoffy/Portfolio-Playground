@@ -24,6 +24,14 @@ const BIRD_IMG = '/assets/aboutme/avatar.png';
 const PICKUP_SIZE = 18;
 const PICKUP_HALF = PICKUP_SIZE / 2;
 const PICKUP_BONUS = 1;
+const PIPE_SPEED_PHASE_SWITCH_DISTANCE_M = 1600;
+const PIPE_SPEED_PHASE_TWO_SWITCH_DISTANCE_M = 2600;
+const PIPE_SPEED_STEP_DISTANCE_M = 70;
+const PIPE_SPEED_STEP_MULT = 0.08;
+const PIPE_SPEED_LATE_STEP_DISTANCE_M = 80;
+const PIPE_SPEED_LATE_STEP_MULT = 0.03;
+const PIPE_SPEED_ULTRA_LATE_STEP_DISTANCE_M = 100;
+const PIPE_SPEED_ULTRA_LATE_STEP_MULT = 0.01;
 const TOTAL_POINTS_KEY = 'portfolio.runner.totalPointsEarned';
 const DISTANCE_HIGHSCORE_KEY = 'portfolio.runner.distanceHighscore';
 
@@ -161,33 +169,37 @@ export function Runner() {
     let raf = 0;
     lastRef.current = 0;
     const loop = (tm: number) => {
-      let hitGround = false;
-
       if (!lastRef.current) lastRef.current = tm;
       const dt = Math.min((tm - lastRef.current) / 1000, 0.032);
       lastRef.current = tm;
 
       vyRef.current += 1250 * dt;
-      setBirdY((py) => {
-        let ny = py + vyRef.current * dt;
-        if (ny < BIRD_HALF) {
-          ny = BIRD_HALF;
-          if (vyRef.current < 0) vyRef.current = 0;
-        }
-        if (ny > WORLD_H - BIRD_HALF) {
-          ny = WORLD_H - BIRD_HALF;
-          hitGround = true;
-        }
+      let ny = birdYRef.current + vyRef.current * dt;
+      if (ny < BIRD_HALF) {
+        ny = BIRD_HALF;
+        if (vyRef.current < 0) vyRef.current = 0;
+      }
+      if (ny >= WORLD_H - BIRD_HALF) {
+        ny = WORLD_H - BIRD_HALF;
         birdYRef.current = ny;
-        return ny;
-      });
-
-      if (hitGround) {
+        setBirdY(ny);
         endGame();
         return;
       }
+      birdYRef.current = ny;
+      setBirdY(ny);
 
-      const speed = Math.min(185, speedRef.current + scoreRef.current * 0.14);
+      const distanceMeters = Math.floor(distRef.current / 10);
+      const earlyTierCap = Math.floor(PIPE_SPEED_PHASE_SWITCH_DISTANCE_M / PIPE_SPEED_STEP_DISTANCE_M);
+      const earlyMultiplierAtCap = 1 + earlyTierCap * PIPE_SPEED_STEP_MULT;
+      const lateTierCap = Math.floor((PIPE_SPEED_PHASE_TWO_SWITCH_DISTANCE_M - PIPE_SPEED_PHASE_SWITCH_DISTANCE_M) / PIPE_SPEED_LATE_STEP_DISTANCE_M);
+      const lateMultiplierAtCap = earlyMultiplierAtCap + lateTierCap * PIPE_SPEED_LATE_STEP_MULT;
+      const speedMultiplier = distanceMeters < PIPE_SPEED_PHASE_SWITCH_DISTANCE_M
+        ? (1 + Math.floor(distanceMeters / PIPE_SPEED_STEP_DISTANCE_M) * PIPE_SPEED_STEP_MULT)
+        : distanceMeters < PIPE_SPEED_PHASE_TWO_SWITCH_DISTANCE_M
+          ? (earlyMultiplierAtCap + Math.floor((distanceMeters - PIPE_SPEED_PHASE_SWITCH_DISTANCE_M) / PIPE_SPEED_LATE_STEP_DISTANCE_M) * PIPE_SPEED_LATE_STEP_MULT)
+          : (lateMultiplierAtCap + Math.floor((distanceMeters - PIPE_SPEED_PHASE_TWO_SWITCH_DISTANCE_M) / PIPE_SPEED_ULTRA_LATE_STEP_DISTANCE_M) * PIPE_SPEED_ULTRA_LATE_STEP_MULT);
+      const speed = (Math.min(185, speedRef.current + scoreRef.current * 0.14)) * speedMultiplier;
 
       setClouds((cs) => cs.map((c) => {
         let nx = c.x - c.speed * dt;

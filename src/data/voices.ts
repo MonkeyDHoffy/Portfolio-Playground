@@ -11,6 +11,7 @@ export type Voice = {
   likes: number;
   reposts: number;
   replies: number;
+  wink?: boolean;
 };
 
 export const voices: Voice[] = [
@@ -19,6 +20,7 @@ export const voices: Voice[] = [
     avatar: { initials: 'GC', color: '#6EB3FF', image: '/assets/voices/copilot.png' },
     sender: 'GitHub Copilot',
     handle: '@copilot',
+    wink: true,
     when: { de: 'vor 2h', en: '2h' },
     text: {
       de: 'Klarer Code, gute Tests und sinnvolle Komponenten. Jannik Hoffs Frontend-Workflows sind effizient und professionell.',
@@ -69,6 +71,7 @@ export const voices: Voice[] = [
     id: 'vscode',
     sender: 'Claude Code',
     handle: '@claudecode',
+    wink: true,
     avatar: { initials: 'CC', color: '#F4E06D' },
     when: { de: 'vor 1h', en: '1h' },
     text: {

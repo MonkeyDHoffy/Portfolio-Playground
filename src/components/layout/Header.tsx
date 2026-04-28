@@ -126,12 +126,17 @@ export function Header() {
         }}
       >
       <a href="#top" style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#fff', textDecoration: 'none', minWidth: 0 }}>
-        <span style={{
-          width: 28, height: 28, borderRadius: 8, background: 'var(--teal)',
-          color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 800, fontSize: 14, transform: 'rotate(-6deg)',
-        }}>J</span>
-        <span style={{ fontWeight: 700, fontSize: 15, whiteSpace: 'nowrap' }}>Jannik Hoff</span>
+        <img
+          src="/jhicon.png"
+          alt="JH"
+          style={{
+            width: 28,
+            height: 28,
+            objectFit: 'cover',
+            display: 'block',
+          }}
+        />
+        <span style={{ fontWeight: 800, fontSize: 17, whiteSpace: 'nowrap', letterSpacing: '0.03em' }}>HOFFJA</span>
       </a>
       {isCompact ? (
         <button
