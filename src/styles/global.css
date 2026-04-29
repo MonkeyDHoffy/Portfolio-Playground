@@ -29,6 +29,15 @@ body {
   scrollbar-width: thin;
 }
 
+.app-shell {
+  position: relative;
+}
+
+.content-layer {
+  position: relative;
+  z-index: 12;
+}
+
 ::-webkit-scrollbar {
   width: 12px;
 }
