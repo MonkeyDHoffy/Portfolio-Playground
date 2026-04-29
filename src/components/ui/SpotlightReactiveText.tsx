@@ -83,6 +83,8 @@ export function SpotlightReactiveText({
 
     measure();
 
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+
     let raf = 0;
     let measureRaf = 0;
 

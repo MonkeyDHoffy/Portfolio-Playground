@@ -27,6 +27,7 @@ export function Footer() {
         <img
           src="/jhicon.png"
           alt="HOFFJA"
+          loading="lazy"
           style={{ width: 26, height: 26, objectFit: 'cover', display: 'block', flexShrink: 0 }}
         />
         <div style={{ display: 'grid', gap: 6 }}>
