@@ -474,7 +474,7 @@ export function Header() {
         message={t('popup.cvMessage')}
         confirmLabel={t('popup.cvConfirm')}
         cancelLabel={t('popup.cancel')}
-        confirmHref="/assets/cv/Jannik_Hoff_Lebenslauf.pdf"
+        confirmHref="/assets/cv/Hoff_Jannik_CV.pdf"
         confirmDownload
         onConfirm={() => setCvPopupOpen(false)}
         onCancel={() => setCvPopupOpen(false)}
