@@ -791,8 +791,8 @@ export function Runner() {
                   color: '#06100d',
                   background: readyAccentGradient,
                   boxShadow: mobileBtnPressed
-                    ? '0 8px 16px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.2)'
-                    : '0 14px 28px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.2)',
+                    ? '0 3px 0 rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.2)'
+                    : '0 8px 0 rgba(0,0,0,0.45), 0 14px 28px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.2)',
                   transform: mobileBtnPressed ? 'scale(0.96)' : 'scale(1)',
                   transition: 'transform 140ms cubic-bezier(.22,.9,.3,1), box-shadow 140ms ease',
                   display: 'flex',

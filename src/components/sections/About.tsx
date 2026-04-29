@@ -124,7 +124,7 @@ function AboutPhotoFlip() {
           border: `3px solid ${PEACH}`,
         }}>
           <img
-            src="/assets/aboutme/avatar.png"
+            src="/assets/aboutme/avatar.jpg"
             alt="Jannik Cartoon"
             loading="lazy"
             style={{
