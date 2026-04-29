@@ -12,11 +12,20 @@ const DIM   = 'rgba(255,255,255,0.6)';
 type ToastType = 'success' | 'error';
 type Toast = { id: number; type: ToastType; message: string };
 type FormState = { name: string; email: string; message: string; company: string };
+/** Validation errors keyed by field name. Present only when a field is invalid. */
 type FormErrors = { name?: string; email?: string; message?: string };
+/**
+ * Payload dispatched by the Runner section via the custom event `runner:send-highscore`.
+ * Contact listens for this event and types the highscore message into the textarea.
+ */
 type RunnerSendHighscoreEventDetail = {
+  /** Pre-filled message text that is typed character-by-character into the textarea. */
   message: string;
+  /** Typing speed in milliseconds per character. Defaults to 30. */
   speedMs?: number;
+  /** If true, the textarea is focused and scrolled into view after typing completes. */
   focusField?: boolean;
+  /** If true, the contact section is scrolled into view before typing starts. */
   scrollToContact?: boolean;
 };
 
@@ -54,6 +63,7 @@ const onContactLinkLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
   e.currentTarget.style.filter = 'none';
 };
 
+/** POSTs the contact form payload to the API. Throws on non-OK responses. */
 async function submit(payload: Omit<FormState, 'company'> & { company: '' }) {
   const res = await fetch(API_ENDPOINT, {
     method: 'POST',
@@ -401,6 +411,10 @@ export function Contact() {
   );
 }
 
+/**
+ * Unified form field — renders either an `<input>` or a `<textarea>`.
+ * Applies teal focus styling and red error styling automatically.
+ */
 function Field({
   placeholder, name, type = 'text', value, onChange, required, autoComplete, textarea, rows, hasError, spellCheck,
   textareaRef,
@@ -412,8 +426,10 @@ function Field({
   onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   required?: boolean;
   autoComplete?: string;
+  /** When true, renders a `<textarea>` instead of an `<input>`. */
   textarea?: boolean;
   rows?: number;
+  /** Highlights the field border in red and uses a red-tinted background. */
   hasError?: boolean;
   spellCheck?: boolean;
   textareaRef?: React.Ref<HTMLTextAreaElement>;

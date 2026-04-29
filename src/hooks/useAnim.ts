@@ -1,5 +1,9 @@
 import { useEffect, useState, type RefObject } from 'react';
 
+/**
+ * Tracks the mouse position relative to a given element (or the window if no ref is provided).
+ * Returns `{ x, y, inside }` — `inside` is false when the cursor has left the target.
+ */
 export function useMousePos(ref?: RefObject<HTMLElement>) {
   const [pos, setPos] = useState({ x: -9999, y: -9999, inside: false });
   useEffect(() => {
@@ -25,6 +29,10 @@ export function useMousePos(ref?: RefObject<HTMLElement>) {
   return pos;
 }
 
+/**
+ * Returns `true` once the referenced element has entered the viewport.
+ * Disconnects the observer after the first intersection — fires exactly once per mount.
+ */
 export function useInViewOnce<T extends HTMLElement>(
   ref: RefObject<T>,
   opts: { rootMargin?: string; threshold?: number } = {}
