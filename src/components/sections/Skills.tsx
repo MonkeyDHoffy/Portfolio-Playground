@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useIsPhone } from '../../hooks/useIsPhone';
 import { createPortal } from 'react-dom';
 import { siDocker, siFigma, siN8n } from 'simple-icons';
 import { useLang } from '../../i18n/LanguageContext';
@@ -17,13 +18,7 @@ const skillBrandIcons = {
 
 export function Skills() {
   const { t, lang } = useLang();
-  const [isPhone, setIsPhone] = useState(() => window.innerWidth <= 860);
-
-  useEffect(() => {
-    const onResize = () => setIsPhone(window.innerWidth <= 860);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
+  const isPhone = useIsPhone();
 
   return (
     <section id="skills" style={{ padding: 'clamp(48px, 8vw, 64px) clamp(20px, 5vw, 40px)', position: 'relative', zIndex: 1 }}>
