@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { useIsPhone } from '../../hooks/useIsPhone';
+import { ShopPopup } from '../ui/ShopPopup';
 
 const TEAL   = '#3DCFB6';
 const PEACH  = '#FFB27A';
@@ -33,8 +34,19 @@ const PIPE_SPEED_LATE_STEP_DISTANCE_M = 80;
 const PIPE_SPEED_LATE_STEP_MULT = 0.03;
 const PIPE_SPEED_ULTRA_LATE_STEP_DISTANCE_M = 100;
 const PIPE_SPEED_ULTRA_LATE_STEP_MULT = 0.01;
-const TOTAL_POINTS_KEY = 'portfolio.runner.totalPointsEarned';
+const TOTAL_POINTS_KEY      = 'portfolio.runner.totalPointsEarned';
 const DISTANCE_HIGHSCORE_KEY = 'portfolio.runner.distanceHighscore';
+const OWNED_SKINS_KEY        = 'portfolio.runner.ownedSkins';
+const ACTIVE_SKIN_KEY        = 'portfolio.runner.activeSkin';
+const SKIN_PRICE             = 150;
+
+const SKINS = [
+  { id: 1, name: 'SPEEDER', color: '#3DCFB6',                price: 0   },
+  { id: 2, name: 'INFERNO', color: '#FFB27A',                price: 50  },
+  { id: 3, name: 'GALAXY',  color: '#B8A4FF',                price: 150 },
+  { id: 4, name: 'CHUNK',   color: '#F4E06D',                price: 150 },
+  { id: 5, name: 'STEALTH', color: 'rgba(255,255,255,0.72)', price: 150 },
+] as const;
 
 // All per-frame visual game state in one object — mutated directly in the RAF loop,
 // a single setTick triggers the re-render instead of 6+ individual setState calls.
@@ -89,6 +101,22 @@ export function Runner() {
   const [mobileBtnPressed, setMobileBtnPressed] = useState(false);
   const [mobileRipples, setMobileRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const [glowActive, setGlowActive] = useState(false);
+  const [ownedSkins, setOwnedSkins] = useState<number[]>(() => {
+    if (typeof window === 'undefined') return [1];
+    try { const s = window.localStorage.getItem(OWNED_SKINS_KEY); return s ? JSON.parse(s) : [1]; }
+    catch { return [1]; }
+  });
+  const [activeSkin, setActiveSkin] = useState<number>(() => {
+    if (typeof window === 'undefined') return 1;
+    return parseInt(window.localStorage.getItem(ACTIVE_SKIN_KEY) || '1', 10) || 1;
+  });
+  const [shopOpen, setShopOpen] = useState(false);
+  const [shopAnchorEl, setShopAnchorEl] = useState<HTMLElement | null>(null);
+  const [displayedPoints, setDisplayedPoints] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    return parseInt(window.localStorage.getItem(TOTAL_POINTS_KEY) || '0', 10) || 0;
+  });
+  const [isCountingDown, setIsCountingDown] = useState(false);
 
   // Single ref holds all per-frame visual state; setTick triggers the one re-render per frame.
   const frameRef = useRef<GameFrame>(makeInitialFrame());
@@ -101,6 +129,9 @@ export function Runner() {
   const vyRef = useRef(0);
   const lastRef = useRef(0);
   const runningRef = useRef(false);
+  const waitingFirstFlapRef = useRef(false);
+  const [waitingFirstFlap, setWaitingFirstFlap] = useState(false);
+  const countdownRafRef = useRef(0);
   const distRef = useRef(0);
   const speedRef = useRef(170);
   const sessionCommittedRef = useRef(false);
@@ -115,6 +146,10 @@ export function Runner() {
 
   const flap = useCallback(() => {
     if (!runningRef.current) return;
+    if (waitingFirstFlapRef.current) {
+      waitingFirstFlapRef.current = false;
+      setWaitingFirstFlap(false);
+    }
     vyRef.current = -320;
     const f = frameRef.current;
     f.particles = [
@@ -137,6 +172,9 @@ export function Runner() {
     speedRef.current = 118;
     sessionCommittedRef.current = false;
     vyRef.current = 0;
+    waitingFirstFlapRef.current = true;
+    setWaitingFirstFlap(true);
+    setShopOpen(false);
     const firstGapH = 126;
     const firstGapY = 8 + Math.random() * (WORLD_H - 16 - firstGapH);
     const initialPipe: Pipe = { id: Math.random(), x: 650, gapY: firstGapY, gapH: firstGapH };
@@ -204,6 +242,12 @@ export function Runner() {
       if (!lastRef.current) lastRef.current = tm;
       const dt = Math.min((tm - lastRef.current) / 1000, 0.032);
       lastRef.current = tm;
+
+      if (waitingFirstFlapRef.current) {
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+
       const f = frameRef.current;
 
       // Physics
@@ -407,6 +451,124 @@ export function Runner() {
   const liveDistanceHighscore = Math.max(distanceHighscore, f.score);
   const readyAccentGradient = `linear-gradient(135deg, ${TEAL}, ${LILAC} 55%, ${PEACH})`;
 
+  // Sync displayedPoints when totalPointsEarned changes outside a purchase (e.g. after a game)
+  useEffect(() => {
+    if (!isCountingDown) setDisplayedPoints(totalPointsEarned);
+  }, [totalPointsEarned, isCountingDown]);
+
+  // Cleanup countdown RAF on unmount
+  useEffect(() => {
+    return () => { if (countdownRafRef.current) cancelAnimationFrame(countdownRafRef.current); };
+  }, []);
+
+  const selectSkin = (id: number) => {
+    setActiveSkin(id);
+    if (typeof window !== 'undefined') window.localStorage.setItem(ACTIVE_SKIN_KEY, String(id));
+  };
+
+  const animateCountdown = (from: number, to: number) => {
+    if (countdownRafRef.current) cancelAnimationFrame(countdownRafRef.current);
+    const duration = 3000;
+    const startTime = performance.now();
+    setIsCountingDown(true);
+    const step = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      setDisplayedPoints(Math.round(from - (from - to) * progress));
+      if (progress < 1) {
+        countdownRafRef.current = requestAnimationFrame(step);
+      } else {
+        setIsCountingDown(false);
+      }
+    };
+    countdownRafRef.current = requestAnimationFrame(step);
+  };
+
+  const buySkin = (id: number) => {
+    const skin = SKINS.find((s) => s.id === id);
+    if (!skin || skin.price === 0 || ownedSkins.includes(id)) return;
+    if (totalPointsEarned < skin.price) return;
+    const next = totalPointsEarned - skin.price;
+    setTotalPointsEarned(next);
+    if (typeof window !== 'undefined') window.localStorage.setItem(TOTAL_POINTS_KEY, String(next));
+    const newOwned = [...ownedSkins, id];
+    setOwnedSkins(newOwned);
+    if (typeof window !== 'undefined') window.localStorage.setItem(OWNED_SKINS_KEY, JSON.stringify(newOwned));
+    animateCountdown(totalPointsEarned, next);
+    selectSkin(id);
+  };
+
+  const renderRocket = () => {
+    const rot = Math.max(-28, Math.min(32, vyRef.current * 0.05));
+    const wrapper: React.CSSProperties = {
+      position: 'absolute',
+      top: f.birdY - BIRD_HALF,
+      left: BIRD_X - BIRD_HALF,
+      width: BIRD_SIZE,
+      height: BIRD_SIZE,
+      transform: `rotate(${rot}deg)`,
+      transition: 'transform 80ms ease',
+    };
+
+    // Design 1 — SPEEDER: teal, slim swept silhouette, clean flame
+    if (activeSkin === 1) return (
+      <div style={wrapper}>
+        <div style={{ position: 'absolute', right: -13, top: '50%', transform: 'translateY(-50%)', width: 0, height: 0, borderTop: '7px solid transparent', borderBottom: '7px solid transparent', borderLeft: `13px solid ${TEAL}`, filter: `drop-shadow(0 0 5px ${TEAL})` }} />
+        <div style={{ position: 'absolute', left: 2, top: -6, width: 11, height: 7, background: TEAL, clipPath: 'polygon(0% 100%, 100% 100%, 38% 0%)', opacity: 0.88 }} />
+        <div style={{ position: 'absolute', left: 2, bottom: -6, width: 11, height: 7, background: TEAL, clipPath: 'polygon(0% 0%, 100% 0%, 38% 100%)', opacity: 0.88 }} />
+        <div style={{ position: 'absolute', left: -20, top: '50%', transform: 'translateY(-50%)', width: 18, height: 14, background: `radial-gradient(ellipse at right, ${YELLOW}EE 0%, ${PEACH}99 50%, transparent 100%)`, borderRadius: '50%', filter: 'blur(2.5px)' }} />
+        <div style={{ position: 'absolute', left: -11, top: '50%', transform: 'translateY(-50%)', width: 9, height: 7, background: `radial-gradient(ellipse at right, #fff 0%, ${YELLOW} 55%, transparent 100%)`, borderRadius: '50%' }} />
+        <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `url(${BIRD_IMG}) center/cover no-repeat, ${TEAL}`, border: `2px solid ${TEAL}`, boxShadow: `0 0 16px ${TEAL}AA, 0 0 3px #000`, zIndex: 1 }} />
+      </div>
+    );
+
+    // Design 2 — INFERNO: peach, fat nose, compact angled fins + back spike, huge flame
+    if (activeSkin === 2) return (
+      <div style={wrapper}>
+        <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 0, height: 0, borderTop: '11px solid transparent', borderBottom: '11px solid transparent', borderLeft: `8px solid ${PEACH}`, filter: `drop-shadow(0 0 7px ${PEACH})` }} />
+        <div style={{ position: 'absolute', left: 1, top: -5, width: 13, height: 7, background: PEACH, clipPath: 'polygon(0% 100%, 92% 100%, 18% 0%)', opacity: 0.92 }} />
+        <div style={{ position: 'absolute', left: 1, bottom: -5, width: 13, height: 7, background: PEACH, clipPath: 'polygon(0% 0%, 92% 0%, 18% 100%)', opacity: 0.92 }} />
+        <div style={{ position: 'absolute', left: -5, top: '50%', transform: 'translateY(-50%)', width: 8, height: 11, background: PEACH, clipPath: 'polygon(100% 0%, 100% 100%, 0% 50%)', opacity: 0.7 }} />
+        <div style={{ position: 'absolute', left: -28, top: '50%', transform: 'translateY(-50%)', width: 26, height: 22, background: `radial-gradient(ellipse at right, ${YELLOW}FF 0%, ${PEACH}BB 38%, transparent 100%)`, borderRadius: '50%', filter: 'blur(3.5px)' }} />
+        <div style={{ position: 'absolute', left: -17, top: '50%', transform: 'translateY(-50%)', width: 15, height: 13, background: `radial-gradient(ellipse at right, #fff 0%, ${YELLOW} 45%, ${PEACH}88 100%)`, borderRadius: '50%', filter: 'blur(1px)' }} />
+        <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `url(${BIRD_IMG}) center/cover no-repeat, ${PEACH}`, border: `2px solid ${PEACH}`, boxShadow: `0 0 18px ${PEACH}BB, 0 0 3px #000`, zIndex: 1 }} />
+      </div>
+    );
+
+    // Design 3 — GALAXY: lilac, needle nose + ring, slim blade fins flush to body, purple wisp
+    if (activeSkin === 3) return (
+      <div style={wrapper}>
+        <div style={{ position: 'absolute', right: -19, top: '50%', transform: 'translateY(-50%)', width: 0, height: 0, borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderLeft: `19px solid ${LILAC}`, filter: `drop-shadow(0 0 6px ${LILAC})` }} />
+        <div style={{ position: 'absolute', right: -6, top: '50%', transform: 'translateY(-50%)', width: 3, height: 13, borderRadius: 2, background: `${LILAC}CC`, zIndex: 2 }} />
+        <div style={{ position: 'absolute', left: 2, top: -4, width: 15, height: 5, background: LILAC, clipPath: 'polygon(0% 100%, 100% 60%, 75% 0%, 0% 30%)', opacity: 0.85 }} />
+        <div style={{ position: 'absolute', left: 2, bottom: -4, width: 15, height: 5, background: LILAC, clipPath: 'polygon(0% 0%, 100% 40%, 75% 100%, 0% 70%)', opacity: 0.85 }} />
+        <div style={{ position: 'absolute', left: -22, top: '50%', transform: 'translateY(-50%)', width: 20, height: 11, background: `radial-gradient(ellipse at right, #fff 0%, ${LILAC}FF 30%, ${LILAC}33 70%, transparent 100%)`, borderRadius: '50%', filter: 'blur(2.5px)' }} />
+        <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `url(${BIRD_IMG}) center/cover no-repeat, ${LILAC}`, border: `2px solid ${LILAC}`, boxShadow: `0 0 18px ${LILAC}BB, 0 0 3px #000`, zIndex: 1 }} />
+      </div>
+    );
+
+    // Design 4 — CHUNK: yellow, rectangular nose cap, compact blocky fins, thick warm flame
+    if (activeSkin === 4) return (
+      <div style={wrapper}>
+        <div style={{ position: 'absolute', right: -11, top: '50%', transform: 'translateY(-50%)', width: 11, height: 18, background: YELLOW, borderRadius: '0 5px 5px 0', border: '1px solid rgba(0,0,0,0.45)', boxShadow: `0 0 9px ${YELLOW}99` }} />
+        <div style={{ position: 'absolute', left: 1, top: -5, width: 12, height: 7, background: YELLOW, borderRadius: '2px 2px 0 0', border: '1px solid rgba(0,0,0,0.35)', boxShadow: `0 0 6px ${YELLOW}77` }} />
+        <div style={{ position: 'absolute', left: 1, bottom: -5, width: 12, height: 7, background: YELLOW, borderRadius: '0 0 2px 2px', border: '1px solid rgba(0,0,0,0.35)', boxShadow: `0 0 6px ${YELLOW}77` }} />
+        <div style={{ position: 'absolute', left: -20, top: '50%', transform: 'translateY(-50%)', width: 18, height: 20, background: `radial-gradient(ellipse at right, #fff 0%, ${YELLOW}FF 35%, ${PEACH}BB 65%, transparent 100%)`, borderRadius: '40%', filter: 'blur(1.5px)' }} />
+        <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `url(${BIRD_IMG}) center/cover no-repeat, ${YELLOW}`, border: `2px solid ${YELLOW}`, boxShadow: `0 0 18px ${YELLOW}BB, 0 0 3px #000`, zIndex: 1 }} />
+      </div>
+    );
+
+    // Design 5 — STEALTH: dark/white, needle nose, delta wings, cold blue flame
+    return (
+      <div style={wrapper}>
+        <div style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', width: 0, height: 0, borderTop: '3px solid transparent', borderBottom: '3px solid transparent', borderLeft: '20px solid rgba(255,255,255,0.88)', filter: 'drop-shadow(0 0 3px rgba(255,255,255,0.5))' }} />
+        <div style={{ position: 'absolute', left: -3, top: -10, width: 22, height: 10, background: 'rgba(255,255,255,0.08)', clipPath: 'polygon(0% 100%, 100% 100%, 12% 0%)', border: '1px solid rgba(255,255,255,0.20)' }} />
+        <div style={{ position: 'absolute', left: -3, bottom: -10, width: 22, height: 10, background: 'rgba(255,255,255,0.08)', clipPath: 'polygon(0% 0%, 100% 0%, 12% 100%)', border: '1px solid rgba(255,255,255,0.20)' }} />
+        <div style={{ position: 'absolute', left: -15, top: '50%', transform: 'translateY(-50%)', width: 13, height: 9, background: 'radial-gradient(ellipse at right, #fff 0%, rgba(130,210,255,0.9) 40%, transparent 100%)', borderRadius: '50%', filter: 'blur(1.5px)' }} />
+        <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `url(${BIRD_IMG}) center/cover no-repeat, rgba(12,14,22,0.95)`, border: '2px solid rgba(255,255,255,0.5)', boxShadow: '0 0 12px rgba(255,255,255,0.2), 0 0 3px #000', zIndex: 1 }} />
+      </div>
+    );
+  };
+
   return (
     <section className="runner-section" style={{ padding: '40px 40px 80px', position: 'relative', zIndex: 1 }}>
       <style>{`
@@ -473,6 +635,11 @@ export function Runner() {
           outline: none;
           box-shadow: none;
         }
+
+        @keyframes runner-points-counting {
+          0%, 100% { transform: scale(1); }
+          50%       { transform: scale(1.22); }
+        }
       `}</style>
       <div className="runner-shell" style={{ maxWidth: 1180, margin: '0 auto' }}>
         <div className="runner-meta" style={{ fontSize: 13, color: DIM, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -480,7 +647,13 @@ export function Runner() {
           <span>{t('runner.distanceHighscore')}</span>
           <span style={{ color: TEAL, fontFamily: 'var(--ff-mono)', fontWeight: 700 }}>{liveDistanceHighscore}</span>
           <span>{t('runner.totalPointsEarned')}</span>
-          <span style={{ color: YELLOW, fontFamily: 'var(--ff-mono)', fontWeight: 700 }}>{liveTotalPoints}</span>
+          <span style={{
+            color: YELLOW,
+            fontFamily: 'var(--ff-mono)',
+            fontWeight: 700,
+            display: 'inline-block',
+            animation: isCountingDown ? 'runner-points-counting 0.55s ease-in-out infinite' : 'none',
+          }}>{isCountingDown ? displayedPoints : liveTotalPoints}</span>
         </div>
 
         <div
@@ -569,25 +742,7 @@ export function Runner() {
             boxShadow: `0 0 8px ${TEAL}77`,
           }} />
 
-          <div style={{
-            position: 'absolute',
-            top: f.birdY - BIRD_HALF,
-            left: BIRD_X - BIRD_HALF,
-            width: BIRD_SIZE,
-            height: BIRD_SIZE,
-            borderRadius: '50%',
-            background: `url(${BIRD_IMG}) center/cover no-repeat, ${TEAL}`,
-            border: `2px solid ${TEAL}`,
-            boxShadow: `0 0 16px ${TEAL}AA, 0 0 3px #000`,
-            transform: `rotate(${Math.max(-28, Math.min(32, vyRef.current * 0.05))}deg)`,
-            transition: 'transform 80ms ease',
-          }}>
-            <div style={{
-              position: 'absolute', left: -9, top: 10, width: 8, height: 8,
-              background: `linear-gradient(90deg, transparent, ${TEAL}88)`,
-              borderRadius: '50%',
-            }} />
-          </div>
+          {renderRocket()}
 
           {f.pipes.map((p) => (
             <div key={`top-${p.id}`} style={{
@@ -665,7 +820,7 @@ export function Runner() {
             }} />
           ))}
 
-          {status === 'ready' && (
+          {status === 'ready' && !shopOpen && (
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
@@ -726,10 +881,45 @@ export function Runner() {
                   CLICK · TAP
                 </div>
               </div>
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { setShopAnchorEl(e.currentTarget); setShopOpen(true); }}
+                style={{
+                  position: 'absolute', bottom: 12, right: 12,
+                  padding: '4px 11px', borderRadius: 999,
+                  fontFamily: 'var(--ff-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '0.16em',
+                  cursor: 'pointer', border: `1px solid ${TEAL}`,
+                  background: 'transparent', color: TEAL,
+                }}
+              >
+                SHOP
+              </button>
             </div>
           )}
 
-          {status === 'gameover' && (
+          {status === 'running' && waitingFirstFlap && (
+            <div style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              pointerEvents: 'none',
+            }}>
+              <div style={{
+                fontFamily: 'var(--ff-mono)',
+                fontSize: 13,
+                fontWeight: 700,
+                color: TEAL,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                textShadow: `0 0 14px ${TEAL}99`,
+                animation: 'vc-blink 1.1s ease-in-out infinite',
+              }}>
+                CLICK · TAP TO FLY
+              </div>
+            </div>
+          )}
+
+          {status === 'gameover' && !shopOpen && (
             <div style={{
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
@@ -758,9 +948,25 @@ export function Runner() {
                   >{t('runner.restart')} ↵</button>
                 )}
               </div>
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { setShopAnchorEl(e.currentTarget); setShopOpen(true); }}
+                style={{
+                  position: 'absolute', bottom: 12, right: 12,
+                  padding: '4px 11px', borderRadius: 999,
+                  fontFamily: 'var(--ff-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '0.16em',
+                  cursor: 'pointer', border: `1px solid ${TEAL}`,
+                  background: 'transparent', color: TEAL,
+                }}
+              >
+                SHOP
+              </button>
             </div>
           )}
+
         </div>
+
         </div>
 
         {isPhone && (
@@ -850,6 +1056,20 @@ export function Runner() {
           </div>
         )}
       </div>
+
+      <ShopPopup
+        isOpen={shopOpen && (status === 'ready' || status === 'gameover')}
+        anchorEl={shopAnchorEl}
+        skins={SKINS}
+        ownedSkins={ownedSkins}
+        activeSkin={activeSkin}
+        totalPointsEarned={totalPointsEarned}
+        displayedPoints={displayedPoints}
+        isCountingDown={isCountingDown}
+        onBuy={buySkin}
+        onSelect={selectSkin}
+        onClose={() => setShopOpen(false)}
+      />
     </section>
   );
 }
