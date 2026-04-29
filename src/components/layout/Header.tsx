@@ -47,6 +47,7 @@ const cvLink: React.CSSProperties = {
 export function Header() {
   const { t } = useLang();
   const isCompact = useIsPhone();
+  const cvDownloadHref = 'assets/cv/Hoff_Jannik_CV.pdf';
   const [activeNav, setActiveNav] = useState<string>('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [navGlow, setNavGlow] = useState(false);
@@ -474,7 +475,7 @@ export function Header() {
         message={t('popup.cvMessage')}
         confirmLabel={t('popup.cvConfirm')}
         cancelLabel={t('popup.cancel')}
-        confirmHref="/assets/cv/Hoff_Jannik_CV.pdf"
+        confirmHref={cvDownloadHref}
         confirmDownload
         onConfirm={() => setCvPopupOpen(false)}
         onCancel={() => setCvPopupOpen(false)}
