@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
+import { useIsPhone } from '../../hooks/useIsPhone';
 
 const TEAL   = '#3DCFB6';
 const PEACH  = '#FFB27A';
@@ -62,7 +63,7 @@ export function Runner() {
     { x: 340, w: 380, h: 70 },
     { x: 760, w: 320, h: 40 },
   ]);
-  const [isPhone, setIsPhone] = useState(() => window.innerWidth <= 860);
+  const isPhone = useIsPhone();
   const [mobileBtnPressed, setMobileBtnPressed] = useState(false);
   const [mobileRipples, setMobileRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const [glowActive, setGlowActive] = useState(false);
@@ -91,12 +92,6 @@ export function Runner() {
   scoreRef.current = score;
   pointsCaughtRef.current = pointsCaught;
   birdYRef.current = birdY;
-
-  useEffect(() => {
-    const onResize = () => setIsPhone(window.innerWidth <= 860);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
 
   const flap = useCallback(() => {
     if (!runningRef.current) return;

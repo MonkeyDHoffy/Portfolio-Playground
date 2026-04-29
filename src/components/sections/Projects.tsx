@@ -3,6 +3,7 @@ import { useLang } from '../../i18n/LanguageContext';
 import { projects } from '../../data/projects';
 import { SectionLabel } from '../ui/SectionLabel';
 import { SpotlightReactiveText } from '../ui/SpotlightReactiveText';
+import { useIsPhone } from '../../hooks/useIsPhone';
 
 const TEAL  = '#3DCFB6';
 const PEACH = '#FFB27A';
@@ -29,7 +30,7 @@ export function Projects() {
   const { t, lang } = useLang();
   const [active, setActive] = useState(0);
   const [flipped, setFlipped] = useState<Set<string>>(new Set());
-  const [isPhone, setIsPhone] = useState(() => window.innerWidth <= 860);
+  const isPhone = useIsPhone();
   const [swipeAnim, setSwipeAnim] = useState<'left' | 'right' | null>(null);
   const count = projects.length;
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -37,12 +38,6 @@ export function Projects() {
   const suppressTapUntil = useRef(0);
   const SWIPE_THRESHOLD = 56;
   const SWIPE_LOCK_RATIO = 1.15;
-
-  useEffect(() => {
-    const onResize = () => setIsPhone(window.innerWidth <= 860);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
 
   useEffect(() => {
     return () => {
