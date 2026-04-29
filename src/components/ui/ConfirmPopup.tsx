@@ -7,16 +7,27 @@ const POPUP_GAP = 10;
 const MOBILE_BP = 860;
 
 export type ConfirmPopupProps = {
+  /** Whether the popup is visible. */
   isOpen: boolean;
+  /** The element the popup anchors to on desktop (used for position calculation). */
   anchorEl: HTMLElement | null;
+  /** Bold heading shown at the top of the popup. */
   title: string;
+  /** Body text describing the action. */
   message: string;
+  /** Label for the confirm (right) button. */
   confirmLabel: string;
+  /** Label for the cancel (left) button. */
   cancelLabel: string;
+  /** Optional emoji or icon shown next to the title. */
   icon?: string;
+  /** If set, the confirm button becomes an anchor tag pointing to this URL. */
   confirmHref?: string;
+  /** When true the confirm anchor uses the download attribute instead of target="_blank". */
   confirmDownload?: boolean;
+  /** Called when the user clicks confirm. Also called on link-style confirm before navigation. */
   onConfirm?: () => void;
+  /** Called on cancel click, backdrop click, or Escape key. */
   onCancel: () => void;
 };
 

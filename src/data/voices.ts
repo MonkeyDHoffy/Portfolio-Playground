@@ -1,16 +1,20 @@
 import type { Lang } from '../i18n/translations';
 
+/** A single testimonial card shown in the Voices marquee. */
 export type Voice = {
   id: string;
   sender: string;
+  /** Displayed as a subdued username below the sender name. */
   handle: string;
   avatar: { initials: string; color: string; image?: string };
+  /** URL to a LinkedIn profile. When present, clicking the card opens a confirmation popup. */
   profileUrl?: string;
   when: Record<Lang, string>;
   text: Record<Lang, string>;
   likes: number;
   reposts: number;
   replies: number;
+  /** When true, marks the card as AI-generated with a 😉 indicator. Clicks are suppressed. */
   wink?: boolean;
 };
 
