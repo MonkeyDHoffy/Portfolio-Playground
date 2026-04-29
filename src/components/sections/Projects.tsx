@@ -254,8 +254,8 @@ export function Projects() {
                 e.currentTarget.blur();
               }}
               aria-label={t('projects.prev')}
-              style={navBtn}
-            >←</button>
+              className="nav-btn"
+            ><span style={{ display:'block', width:0, height:0, borderTop:'6px solid transparent', borderBottom:'6px solid transparent', borderRight:'9px solid currentColor', marginRight:1 }} /></button>
             <div style={{ display: 'flex', gap: 8 }}>
               {projects.map((_, i) => (
                 <button
@@ -282,13 +282,28 @@ export function Projects() {
                 e.currentTarget.blur();
               }}
               aria-label={t('projects.next')}
-              style={navBtn}
-            >→</button>
+              className="nav-btn"
+            ><span style={{ display:'block', width:0, height:0, borderTop:'6px solid transparent', borderBottom:'6px solid transparent', borderLeft:'9px solid currentColor', marginLeft:1 }} /></button>
           </div>
         </div>
       </div>
       <style>{`
         .pc-front::after {
+          .nav-btn {
+            width: 44px; height: 44px; border-radius: 999px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.45);
+            cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: all 150ms ease;
+          }
+          .nav-btn:hover {
+            background: rgba(61,207,182,0.1);
+            border-color: #3DCFB6;
+            color: #3DCFB6;
+          }
+          .pc-front::after {
           content: '';
           position: absolute;
           top: -120%;
@@ -377,10 +392,16 @@ export function Projects() {
 }
 
 const navBtn: React.CSSProperties = {
-  width: 44, height: 44, borderRadius: 999,
+  width: 44,
+  height: 44,
+  borderRadius: 999,
   background: 'rgba(255,255,255,0.04)',
   border: '1px solid rgba(255,255,255,0.18)',
-  color: '#fff', fontSize: 18, cursor: 'pointer',
-  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+  color: '#fff',
+  fontSize: 18,
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   transition: 'all 150ms ease',
 };
