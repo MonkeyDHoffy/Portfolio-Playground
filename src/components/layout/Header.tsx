@@ -440,20 +440,6 @@ export function Header() {
             transition: none;
           }
         }
-        @keyframes element-aura-breathe {
-          0%, 100% {
-            box-shadow:
-              0 0 0 1px rgba(255,178,122,0.18),
-              0 0 24px 4px rgba(255,178,122,0.22),
-              0 0 60px 12px rgba(255,178,122,0.1);
-          }
-          50% {
-            box-shadow:
-              0 0 0 1px rgba(255,178,122,0.38),
-              0 0 44px 12px rgba(255,178,122,0.4),
-              0 0 100px 28px rgba(255,178,122,0.18);
-          }
-        }
         @keyframes cv-shimmer {
           0% {
             transform: rotate(18deg) translateX(-320%);

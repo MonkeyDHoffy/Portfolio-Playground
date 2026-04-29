@@ -369,25 +369,11 @@ export function Projects() {
         @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
           .pc-card:hover .pc-card-aura {
             opacity: 1;
-            animation: pc-element-aura-breathe 3.2s ease-in-out infinite;
+            animation: element-aura-breathe 3.2s ease-in-out infinite;
           }
         }
         .pc-card-side:hover {
           filter: brightness(0.9) saturate(1) !important;
-        }
-        @keyframes pc-element-aura-breathe {
-          0%, 100% {
-            box-shadow:
-              0 0 0 1px rgba(255,178,122,0.18),
-              0 0 24px 4px rgba(255,178,122,0.22),
-              0 0 60px 12px rgba(255,178,122,0.1);
-          }
-          50% {
-            box-shadow:
-              0 0 0 1px rgba(255,178,122,0.38),
-              0 0 44px 12px rgba(255,178,122,0.4),
-              0 0 100px 28px rgba(255,178,122,0.18);
-          }
         }
         @keyframes vc-project-card-wobble {
           0% { rotate: 0deg; }
