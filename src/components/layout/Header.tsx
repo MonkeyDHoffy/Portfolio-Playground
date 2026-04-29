@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { LangToggle } from './LangToggle';
 import { ConfirmPopup } from '../ui/ConfirmPopup';
+import { useIsPhone } from '../../hooks/useIsPhone';
 
 const LINE = 'rgba(255,255,255,0.12)';
 
@@ -45,9 +46,9 @@ const cvLink: React.CSSProperties = {
 
 export function Header() {
   const { t } = useLang();
+  const isCompact = useIsPhone();
   const [activeNav, setActiveNav] = useState<string>('');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isCompact, setIsCompact] = useState(() => window.innerWidth <= 860);
   const [navGlow, setNavGlow] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
   const [cvPopupOpen, setCvPopupOpen] = useState(false);
@@ -76,16 +77,12 @@ export function Header() {
       setActiveNav(current);
     };
 
-    const updateCompact = () => setIsCompact(window.innerWidth <= 860);
-    const handleResize = () => { updateActive(); updateCompact(); };
-
     updateActive();
-    updateCompact();
     window.addEventListener('scroll', updateActive, { passive: true });
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', updateActive);
     return () => {
       window.removeEventListener('scroll', updateActive);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', updateActive);
     };
   }, []);
 
