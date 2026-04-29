@@ -132,6 +132,8 @@ export function Spotlight() {
       }
 
       document.body.style.setProperty('--spotlight-prox', p.c.toFixed(3));
+      document.body.style.setProperty('--spotlight-x', `${p.x.toFixed(1)}px`);
+      document.body.style.setProperty('--spotlight-y', `${p.y.toFixed(1)}px`);
       if (p.c > 0.03) {
         document.body.classList.add('spotlight-near');
       } else {
@@ -149,6 +151,8 @@ export function Spotlight() {
       window.removeEventListener('resize', onScrollOrResize);
       document.body.classList.remove('spotlight-near');
       document.body.style.removeProperty('--spotlight-prox');
+      document.body.style.removeProperty('--spotlight-x');
+      document.body.style.removeProperty('--spotlight-y');
     };
   }, []);
 

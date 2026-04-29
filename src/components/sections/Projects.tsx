@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { projects } from '../../data/projects';
 import { SectionLabel } from '../ui/SectionLabel';
+import { SpotlightReactiveText } from '../ui/SpotlightReactiveText';
 
 const TEAL  = '#3DCFB6';
 const PEACH = '#FFB27A';
@@ -94,11 +95,7 @@ export function Projects() {
             letterSpacing: '-0.03em', margin: '0 0 20px',
           }}>
             {t('projects.titleA')}{' '}
-            <em style={{
-              fontStyle: 'italic', fontWeight: 400,
-              background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-            }}>{t('projects.titleB')}</em>.
+            <SpotlightReactiveText text={t('projects.titleB')} radius={260} />.
           </h2>
           <p style={{ maxWidth: 600, fontSize: 17, color: 'rgba(255,255,255,0.7)', margin: 0 }}>
             {t('projects.intro')} <span style={{ color: TEAL }}>{t('projects.clickHint')}</span>
