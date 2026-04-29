@@ -37,6 +37,8 @@ const cvLink: React.CSSProperties = {
   background: 'var(--teal)',
   border: '1px solid rgba(0,0,0,0.7)',
   textDecoration: 'none',
+  position: 'relative',
+  overflow: 'hidden',
   transition: 'transform 180ms ease, box-shadow 180ms ease, filter 180ms ease',
 };
 
@@ -303,6 +305,24 @@ export function Header() {
           filter: saturate(1.08);
           box-shadow: 0 0 0 1px rgba(0,0,0,0.75), 0 0 14px rgba(61, 207, 182, 0.45);
         }
+        .cv-download::after {
+          content: '';
+          position: absolute;
+          top: -130%;
+          left: -40%;
+          width: 36%;
+          height: 360%;
+          background: linear-gradient(112deg, transparent 0%, rgba(255,255,255,0.1) 42%, rgba(255,255,255,0.32) 50%, rgba(255,255,255,0.1) 58%, transparent 100%);
+          transform: rotate(18deg) translateX(-320%);
+          opacity: 0;
+          pointer-events: none;
+          will-change: transform, opacity;
+        }
+        .cv-download:hover::after,
+        .cv-download:focus-visible::after {
+          opacity: 0.9;
+          animation: cv-shimmer 1280ms cubic-bezier(0.25, 0.7, 0.3, 1) infinite;
+        }
         .cv-download:focus-visible {
           outline: 2px solid rgba(61, 207, 182, 0.95);
           outline-offset: 2px;
@@ -420,6 +440,22 @@ export function Header() {
               0 0 0 1px rgba(255,178,122,0.38),
               0 0 44px 12px rgba(255,178,122,0.4),
               0 0 100px 28px rgba(255,178,122,0.18);
+          }
+        }
+        @keyframes cv-shimmer {
+          0% {
+            transform: rotate(18deg) translateX(-320%);
+            opacity: 0;
+          }
+          12% {
+            opacity: 0.9;
+          }
+          86% {
+            opacity: 0.9;
+          }
+          100% {
+            transform: rotate(18deg) translateX(640%);
+            opacity: 0;
           }
         }
         @media (max-width: 860px) {

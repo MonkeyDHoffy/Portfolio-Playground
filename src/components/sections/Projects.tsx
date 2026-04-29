@@ -44,6 +44,12 @@ export function Projects() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('projects-card-hovered');
+    };
+  }, []);
+
   const go = (dir: -1 | 1) => setActive((a) => (a + dir + count) % count);
   const toggleFlip = (key: string) => setFlipped((s) => {
     const n = new Set(s);
@@ -167,12 +173,20 @@ export function Projects() {
                     if (isActive) toggleFlip(p.key);
                     else setActive(i);
                   }}
+                  onMouseEnter={() => {
+                    if (!isPhone) document.body.classList.add('projects-card-hovered');
+                  }}
+                  onMouseLeave={() => {
+                    document.body.classList.remove('projects-card-hovered');
+                  }}
                 >
+                  <div className="pc-card-aura" aria-hidden />
                   <div style={{
                     position: 'relative', width: '100%', height: '100%',
                     transformStyle: 'preserve-3d',
                     transition: 'transform 600ms cubic-bezier(0.3, 0.7, 0.2, 1)',
                     transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                    zIndex: 2,
                   }}>
                     {/* Front */}
                     <div className="pc-front" style={{
@@ -324,25 +338,56 @@ export function Projects() {
         .pc-front::after {
           content: '';
           position: absolute;
-          top: -120%;
-          left: -42%;
-          width: 26%;
-          height: 340%;
-          background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.14) 45%, rgba(255,255,255,0.46) 50%, rgba(255,255,255,0.14) 55%, transparent 100%);
-          transform: rotate(18deg) translateX(-260%);
+          top: -135%;
+          left: -56%;
+          width: 22%;
+          height: 380%;
+          background: linear-gradient(112deg, transparent 0%, rgba(255,255,255,0.1) 42%, rgba(255,255,255,0.34) 50%, rgba(255,255,255,0.1) 58%, transparent 100%);
+          transform: rotate(18deg) translateX(-340%);
           pointer-events: none;
           z-index: 3;
           opacity: 0;
+          will-change: transform, opacity;
         }
         .pc-card:hover {
           animation: vc-project-card-wobble 480ms ease;
         }
+        .pc-card-aura {
+          position: absolute;
+          inset: -4px;
+          border-radius: 24px;
+          pointer-events: none;
+          z-index: 1;
+          opacity: 0;
+          transition: opacity 400ms ease;
+          box-shadow: 0 0 0 1px rgba(255,178,122,0.25), 0 0 32px 8px rgba(255,178,122,0.3), 0 0 80px 20px rgba(255,178,122,0.14);
+        }
         .pc-card:hover .pc-front::after {
-          opacity: 1;
-          animation: vc-project-card-shimmer 680ms ease;
+          opacity: 0.96;
+          animation: vc-project-card-shimmer 1360ms cubic-bezier(0.25, 0.7, 0.3, 1) infinite;
+        }
+        @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+          .pc-card:hover .pc-card-aura {
+            opacity: 1;
+            animation: pc-element-aura-breathe 3.2s ease-in-out infinite;
+          }
         }
         .pc-card-side:hover {
           filter: brightness(0.9) saturate(1) !important;
+        }
+        @keyframes pc-element-aura-breathe {
+          0%, 100% {
+            box-shadow:
+              0 0 0 1px rgba(255,178,122,0.18),
+              0 0 24px 4px rgba(255,178,122,0.22),
+              0 0 60px 12px rgba(255,178,122,0.1);
+          }
+          50% {
+            box-shadow:
+              0 0 0 1px rgba(255,178,122,0.38),
+              0 0 44px 12px rgba(255,178,122,0.4),
+              0 0 100px 28px rgba(255,178,122,0.18);
+          }
         }
         @keyframes vc-project-card-wobble {
           0% { rotate: 0deg; }
@@ -352,8 +397,20 @@ export function Projects() {
           100% { rotate: 0deg; }
         }
         @keyframes vc-project-card-shimmer {
-          from { transform: rotate(18deg) translateX(-260%); }
-          to   { transform: rotate(18deg) translateX(520%); }
+          0% {
+            transform: rotate(18deg) translateX(-340%);
+            opacity: 0;
+          }
+          12% {
+            opacity: 0.96;
+          }
+          86% {
+            opacity: 0.96;
+          }
+          100% {
+            transform: rotate(18deg) translateX(760%);
+            opacity: 0;
+          }
         }
         @keyframes pc-swipe-in-left {
           from {
@@ -397,6 +454,11 @@ export function Projects() {
         @media (prefers-reduced-motion: reduce) {
           .pc-card:hover {
             animation: none;
+          }
+          .pc-card-aura,
+          .pc-card:hover .pc-card-aura {
+            animation: none !important;
+            transition: none !important;
           }
           .pc-front::after,
           .pc-card:hover .pc-front::after {
