@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { Hero } from './components/sections/Hero';
@@ -19,6 +19,19 @@ export function App() {
   const rootRef = useRef<HTMLDivElement>(null);
   useAutoScrollReveal(rootRef);
 
+  useEffect(() => {
+    const preload = () => {
+      import('./components/sections/About');
+      import('./components/sections/Skills');
+      import('./components/sections/Projects');
+      import('./components/sections/Voices');
+      import('./components/sections/Contact');
+      import('./components/sections/Runner');
+    };
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback;
+    idle ? idle(preload) : setTimeout(preload, 200);
+  }, []);
+
   return (
     <div ref={rootRef} className="app-shell">
       <GradientBlobs />
@@ -29,14 +42,12 @@ export function App() {
         <main>
           <Hero />
           <Ticker />
-          <Suspense fallback={null}>
-            <About />
-            <Skills />
-            <Projects />
-            <Voices />
-            <Contact />
-            <Runner />
-          </Suspense>
+          <Suspense fallback={null}><About /></Suspense>
+          <Suspense fallback={null}><Skills /></Suspense>
+          <Suspense fallback={null}><Projects /></Suspense>
+          <Suspense fallback={null}><Voices /></Suspense>
+          <Suspense fallback={null}><Contact /></Suspense>
+          <Suspense fallback={null}><Runner /></Suspense>
         </main>
         <Footer />
       </div>
