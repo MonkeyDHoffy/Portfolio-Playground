@@ -65,6 +65,11 @@ export function Runner() {
   const [isPhone, setIsPhone] = useState(() => window.innerWidth <= 860);
   const [mobileBtnPressed, setMobileBtnPressed] = useState(false);
   const [mobileRipples, setMobileRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const [glowActive, setGlowActive] = useState(false);
+
+  useEffect(() => {
+    return () => { document.body.classList.remove('runner-hovered'); };
+  }, []);
 
   const vyRef = useRef(0);
   const birdYRef = useRef(WORLD_H * 0.5);
@@ -418,6 +423,11 @@ export function Runner() {
           50% { transform: scale(1.12); opacity: 1; }
         }
 
+        @keyframes runner-glow-breathe {
+          0%, 100% { box-shadow: 0 0 0 1px rgba(255,178,122,0.18), 0 0 24px 4px rgba(255,178,122,0.22), 0 0 60px 12px rgba(255,178,122,0.1); }
+          50% { box-shadow: 0 0 0 1px rgba(255,178,122,0.38), 0 0 44px 12px rgba(255,178,122,0.4), 0 0 100px 28px rgba(255,178,122,0.18); }
+        }
+
         @keyframes runner-mobile-ripple {
           0% {
             transform: translate(-50%, -50%) scale(0.2);
@@ -477,6 +487,25 @@ export function Runner() {
         </div>
 
         <div
+          style={{ position: 'relative' }}
+          onMouseEnter={() => { setGlowActive(true); document.body.classList.add('runner-hovered'); }}
+          onMouseLeave={() => { setGlowActive(false); document.body.classList.remove('runner-hovered'); }}
+        >
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: -6,
+              borderRadius: 28,
+              pointerEvents: 'none',
+              zIndex: 10,
+              opacity: glowActive ? 1 : 0,
+              transition: 'opacity 0.4s ease',
+              boxShadow: '0 0 0 1px rgba(255,178,122,0.25), 0 0 32px 8px rgba(255,178,122,0.3), 0 0 80px 20px rgba(255,178,122,0.14)',
+              animation: glowActive ? 'runner-glow-breathe 3.2s ease-in-out infinite' : 'none',
+            }}
+          />
+          <div
           className="runner-arena runner-tap-surface"
           onPointerDown={handlePress}
           role="button"
@@ -751,6 +780,7 @@ export function Runner() {
               </div>
             </div>
           )}
+        </div>
         </div>
 
         {isPhone && (

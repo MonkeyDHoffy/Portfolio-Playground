@@ -9,6 +9,7 @@ export function Spotlight() {
   const tealRef = useRef<HTMLDivElement>(null);
   const whiteRef = useRef<HTMLDivElement>(null);
   const posRef = useRef({ x: -400, y: -400, tx: -400, ty: -400, scale: 1, ts: 1, c: 0, tc: 0, h: 0, th: 0, p: 0, tp: 0 });
+  const runnerFadeRef = useRef(0);
 
   useEffect(() => {
     const INTERACTIVE_SELECTOR = 'a, button, input, textarea, select, [role="button"], .cta-fx';
@@ -117,18 +118,22 @@ export function Spotlight() {
       const transform = `translate3d(${p.x - size / 2}px, ${p.y - size / 2}px, 0)`;
       const baseOpacity = Math.min(1, 0.8 + (p.scale - 1) * 0.3);
 
+      const rfTarget = document.body.classList.contains('runner-hovered') || document.body.classList.contains('contact-form-hovered') || document.body.classList.contains('nav-hovered') || document.body.classList.contains('about-photo-hovered') ? 1 : 0;
+      runnerFadeRef.current += (rfTarget - runnerFadeRef.current) * 0.08;
+      const rfMult = 1 - runnerFadeRef.current;
+
       if (tealRef.current) {
         tealRef.current.style.transform = transform;
         tealRef.current.style.width = size + 'px';
         tealRef.current.style.height = size + 'px';
-        tealRef.current.style.opacity = String(baseOpacity * (1 - p.c * 0.92));
+        tealRef.current.style.opacity = String(baseOpacity * (1 - p.c * 0.92) * rfMult);
       }
 
       if (whiteRef.current) {
         whiteRef.current.style.transform = transform;
         whiteRef.current.style.width = size + 'px';
         whiteRef.current.style.height = size + 'px';
-        whiteRef.current.style.opacity = String(baseOpacity * p.c * 0.55);
+        whiteRef.current.style.opacity = String(baseOpacity * p.c * 0.55 * rfMult);
       }
 
       document.body.style.setProperty('--spotlight-prox', p.c.toFixed(3));

@@ -46,6 +46,7 @@ export const translations = {
       de: 'Ich baue aktiv an eigenen Projekten, erkunde neue Werkzeuge und erweitere mein Portfolio laufend.',
       en: 'I actively work on personal projects, explore new tools, and keep expanding my portfolio.',
     },
+    flipCard: { de: 'Porträt umdrehen', en: 'Flip portrait' },
     stickerA: { de: 'DEVELOPER', en: 'DEVELOPER' },
     stickerB: { de: '2026',     en: '2026' },
   },
