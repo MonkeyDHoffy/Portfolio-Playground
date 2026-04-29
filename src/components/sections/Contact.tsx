@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { SectionLabel } from '../ui/SectionLabel';
+import { SpotlightReactiveText } from '../ui/SpotlightReactiveText';
 
 const TEAL  = '#3DCFB6';
 const PEACH = '#FFB27A';
@@ -219,11 +220,7 @@ export function Contact() {
               letterSpacing: '-0.03em', margin: '0 0 24px',
             }}>
               {t('contact.titleA')}{' '}
-              <em style={{
-                fontStyle: 'italic', fontWeight: 400,
-                background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-              }}>{t('contact.titleB')}</em>.
+              <SpotlightReactiveText text={t('contact.titleB')} radius={260} />.
             </h2>
             <p style={{ fontSize: 19, lineHeight: 1.55, color: 'rgba(255,255,255,0.85)', margin: '0 0 16px' }}>
               {t('contact.blurb')}

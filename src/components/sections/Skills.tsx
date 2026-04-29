@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useLang } from '../../i18n/LanguageContext';
 import { skills as allSkills } from '../../data/skills';
 import { SectionLabel } from '../ui/SectionLabel';
+import { SpotlightReactiveText } from '../ui/SpotlightReactiveText';
 
 const TEAL  = '#3DCFB6';
 const LILAC = '#B8A4FF';
@@ -26,11 +27,7 @@ export function Skills() {
           letterSpacing: '-0.03em', margin: '0 0 20px',
         }}>
           {t('skills.titleA')}{' '}
-          <em style={{
-            fontStyle: 'italic', fontWeight: 400,
-            background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>{t('skills.titleB')}</em>.
+          <SpotlightReactiveText text={t('skills.titleB')} radius={260} />.
         </h2>
         <p style={{ maxWidth: 560, fontSize: 17, color: 'rgba(255,255,255,0.7)', lineHeight: 1.55, margin: '0 0 60px' }}>
           {t('skills.intro')} <span style={{ color: TEAL }}>{t('skills.hoverTip')}</span>
