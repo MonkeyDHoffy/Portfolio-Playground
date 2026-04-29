@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { siDocker, siFigma, siN8n } from 'simple-icons';
 import { useLang } from '../../i18n/LanguageContext';
 import { skills as allSkills } from '../../data/skills';
 import { SectionLabel } from '../ui/SectionLabel';
@@ -7,6 +8,12 @@ import { SpotlightReactiveText } from '../ui/SpotlightReactiveText';
 
 const TEAL  = '#3DCFB6';
 const LILAC = '#B8A4FF';
+
+const skillBrandIcons = {
+  Docker: siDocker,
+  Figma: siFigma,
+  n8n: siN8n,
+} as const;
 
 export function Skills() {
   const { t, lang } = useLang();
@@ -100,6 +107,35 @@ export function Skills() {
 }
 
 type Skill = typeof allSkills[number];
+
+function SkillIcon({ skill, displayLabel }: { skill: Skill; displayLabel: string }) {
+  const brandIcon = skillBrandIcons[skill.label as keyof typeof skillBrandIcons];
+
+  if (skill.icon) {
+    return <img src={skill.icon} alt="" loading="lazy" style={{ width: 30, height: 30, objectFit: 'contain' }} />;
+  }
+
+  if (brandIcon) {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden style={{ width: 28, height: 28, display: 'block', fill: '#fff' }}>
+        <path d={brandIcon.path} />
+      </svg>
+    );
+  }
+
+  if (skill.label === 'Sonstiges') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden style={{ width: 28, height: 28, display: 'block' }}>
+        <rect x="3" y="3" width="7" height="7" rx="2" fill="#fff" />
+        <rect x="14" y="3" width="7" height="7" rx="2" fill="#fff" />
+        <rect x="3" y="14" width="7" height="7" rx="2" fill="#fff" />
+        <rect x="14" y="14" width="7" height="7" rx="2" fill="#fff" />
+      </svg>
+    );
+  }
+
+  return <span>{displayLabel[0]}</span>;
+}
 
 function SkillTile({
   skill,
@@ -201,9 +237,7 @@ function SkillTile({
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 22, fontWeight: 800, color: '#000',
           }}>
-            {skill.icon
-              ? <img src={skill.icon} alt="" loading="lazy" style={{ width: 30, height: 30, objectFit: 'contain' }} />
-              : <span>{displayLabel[0]}</span>}
+            <SkillIcon skill={skill} displayLabel={displayLabel} />
           </div>
           <div>
             <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.01em' }}>{displayLabel}</div>

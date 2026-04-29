@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { voices } from '../../data/voices';
 import { SectionLabel } from '../ui/SectionLabel';
+import { ConfirmPopup } from '../ui/ConfirmPopup';
 
 const LINE = 'rgba(255,255,255,0.12)';
 const AUTOPLAY_SPEED = 42;
@@ -30,6 +31,15 @@ export function Voices() {
   const suppressClickUntilRef = useRef(0);
   const [isDragging, setIsDragging] = useState(false);
   const marqueeVoices = [...voices, ...voices];
+
+  const [liPopup, setLiPopup] = useState<{
+    open: boolean; url: string; name: string; anchorEl: HTMLElement | null;
+  }>({ open: false, url: '', name: '', anchorEl: null });
+
+  const openLiPopup = (url: string, name: string, el: HTMLElement) => {
+    setLiPopup({ open: true, url, name, anchorEl: el });
+  };
+  const closeLiPopup = () => setLiPopup(s => ({ ...s, open: false }));
 
   useEffect(() => {
     const track = trackRef.current;
@@ -207,10 +217,10 @@ export function Voices() {
                   position: 'relative',
                   flexShrink: 0,
                 }}
-                onClick={() => {
-                  if (!v.profileUrl) return;
+                onClick={(e) => {
+                  if (!v.profileUrl || v.wink) return;
                   if (Date.now() < suppressClickUntilRef.current) return;
-                  window.open(v.profileUrl, '_blank', 'noopener,noreferrer');
+                  openLiPopup(v.profileUrl, v.sender, e.currentTarget as HTMLElement);
                 }}
               >
                 <div style={{
@@ -354,6 +364,23 @@ export function Voices() {
           }
         }
       `}</style>
+
+      <ConfirmPopup
+        isOpen={liPopup.open}
+        anchorEl={liPopup.anchorEl}
+        icon="💼"
+        title={t('popup.liTitle')}
+        message={
+          lang === 'de'
+            ? `Du wirst zum LinkedIn-Profil von ${liPopup.name} weitergeleitet.`
+            : `You'll be redirected to ${liPopup.name}'s LinkedIn profile.`
+        }
+        confirmLabel={t('popup.liConfirmBtn')}
+        cancelLabel={t('popup.cancel')}
+        confirmHref={liPopup.url}
+        onConfirm={closeLiPopup}
+        onCancel={closeLiPopup}
+      />
     </section>
   );
 }

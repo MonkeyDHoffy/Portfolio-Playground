@@ -141,6 +141,15 @@ export const translations = {
     },
   },
 
+  popup: {
+    cancel:       { de: 'Abbrechen',   en: 'Cancel' },
+    cvTitle:      { de: 'CV herunterladen', en: 'Download CV' },
+    cvMessage:    { de: 'Möchtest du meinen Lebenslauf als PDF herunterladen?', en: 'Would you like to download my CV as a PDF?' },
+    cvConfirm:    { de: 'Herunterladen ↓', en: 'Download ↓' },
+    liTitle:      { de: 'LinkedIn öffnen', en: 'Open LinkedIn' },
+    liConfirmBtn: { de: 'Profil öffnen →', en: 'Open profile →' },
+  },
+
   footer: {
     copyright: { de: '© Jannik Hoff 2026', en: '© Jannik Hoff 2026' },
     made:      { de: 'Saarlouis', en: 'Saarlouis' },
