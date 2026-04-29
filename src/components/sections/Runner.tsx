@@ -491,6 +491,7 @@ export function Runner() {
           <div
           className="runner-arena runner-tap-surface"
           onPointerDown={handlePress}
+          onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); handlePress(); } }}
           role="button"
           tabIndex={0}
           style={{
