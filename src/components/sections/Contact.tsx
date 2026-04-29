@@ -25,6 +25,35 @@ const API_ENDPOINT = 'https://api.hoffja.de/api/send-mail';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const emptyForm = (): FormState => ({ name: '', email: '', message: '', company: '' });
 
+const contactLinkStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 10,
+  width: 'fit-content',
+  background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  textDecoration: 'none',
+  fontSize: 16,
+  fontWeight: 700,
+  letterSpacing: '-0.01em',
+  lineHeight: 1.4,
+  paddingBottom: 3,
+  borderBottom: '1px solid transparent',
+  borderImage: `linear-gradient(90deg, ${TEAL}, ${LILAC}) 1`,
+  textShadow: '0 0 18px rgba(61,207,182,0.12)',
+  transition: 'filter 180ms ease, transform 180ms ease',
+};
+
+const onContactLinkEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  e.currentTarget.style.transform = 'translateX(2px)';
+  e.currentTarget.style.filter = 'brightness(1.08)';
+};
+const onContactLinkLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  e.currentTarget.style.transform = 'translateX(0)';
+  e.currentTarget.style.filter = 'none';
+};
+
 async function submit(payload: Omit<FormState, 'company'> & { company: '' }) {
   const res = await fetch(API_ENDPOINT, {
     method: 'POST',
@@ -231,106 +260,15 @@ export function Contact() {
               {t('contact.blurb')}
             </p>
             <div style={{ display: 'grid', gap: 10, margin: '0 0 32px' }}>
-              <a
-                href="mailto:hoffjannik95@gmail.com"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  width: 'fit-content',
-                  background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  textDecoration: 'none',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  letterSpacing: '-0.01em',
-                  lineHeight: 1.4,
-                  paddingBottom: 3,
-                  borderBottom: '1px solid transparent',
-                  borderImage: `linear-gradient(90deg, ${TEAL}, ${LILAC}) 1`,
-                  textShadow: '0 0 18px rgba(61,207,182,0.12)',
-                  transition: 'filter 180ms ease, transform 180ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateX(2px)';
-                  e.currentTarget.style.filter = 'brightness(1.08)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateX(0)';
-                  e.currentTarget.style.filter = 'none';
-                }}
-              >
+              <a href="mailto:hoffjannik95@gmail.com" style={contactLinkStyle} onMouseEnter={onContactLinkEnter} onMouseLeave={onContactLinkLeave}>
                 <span style={{ fontSize: 13, fontFamily: 'var(--ff-mono)', letterSpacing: '0.08em' }}>MAIL</span>
                 hoffjannik95@gmail.com
               </a>
-              <a
-                href="https://www.linkedin.com/in/jannik-hoff/"
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  width: 'fit-content',
-                  background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  textDecoration: 'none',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  letterSpacing: '-0.01em',
-                  lineHeight: 1.4,
-                  paddingBottom: 3,
-                  borderBottom: '1px solid transparent',
-                  borderImage: `linear-gradient(90deg, ${TEAL}, ${LILAC}) 1`,
-                  textShadow: '0 0 18px rgba(61,207,182,0.12)',
-                  transition: 'filter 180ms ease, transform 180ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateX(2px)';
-                  e.currentTarget.style.filter = 'brightness(1.08)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateX(0)';
-                  e.currentTarget.style.filter = 'none';
-                }}
-              >
+              <a href="https://www.linkedin.com/in/jannik-hoff/" target="_blank" rel="noreferrer" style={contactLinkStyle} onMouseEnter={onContactLinkEnter} onMouseLeave={onContactLinkLeave}>
                 <span style={{ fontSize: 13, fontFamily: 'var(--ff-mono)', letterSpacing: '0.08em' }}>LINKEDIN</span>
                 linkedin.com/in/jannik-hoff
               </a>
-              <a
-                href="https://github.com/MonkeyDHoffy"
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  width: 'fit-content',
-                  background: `linear-gradient(90deg, ${TEAL}, ${LILAC})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  textDecoration: 'none',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  letterSpacing: '-0.01em',
-                  lineHeight: 1.4,
-                  paddingBottom: 3,
-                  borderBottom: '1px solid transparent',
-                  borderImage: `linear-gradient(90deg, ${TEAL}, ${LILAC}) 1`,
-                  textShadow: '0 0 18px rgba(61,207,182,0.12)',
-                  transition: 'filter 180ms ease, transform 180ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateX(2px)';
-                  e.currentTarget.style.filter = 'brightness(1.08)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateX(0)';
-                  e.currentTarget.style.filter = 'none';
-                }}
-              >
+              <a href="https://github.com/MonkeyDHoffy" target="_blank" rel="noreferrer" style={contactLinkStyle} onMouseEnter={onContactLinkEnter} onMouseLeave={onContactLinkLeave}>
                 <span style={{ fontSize: 13, fontFamily: 'var(--ff-mono)', letterSpacing: '0.08em' }}>GITHUB</span>
                 github.com/MonkeyDHoffy
               </a>
@@ -453,20 +391,6 @@ export function Contact() {
 
         @media (max-width: 860px) {
           .contact-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
-        }
-        @keyframes element-aura-breathe {
-          0%, 100% {
-            box-shadow:
-              0 0 0 1px rgba(255,178,122,0.18),
-              0 0 24px 4px rgba(255,178,122,0.22),
-              0 0 60px 12px rgba(255,178,122,0.1);
-          }
-          50% {
-            box-shadow:
-              0 0 0 1px rgba(255,178,122,0.38),
-              0 0 44px 12px rgba(255,178,122,0.4),
-              0 0 100px 28px rgba(255,178,122,0.18);
-          }
         }
         @keyframes vc-toast-in {
           from { transform: translateY(20px); opacity: 0; }
