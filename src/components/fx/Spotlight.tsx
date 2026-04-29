@@ -118,7 +118,7 @@ export function Spotlight() {
       const transform = `translate3d(${p.x - size / 2}px, ${p.y - size / 2}px, 0)`;
       const baseOpacity = Math.min(1, 0.8 + (p.scale - 1) * 0.3);
 
-      const rfTarget = document.body.classList.contains('runner-hovered') || document.body.classList.contains('contact-form-hovered') || document.body.classList.contains('nav-hovered') || document.body.classList.contains('about-photo-hovered') ? 1 : 0;
+      const rfTarget = document.body.classList.contains('runner-hovered') || document.body.classList.contains('contact-form-hovered') || document.body.classList.contains('nav-hovered') || document.body.classList.contains('about-photo-hovered') || document.body.classList.contains('projects-card-hovered') ? 1 : 0;
       runnerFadeRef.current += (rfTarget - runnerFadeRef.current) * 0.08;
       const rfMult = 1 - runnerFadeRef.current;
 
