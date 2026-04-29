@@ -40,8 +40,8 @@ export const voices: Voice[] = [
     profileUrl: 'https://www.linkedin.com/in/alexander-schulz-aa012a209/',
     when: { de: 'gestern', en: 'yesterday' },
     text: {
-      de: 'Zuverlässig, performant und gut gepflegt. Jannik hält sein Dev-Setup schlank und sorgt für reibungslose Workflows.',
-      en: 'Reliable, performant, and well maintained. Jannik keeps his dev setup lean and ensures smooth workflows.',
+      de: 'Jannik ist zuverlässig, performant und gut gepflegt. Er hält sein Dev-Setup schlank und sorgt für reibungslose Workflows.',
+      en: 'Jannik is reliable, performant, and well maintained. He keeps his dev setup lean and ensures smooth workflows.',
     },
     likes: 58, reposts: 9, replies: 12,
   },
