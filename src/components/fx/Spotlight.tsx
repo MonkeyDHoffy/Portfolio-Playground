@@ -5,6 +5,8 @@ import { useEffect, useRef } from 'react';
  * – Idea 6: color shifts from teal to soft neutral/white over interactive elements
  * – Idea 2: adds `spotlight-near` class to body so .cta-fx buttons can glow
  */
+const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
 export function Spotlight() {
   const tealRef = useRef<HTMLDivElement>(null);
   const whiteRef = useRef<HTMLDivElement>(null);
@@ -12,6 +14,7 @@ export function Spotlight() {
   const runnerFadeRef = useRef(0);
 
   useEffect(() => {
+    if (isTouch) return;
     const INTERACTIVE_SELECTOR = 'a, button, input, textarea, select, [role="button"], .cta-fx';
     const NODE_REFRESH_MS = 1200;
     const RECT_REFRESH_MS = 220;
@@ -160,6 +163,8 @@ export function Spotlight() {
       document.body.style.removeProperty('--spotlight-y');
     };
   }, []);
+
+  if (isTouch) return null;
 
   const sharedStyle: React.CSSProperties = {
     position: 'fixed',

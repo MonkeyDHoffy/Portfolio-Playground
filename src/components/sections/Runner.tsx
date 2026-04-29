@@ -36,9 +36,46 @@ const PIPE_SPEED_ULTRA_LATE_STEP_MULT = 0.01;
 const TOTAL_POINTS_KEY = 'portfolio.runner.totalPointsEarned';
 const DISTANCE_HIGHSCORE_KEY = 'portfolio.runner.distanceHighscore';
 
+// All per-frame visual game state in one object — mutated directly in the RAF loop,
+// a single setTick triggers the re-render instead of 6+ individual setState calls.
+type GameFrame = {
+  birdY: number;
+  pipes: Pipe[];
+  pickups: PointPickup[];
+  particles: Particle[];
+  clouds: Cloud[];
+  hills: Hill[];
+  score: number;
+  pointsCaught: number;
+};
+
+const INITIAL_CLOUDS: Cloud[] = [
+  { x: 120, y: 28, w: 60, speed: 14 },
+  { x: 420, y: 52, w: 42, speed: 10 },
+  { x: 720, y: 20, w: 72, speed: 18 },
+];
+
+const INITIAL_HILLS: Hill[] = [
+  { x: 0,   w: 300, h: 50 },
+  { x: 340, w: 380, h: 70 },
+  { x: 760, w: 320, h: 40 },
+];
+
+function makeInitialFrame(): GameFrame {
+  return {
+    birdY: WORLD_H * 0.5,
+    pipes: [],
+    pickups: [],
+    particles: [],
+    clouds: INITIAL_CLOUDS.map((c) => ({ ...c })),
+    hills: INITIAL_HILLS.map((h) => ({ ...h })),
+    score: 0,
+    pointsCaught: 0,
+  };
+}
+
 export function Runner() {
   const { t, lang } = useLang();
-  const [score, setScore] = useState(0);
   const [totalPointsEarned, setTotalPointsEarned] = useState(() => {
     if (typeof window === 'undefined') return 0;
     return parseInt(window.localStorage.getItem(TOTAL_POINTS_KEY) || '0', 10) || 0;
@@ -48,39 +85,27 @@ export function Runner() {
     return parseInt(window.localStorage.getItem(DISTANCE_HIGHSCORE_KEY) || '0', 10) || 0;
   });
   const [status, setStatus] = useState<'ready' | 'running' | 'gameover'>('ready');
-  const [birdY, setBirdY] = useState(WORLD_H * 0.5);
-  const [pipes, setPipes] = useState<Pipe[]>([]);
-  const [pickups, setPickups] = useState<PointPickup[]>([]);
-  const [pointsCaught, setPointsCaught] = useState(0);
-  const [particles, setParticles] = useState<Particle[]>([]);
-  const [clouds, setClouds] = useState<Cloud[]>([
-    { x: 120, y: 28, w: 60, speed: 14 },
-    { x: 420, y: 52, w: 42, speed: 10 },
-    { x: 720, y: 20, w: 72, speed: 18 },
-  ]);
-  const [hills, setHills] = useState<Hill[]>([
-    { x: 0,   w: 300, h: 50 },
-    { x: 340, w: 380, h: 70 },
-    { x: 760, w: 320, h: 40 },
-  ]);
   const isPhone = useIsPhone();
   const [mobileBtnPressed, setMobileBtnPressed] = useState(false);
   const [mobileRipples, setMobileRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const [glowActive, setGlowActive] = useState(false);
+
+  // Single ref holds all per-frame visual state; setTick triggers the one re-render per frame.
+  const frameRef = useRef<GameFrame>(makeInitialFrame());
+  const [, setTick] = useState(0);
 
   useEffect(() => {
     return () => { document.body.classList.remove('runner-hovered'); };
   }, []);
 
   const vyRef = useRef(0);
-  const birdYRef = useRef(WORLD_H * 0.5);
   const lastRef = useRef(0);
   const runningRef = useRef(false);
-  const scoreRef = useRef(0);
-  const pointsCaughtRef = useRef(0);
   const distRef = useRef(0);
   const speedRef = useRef(170);
   const sessionCommittedRef = useRef(false);
+
+  runningRef.current = status === 'running';
 
   const makePickupForPipe = useCallback((pipe: Pipe): PointPickup => ({
     id: Math.random(),
@@ -88,48 +113,45 @@ export function Runner() {
     y: pipe.gapY + pipe.gapH * 0.5,
   }), []);
 
-  runningRef.current = status === 'running';
-  scoreRef.current = score;
-  pointsCaughtRef.current = pointsCaught;
-  birdYRef.current = birdY;
-
   const flap = useCallback(() => {
     if (!runningRef.current) return;
     vyRef.current = -320;
-    setParticles((ps) => [
-      ...ps,
+    const f = frameRef.current;
+    f.particles = [
+      ...f.particles,
       ...Array.from({ length: 7 }, (_, i) => ({
         id: Math.random() + i,
         x: BIRD_X - 8,
-        y: birdYRef.current,
+        y: f.birdY,
         vx: -80 - Math.random() * 120,
         vy: (Math.random() - 0.5) * 120,
         life: 0.5,
         color: [TEAL, PEACH, YELLOW][i % 3],
       })),
-    ]);
+    ];
+    setTick((n) => n + 1);
   }, []);
 
-  const seedPipes = () => {
-    const firstGapH = 126;
-    const firstGapY = 8 + Math.random() * (WORLD_H - 16 - firstGapH);
-    return [{ id: Math.random(), x: 650, gapY: firstGapY, gapH: firstGapH }];
-  };
-
   const start = useCallback(() => {
-    setScore(0);
-    setPointsCaught(0);
     distRef.current = 0;
     speedRef.current = 118;
     sessionCommittedRef.current = false;
-    setBirdY(WORLD_H * 0.5);
     vyRef.current = 0;
-    const initialPipes = seedPipes();
-    setPipes(initialPipes);
-    setPickups(initialPipes.map(makePickupForPipe));
-    setParticles([]);
+    const firstGapH = 126;
+    const firstGapY = 8 + Math.random() * (WORLD_H - 16 - firstGapH);
+    const initialPipe: Pipe = { id: Math.random(), x: 650, gapY: firstGapY, gapH: firstGapH };
+    frameRef.current = {
+      birdY: WORLD_H * 0.5,
+      pipes: [initialPipe],
+      pickups: [{ id: Math.random(), x: initialPipe.x + PIPE_W * 0.5, y: initialPipe.gapY + initialPipe.gapH * 0.5 }],
+      particles: [],
+      clouds: INITIAL_CLOUDS.map((c) => ({ ...c })),
+      hills: INITIAL_HILLS.map((h) => ({ ...h })),
+      score: 0,
+      pointsCaught: 0,
+    };
     setStatus('running');
-  }, [makePickupForPipe]);
+  }, []);
 
   const endGame = useCallback(() => {
     setStatus('gameover');
@@ -157,7 +179,7 @@ export function Runner() {
     }
 
     setTotalPointsEarned((prev) => {
-      const next = prev + pointsCaughtRef.current;
+      const next = prev + frameRef.current.pointsCaught;
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(TOTAL_POINTS_KEY, String(next));
       }
@@ -177,27 +199,29 @@ export function Runner() {
     if (status !== 'running') return;
     let raf = 0;
     lastRef.current = 0;
+
     const loop = (tm: number) => {
       if (!lastRef.current) lastRef.current = tm;
       const dt = Math.min((tm - lastRef.current) / 1000, 0.032);
       lastRef.current = tm;
+      const f = frameRef.current;
 
+      // Physics
       vyRef.current += 1250 * dt;
-      let ny = birdYRef.current + vyRef.current * dt;
+      let ny = f.birdY + vyRef.current * dt;
       if (ny < BIRD_HALF) {
         ny = BIRD_HALF;
         if (vyRef.current < 0) vyRef.current = 0;
       }
       if (ny >= WORLD_H - BIRD_HALF) {
-        ny = WORLD_H - BIRD_HALF;
-        birdYRef.current = ny;
-        setBirdY(ny);
+        f.birdY = WORLD_H - BIRD_HALF;
+        setTick((n) => n + 1);
         endGame();
         return;
       }
-      birdYRef.current = ny;
-      setBirdY(ny);
+      f.birdY = ny;
 
+      // Speed
       const distanceMeters = Math.floor(distRef.current / 10);
       const earlyTierCap = Math.floor(PIPE_SPEED_PHASE_SWITCH_DISTANCE_M / PIPE_SPEED_STEP_DISTANCE_M);
       const earlyMultiplierAtCap = 1 + earlyTierCap * PIPE_SPEED_STEP_MULT;
@@ -208,150 +232,143 @@ export function Runner() {
         : distanceMeters < PIPE_SPEED_PHASE_TWO_SWITCH_DISTANCE_M
           ? (earlyMultiplierAtCap + Math.floor((distanceMeters - PIPE_SPEED_PHASE_SWITCH_DISTANCE_M) / PIPE_SPEED_LATE_STEP_DISTANCE_M) * PIPE_SPEED_LATE_STEP_MULT)
           : (lateMultiplierAtCap + Math.floor((distanceMeters - PIPE_SPEED_PHASE_TWO_SWITCH_DISTANCE_M) / PIPE_SPEED_ULTRA_LATE_STEP_DISTANCE_M) * PIPE_SPEED_ULTRA_LATE_STEP_MULT);
-      const speed = (Math.min(185, speedRef.current + scoreRef.current * 0.14)) * speedMultiplier;
+      const speed = (Math.min(185, speedRef.current + f.score * 0.14)) * speedMultiplier;
 
-      setClouds((cs) => cs.map((c) => {
+      // Clouds
+      f.clouds = f.clouds.map((c) => {
         let nx = c.x - c.speed * dt;
         if (nx < -c.w) nx = WORLD_W + Math.random() * 220;
         return { ...c, x: nx };
-      }));
-      setHills((hs) => hs.map((h) => {
+      });
+
+      // Hills
+      f.hills = f.hills.map((h) => {
         let nx = h.x - (speed * 0.35) * dt;
         if (nx + h.w < 0) nx = WORLD_W + Math.random() * 260;
         return { ...h, x: nx };
-      }));
-
-      setPipes((prev) => {
-        const moved = prev.map((p) => ({ ...p, x: p.x - speed * dt })).filter((p) => p.x + PIPE_W > -20);
-        const tail = moved[moved.length - 1];
-        const spacing = 290 + Math.random() * 130;
-        const spawned: Pipe[] = [];
-        if (!tail || tail.x < WORLD_W - spacing) {
-          const progress = Math.min(1, scoreRef.current / 220);
-          const gapH = 124 - progress * 8;
-          const gapY = 8 + Math.random() * (WORLD_H - 16 - gapH);
-          const pipe = { id: Math.random(), x: WORLD_W + 24, gapY, gapH };
-          moved.push(pipe);
-          spawned.push(pipe);
-        }
-
-        if (spawned.length > 0) {
-          setPickups((prevPickups) => [
-            ...prevPickups.filter((pickup) => pickup.x + PICKUP_HALF > -16),
-            ...spawned.map(makePickupForPipe),
-          ]);
-        } else {
-          setPickups((prevPickups) => prevPickups
-            .map((pickup) => ({ ...pickup, x: pickup.x - speed * dt }))
-            .filter((pickup) => pickup.x + PICKUP_HALF > -16)
-          );
-        }
-        return moved;
       });
 
-      setParticles((ps) =>
-        ps
-          .map((p) => ({
-            ...p,
-            x: p.x + p.vx * dt,
-            y: p.y + p.vy * dt,
-            vy: p.vy + 260 * dt,
-            life: p.life - dt,
-          }))
-          .filter((p) => p.life > 0)
-      );
+      // Pipes & pickups computed together — no nested setState
+      const movedPipes = f.pipes.map((p) => ({ ...p, x: p.x - speed * dt })).filter((p) => p.x + PIPE_W > -20);
+      const tail = movedPipes[movedPipes.length - 1];
+      const spacing = 290 + Math.random() * 130;
+      const spawned: Pipe[] = [];
+      if (!tail || tail.x < WORLD_W - spacing) {
+        const progress = Math.min(1, f.score / 220);
+        const gapH = 124 - progress * 8;
+        const gapY = 8 + Math.random() * (WORLD_H - 16 - gapH);
+        const pipe = { id: Math.random(), x: WORLD_W + 24, gapY, gapH };
+        movedPipes.push(pipe);
+        spawned.push(pipe);
+      }
+      f.pipes = movedPipes;
 
+      if (spawned.length > 0) {
+        f.pickups = [
+          ...f.pickups.filter((pickup) => pickup.x + PICKUP_HALF > -16),
+          ...spawned.map(makePickupForPipe),
+        ];
+      } else {
+        f.pickups = f.pickups
+          .map((pickup) => ({ ...pickup, x: pickup.x - speed * dt }))
+          .filter((pickup) => pickup.x + PICKUP_HALF > -16);
+      }
+
+      // Particles
+      f.particles = f.particles
+        .map((p) => ({
+          ...p,
+          x: p.x + p.vx * dt,
+          y: p.y + p.vy * dt,
+          vy: p.vy + 260 * dt,
+          life: p.life - dt,
+        }))
+        .filter((p) => p.life > 0);
+
+      // Distance & score
       distRef.current += speed * dt;
-          setScore(Math.floor(distRef.current / 10));
+      f.score = Math.floor(distRef.current / 10);
+
+      // Collision detection — runs in same tick as physics, no separate effect needed
+      const birdLeft = BIRD_X - BIRD_HALF;
+      const birdRight = BIRD_X + BIRD_HALF;
+      const birdTop = f.birdY - BIRD_HALF;
+      const birdBottom = f.birdY + BIRD_HALF;
+
+      let collided = false;
+      let passBurst = 0;
+
+      for (const p of f.pipes) {
+        if (!p.passed && p.x + PIPE_W < BIRD_X - BIRD_HALF) {
+          passBurst += 1;
+        }
+        const overlapX = birdRight >= p.x && birdLeft <= p.x + PIPE_W;
+        if (!overlapX) continue;
+        const gapTop = p.gapY;
+        const gapBottom = p.gapY + p.gapH;
+        if (birdTop <= gapTop || birdBottom >= gapBottom) {
+          collided = true;
+          break;
+        }
+      }
+
+      if (passBurst > 0) {
+        f.pipes = f.pipes.map((p) =>
+          !p.passed && p.x + PIPE_W < BIRD_X - BIRD_HALF ? { ...p, passed: true } : p
+        );
+        f.particles = [
+          ...f.particles,
+          ...Array.from({ length: passBurst * 7 }, (_, i) => ({
+            id: Math.random() + i,
+            x: BIRD_X,
+            y: f.birdY,
+            vx: (Math.random() - 0.5) * 200,
+            vy: (Math.random() - 0.5) * 200,
+            life: 0.35 + Math.random() * 0.25,
+            color: [TEAL, PEACH, YELLOW, LILAC][i % 4],
+          })),
+        ];
+      }
+
+      const collected = f.pickups.filter((pickup) => {
+        const overlapX = birdRight >= pickup.x - PICKUP_HALF && birdLeft <= pickup.x + PICKUP_HALF;
+        const overlapY = birdBottom >= pickup.y - PICKUP_HALF && birdTop <= pickup.y + PICKUP_HALF;
+        return overlapX && overlapY;
+      });
+
+      if (collected.length > 0) {
+        f.pickups = f.pickups.filter((pickup) => !collected.some((c) => c.id === pickup.id));
+        f.pointsCaught += collected.length * PICKUP_BONUS;
+        f.particles = [
+          ...f.particles,
+          ...collected.flatMap((pickup, pickupIndex) =>
+            Array.from({ length: 10 }, (_, i) => ({
+              id: Math.random() + pickupIndex + i,
+              x: pickup.x,
+              y: pickup.y,
+              vx: (Math.random() - 0.5) * 220,
+              vy: (Math.random() - 0.5) * 220,
+              life: 0.4 + Math.random() * 0.2,
+              color: [YELLOW, PEACH, TEAL][i % 3],
+            }))
+          ),
+        ];
+      }
+
+      // Single re-render for the entire frame
+      setTick((n) => n + 1);
+
+      if (collided) {
+        endGame();
+        return;
+      }
 
       raf = requestAnimationFrame(loop);
     };
+
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [status, endGame]);
-
-  useEffect(() => {
-    if (status !== 'running') return;
-
-    const birdLeft = BIRD_X - BIRD_HALF;
-    const birdRight = BIRD_X + BIRD_HALF;
-    const birdTop = birdY - BIRD_HALF;
-    const birdBottom = birdY + BIRD_HALF;
-
-    let collided = false;
-    let passBurst = 0;
-
-    for (const p of pipes) {
-      if (!p.passed && p.x + PIPE_W < BIRD_X - BIRD_HALF) {
-        passBurst += 1;
-      }
-
-      const overlapX = birdRight >= p.x && birdLeft <= p.x + PIPE_W;
-      if (!overlapX) continue;
-
-      const gapTop = p.gapY;
-      const gapBottom = p.gapY + p.gapH;
-      if (birdTop <= gapTop || birdBottom >= gapBottom) {
-        collided = true;
-        break;
-      }
-    }
-
-    if (passBurst > 0) {
-      setPipes((prev) => prev.map((p) =>
-        !p.passed && p.x + PIPE_W < BIRD_X - BIRD_HALF ? { ...p, passed: true } : p
-      ));
-    }
-
-    if (passBurst > 0) {
-      setParticles((ps) => [
-        ...ps,
-        ...Array.from({ length: passBurst * 7 }, (_, i) => ({
-          id: Math.random() + i,
-          x: BIRD_X,
-          y: birdY,
-          vx: (Math.random() - 0.5) * 200,
-          vy: (Math.random() - 0.5) * 200,
-          life: 0.35 + Math.random() * 0.25,
-          color: [TEAL, PEACH, YELLOW, LILAC][i % 4],
-        })),
-      ]);
-    }
-
-    const collected = pickups.filter((pickup) => {
-      const overlapX = birdRight >= pickup.x - PICKUP_HALF && birdLeft <= pickup.x + PICKUP_HALF;
-      const overlapY = birdBottom >= pickup.y - PICKUP_HALF && birdTop <= pickup.y + PICKUP_HALF;
-      return overlapX && overlapY;
-    });
-
-    if (collected.length > 0) {
-      setPickups((prev) => prev.filter((pickup) => !collected.some((c) => c.id === pickup.id)));
-      const collectedPoints = collected.length * PICKUP_BONUS;
-      setPointsCaught((n) => n + collectedPoints);
-      setParticles((ps) => [
-        ...ps,
-        ...collected.flatMap((pickup, pickupIndex) =>
-          Array.from({ length: 10 }, (_, i) => ({
-            id: Math.random() + pickupIndex + i,
-            x: pickup.x,
-            y: pickup.y,
-            vx: (Math.random() - 0.5) * 220,
-            vy: (Math.random() - 0.5) * 220,
-            life: 0.4 + Math.random() * 0.2,
-            color: [YELLOW, PEACH, TEAL][i % 3],
-          }))
-        ),
-      ]);
-    }
-
-    if (collided) endGame();
-  }, [
-    birdY,
-    pipes.map((p) => `${Math.round(p.x)}:${Math.round(p.gapY)}`).join(','),
-    pickups.map((pickup) => `${Math.round(pickup.x)}:${Math.round(pickup.y)}`).join(','),
-    status,
-    endGame,
-  ]);
+  }, [status, endGame, makePickupForPipe]);
 
   const handlePress = () => {
     if (status === 'ready') {
@@ -384,8 +401,10 @@ export function Runner() {
     rgba(61,207,182,0.10) 0%,
     rgba(184,164,255,0.10) 45%,
     rgba(255,178,122,0.10) 100%)`;
-  const liveTotalPoints = totalPointsEarned + (sessionCommittedRef.current ? 0 : pointsCaught);
-  const liveDistanceHighscore = Math.max(distanceHighscore, score);
+
+  const f = frameRef.current;
+  const liveTotalPoints = totalPointsEarned + (sessionCommittedRef.current ? 0 : f.pointsCaught);
+  const liveDistanceHighscore = Math.max(distanceHighscore, f.score);
   const readyAccentGradient = `linear-gradient(135deg, ${TEAL}, ${LILAC} 55%, ${PEACH})`;
 
   return (
@@ -508,7 +527,7 @@ export function Runner() {
             }} />
           ))}
 
-          {clouds.map((c, i) => (
+          {f.clouds.map((c, i) => (
             <div key={`c${i}`} aria-hidden style={{
               position: 'absolute',
               top: c.y,
@@ -520,7 +539,7 @@ export function Runner() {
             }} />
           ))}
 
-          {hills.map((h, i) => (
+          {f.hills.map((h, i) => (
             <div key={`h${i}`} aria-hidden style={{
               position: 'absolute',
               bottom: 0,
@@ -537,10 +556,10 @@ export function Runner() {
             fontFamily: 'var(--ff-mono)', fontSize: 11,
           }}>
             <div style={{ color: DIM }}>
-              {t('runner.distance')}: <span style={{ color: TEAL, fontSize: 18, fontWeight: 700 }}>{String(score).padStart(3, '0')}m</span>
+              {t('runner.distance')}: <span style={{ color: TEAL, fontSize: 18, fontWeight: 700 }}>{String(f.score).padStart(3, '0')}m</span>
             </div>
             <div style={{ color: DIM }}>
-              {t('runner.points')}: <span style={{ color: YELLOW, fontSize: 14, fontWeight: 700 }}>{pointsCaught}</span>
+              {t('runner.points')}: <span style={{ color: YELLOW, fontSize: 14, fontWeight: 700 }}>{f.pointsCaught}</span>
             </div>
           </div>
 
@@ -552,7 +571,7 @@ export function Runner() {
 
           <div style={{
             position: 'absolute',
-            top: birdY - BIRD_HALF,
+            top: f.birdY - BIRD_HALF,
             left: BIRD_X - BIRD_HALF,
             width: BIRD_SIZE,
             height: BIRD_SIZE,
@@ -570,7 +589,7 @@ export function Runner() {
             }} />
           </div>
 
-          {pipes.map((p) => (
+          {f.pipes.map((p) => (
             <div key={`top-${p.id}`} style={{
               position: 'absolute',
               top: 0,
@@ -593,7 +612,7 @@ export function Runner() {
             </div>
           ))}
 
-          {pipes.map((p) => (
+          {f.pipes.map((p) => (
             <div key={`bottom-${p.id}`} style={{
               position: 'absolute',
               top: p.gapY + p.gapH,
@@ -616,7 +635,7 @@ export function Runner() {
             </div>
           ))}
 
-          {pickups.map((pickup) => (
+          {f.pickups.map((pickup) => (
             <div key={pickup.id} style={{
               position: 'absolute',
               top: pickup.y - PICKUP_HALF,
@@ -637,7 +656,7 @@ export function Runner() {
             </div>
           ))}
 
-          {particles.map((p) => (
+          {f.particles.map((p) => (
             <div key={p.id} style={{
               position: 'absolute', top: p.y, left: p.x,
               width: 4, height: 4, borderRadius: '50%', background: p.color,
@@ -721,7 +740,7 @@ export function Runner() {
                   fontFamily: 'var(--ff-mono)', fontSize: 13, color: PEACH, letterSpacing: '0.25em',
                   marginBottom: 8, animation: 'vc-blink 1s infinite',
                 }}>{t('runner.gameOver')}</div>
-                <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>{score}m</div>
+                <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>{f.score}m</div>
                 <div style={{ fontSize: 12, color: DIM, marginBottom: 12 }}>
                   CLICK · TAP
                 </div>
