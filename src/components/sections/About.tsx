@@ -19,7 +19,7 @@ export function About() {
     { emoji: '🛠', color: PEACH, text: t('about.releases') },
   ];
   return (
-    <section id="about" style={{ padding: 'clamp(48px, 8vw, 64px) 40px', position: 'relative', zIndex: 1 }}>
+    <section id="about" style={{ padding: 'clamp(48px, 8vw, 64px) clamp(20px, 5vw, 40px)', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <SectionLabel n={t('about.index')} text={t('about.label')} />
         <div
