@@ -20,6 +20,7 @@ body {
   color: var(--ink);
   line-height: 1.5;
   font-size: 17px;
+  --spotlight-prox: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -117,6 +118,14 @@ p { text-wrap: pretty; }
 
 ::selection { background: var(--teal); color: #000; }
 
+/* Spotlight near interactive elements — buttons glow up (Idea 2) */
+.spotlight-near .cta-fx {
+  filter:
+    brightness(calc(1.02 + var(--spotlight-prox) * 0.22))
+    drop-shadow(0 0 calc(4px + var(--spotlight-prox) * 14px) rgba(255, 255, 255, calc(0.12 + var(--spotlight-prox) * 0.35)));
+  transition: filter 120ms linear;
+}
+
 :focus-visible {
   outline: 2px solid var(--teal);
   outline-offset: 3px;
@@ -193,7 +202,7 @@ p { text-wrap: pretty; }
 
 .cta-fx:hover::after,
 .cta-fx:focus-visible::after {
-  animation: vc-cta-shimmer 680ms ease;
+  animation: vc-cta-shimmer 1100ms linear infinite;
 }
 
 .cta-teal:hover,
