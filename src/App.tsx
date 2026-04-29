@@ -19,24 +19,26 @@ export function App() {
   useAutoScrollReveal(rootRef);
 
   return (
-    <div ref={rootRef}>
+    <div ref={rootRef} className="app-shell">
       <GradientBlobs />
       <Spotlight />
       <ScrollbarController />
-      <Header />
-      <main>
-        <Hero />
-        <Ticker />
-        <About />
-        
-        <Skills />
-        <Projects />
-         
-        <Voices />
-        <Contact />
-        <Runner />
-      </main>
-      <Footer />
+      <div className="content-layer">
+        <Header />
+        <main>
+          <Hero />
+          <Ticker />
+          <About />
+
+          <Skills />
+          <Projects />
+
+          <Voices />
+          <Contact />
+          <Runner />
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 }

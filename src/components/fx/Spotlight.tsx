@@ -11,6 +11,16 @@ export function Spotlight() {
   const posRef = useRef({ x: -400, y: -400, tx: -400, ty: -400, scale: 1, ts: 1, c: 0, tc: 0, h: 0, th: 0, p: 0, tp: 0 });
 
   useEffect(() => {
+    const INTERACTIVE_SELECTOR = 'a, button, input, textarea, select, [role="button"], .cta-fx';
+    const NODE_REFRESH_MS = 1200;
+    const RECT_REFRESH_MS = 220;
+    const PROX_REFRESH_MS = 55;
+    let interactiveNodes: HTMLElement[] = [];
+    let interactiveRects: DOMRect[] = [];
+    let lastNodeRefresh = 0;
+    let lastRectRefresh = 0;
+    let lastProxRefresh = 0;
+
     const isClickable = (el: HTMLElement | null): boolean => {
       while (el && el !== document.body) {
         const tag = el.tagName;
@@ -22,14 +32,34 @@ export function Spotlight() {
       return false;
     };
 
+    const refreshNodes = () => {
+      interactiveNodes = Array.from(document.querySelectorAll<HTMLElement>(INTERACTIVE_SELECTOR)).slice(0, 180);
+    };
+
+    const refreshRects = () => {
+      interactiveRects = [];
+      for (const node of interactiveNodes) {
+        const r = node.getBoundingClientRect();
+        if (r.width && r.height) interactiveRects.push(r);
+      }
+    };
+
+    const refreshTargets = (now: number) => {
+      if (!interactiveNodes.length || now - lastNodeRefresh > NODE_REFRESH_MS) {
+        refreshNodes();
+        lastNodeRefresh = now;
+        lastRectRefresh = 0;
+      }
+      if (!interactiveRects.length || now - lastRectRefresh > RECT_REFRESH_MS) {
+        refreshRects();
+        lastRectRefresh = now;
+      }
+    };
+
     const closestInteractiveDistance = (x: number, y: number): number => {
-      const nodes = document.querySelectorAll<HTMLElement>('a, button, input, textarea, select, [role="button"], .cta-fx');
       let min = Number.POSITIVE_INFINITY;
 
-      for (const node of nodes) {
-        const r = node.getBoundingClientRect();
-        if (!r.width || !r.height) continue;
-
+      for (const r of interactiveRects) {
         const dx = x < r.left ? r.left - x : x > r.right ? x - r.right : 0;
         const dy = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0;
         const d = Math.hypot(dx, dy);
@@ -46,17 +76,30 @@ export function Spotlight() {
       posRef.current.th = clickable ? 1 : 0;
     };
 
+    const onScrollOrResize = () => {
+      lastRectRefresh = 0;
+    };
+
     window.addEventListener('mousemove', onMove);
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize);
+
+    refreshNodes();
+    refreshRects();
     let raf = 0;
 
-    const loop = () => {
+    const loop = (now: number) => {
       const p = posRef.current;
-      p.x += (p.tx - p.x) * 0.22;
-      p.y += (p.ty - p.y) * 0.22;
+      p.x += (p.tx - p.x) * 0.28;
+      p.y += (p.ty - p.y) * 0.28;
 
       // Idea 5: proximity-based intensity to improve visibility near interactive elements.
-      const d = closestInteractiveDistance(p.x, p.y);
-      p.tp = Math.max(0, 1 - d / 190);
+      if (now - lastProxRefresh > PROX_REFRESH_MS) {
+        refreshTargets(now);
+        const d = closestInteractiveDistance(p.x, p.y);
+        p.tp = Math.max(0, 1 - d / 190);
+        lastProxRefresh = now;
+      }
       p.h += (p.th - p.h) * 0.2;
       p.p += (p.tp - p.p) * 0.1;
       const influenceTarget = Math.max(p.h, p.p * 0.92);
@@ -98,10 +141,12 @@ export function Spotlight() {
       raf = requestAnimationFrame(loop);
     };
 
-    loop();
+    raf = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('scroll', onScrollOrResize);
+      window.removeEventListener('resize', onScrollOrResize);
       document.body.classList.remove('spotlight-near');
       document.body.style.removeProperty('--spotlight-prox');
     };

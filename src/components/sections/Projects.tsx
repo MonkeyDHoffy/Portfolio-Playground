@@ -9,6 +9,21 @@ const LILAC = '#B8A4FF';
 const LINE  = 'rgba(255,255,255,0.12)';
 const COLORS = [TEAL, PEACH, LILAC];
 
+const navCtaStyle: React.CSSProperties = {
+  width: 52,
+  height: 36,
+  padding: 0,
+  background: PEACH,
+  color: '#000',
+  borderRadius: 999,
+  border: '2px solid #000',
+  boxShadow: '3px 3px 0 #000',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  lineHeight: 1,
+};
+
 export function Projects() {
   const { t, lang } = useLang();
   const [active, setActive] = useState(0);
@@ -254,7 +269,8 @@ export function Projects() {
                 e.currentTarget.blur();
               }}
               aria-label={t('projects.prev')}
-              className="nav-alt-outline"
+              className="cta-fx cta-peach nav-cta-arrow"
+              style={navCtaStyle}
             ><span className="triangle triangle-left" /></button>
             <div style={{ display: 'flex', gap: 8 }}>
               {projects.map((_, i) => (
@@ -282,7 +298,8 @@ export function Projects() {
                 e.currentTarget.blur();
               }}
               aria-label={t('projects.next')}
-              className="nav-alt-outline"
+              className="cta-fx cta-peach nav-cta-arrow"
+              style={navCtaStyle}
             ><span className="triangle triangle-right" /></button>
           </div>
         </div>
@@ -303,25 +320,7 @@ export function Projects() {
           border-left: 9px solid currentColor;
           margin-left: 1px;
         }
-        .nav-alt-outline {
-          width: 52px;
-          height: 36px;
-          border-radius: 999px;
-          border: 1px solid rgba(255,255,255,0.28);
-          background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-          color: rgba(255,255,255,0.82);
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 160ms ease;
-        }
-        .nav-alt-outline:hover {
-          border-color: #FFB27A;
-          color: #FFB27A;
-          background: rgba(255,178,122,0.12);
-          transform: translateY(-1px);
-        }
-        .nav-alt-outline:focus-visible {
+        .nav-cta-arrow:focus-visible {
           outline: 2px solid #3DCFB6;
           outline-offset: 2px;
         }
