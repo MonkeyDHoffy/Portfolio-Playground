@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { SectionLabel } from '../ui/SectionLabel';
+import { useInView } from '../../hooks/useAnim';
 
 const TEAL  = '#3DCFB6';
 const PEACH = '#FFB27A';
@@ -13,13 +14,15 @@ let aboutAutoFlipDone = false;
 
 export function About() {
   const { t } = useLang();
+  const sectionRef = useRef<HTMLElement>(null);
+  const sectionVisible = useInView(sectionRef);
   const items = [
     { emoji: '📍', color: TEAL,  text: t('about.location') },
     { emoji: '🧠', color: LILAC, text: t('about.cognition') },
     { emoji: '🛠', color: PEACH, text: t('about.releases') },
   ];
   return (
-    <section id="about" style={{ padding: 'clamp(48px, 8vw, 64px) clamp(20px, 5vw, 40px)', position: 'relative', zIndex: 1 }}>
+    <section id="about" ref={sectionRef} style={{ padding: 'clamp(48px, 8vw, 64px) clamp(20px, 5vw, 40px)', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <SectionLabel n={t('about.index')} text={t('about.label')} />
         <div
@@ -39,6 +42,7 @@ export function About() {
               fontSize: 12, fontWeight: 700, lineHeight: 1.2,
               transform: 'rotate(12deg)',
               animation: 'vc-spin 12s linear infinite',
+              animationPlayState: sectionVisible ? 'running' : 'paused',
               pointerEvents: 'none',
             }}>
               <span style={{ transform: 'rotate(-12deg)', padding: 8 }}>

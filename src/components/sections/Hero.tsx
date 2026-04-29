@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { useInViewOnce, useMousePos } from '../../hooks/useAnim';
+import { useIsPhone } from '../../hooks/useIsPhone';
 
 const TEAL   = '#3DCFB6';
 const PEACH  = '#FFB27A';
@@ -45,6 +46,7 @@ const btnGhost: React.CSSProperties = {
 
 export function Hero() {
   const { t } = useLang();
+  const isPhone = useIsPhone();
   const ref = useRef<HTMLElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const mouse = useMousePos(ref);
@@ -65,7 +67,7 @@ export function Hero() {
         textAlign: 'center',
       }}
     >
-      {orbs.map((o, i) => {
+      {!isPhone && orbs.map((o, i) => {
         const width  = ref.current?.offsetWidth  ?? 0;
         const height = ref.current?.offsetHeight ?? 0;
         const cx = width  * (parseFloat(o.x) / 100);

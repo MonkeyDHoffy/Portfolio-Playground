@@ -29,6 +29,8 @@ export function Voices() {
   const inertiaVelocityRef = useRef(0);
   const autoplaySpeedRef = useRef(AUTOPLAY_SPEED);
   const suppressClickUntilRef = useRef(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const isVisibleRef = useRef(true);
   const [isDragging, setIsDragging] = useState(false);
   const marqueeVoices = [...voices, ...voices];
 
@@ -52,19 +54,21 @@ export function Voices() {
       const dt = Math.min((time - lastFrameRef.current) / 1000, 0.032);
       lastFrameRef.current = time;
 
-      const loopWidth = track.scrollWidth / 2;
-      if (loopWidth > 0 && !isDraggingRef.current) {
-        offsetRef.current += (autoplaySpeedRef.current + inertiaVelocityRef.current) * dt;
-        inertiaVelocityRef.current *= Math.exp(-INERTIA_FALLOFF * dt);
-        if (Math.abs(inertiaVelocityRef.current) < 4) inertiaVelocityRef.current = 0;
-      }
+      if (isVisibleRef.current) {
+        const loopWidth = track.scrollWidth / 2;
+        if (loopWidth > 0 && !isDraggingRef.current) {
+          offsetRef.current += (autoplaySpeedRef.current + inertiaVelocityRef.current) * dt;
+          inertiaVelocityRef.current *= Math.exp(-INERTIA_FALLOFF * dt);
+          if (Math.abs(inertiaVelocityRef.current) < 4) inertiaVelocityRef.current = 0;
+        }
 
-      if (loopWidth > 0) {
-        if (offsetRef.current >= loopWidth) offsetRef.current -= loopWidth;
-        if (offsetRef.current < 0) offsetRef.current += loopWidth;
-      }
+        if (loopWidth > 0) {
+          if (offsetRef.current >= loopWidth) offsetRef.current -= loopWidth;
+          if (offsetRef.current < 0) offsetRef.current += loopWidth;
+        }
 
-      track.style.transform = `translateX(${-offsetRef.current}px)`;
+        track.style.transform = `translateX(${-offsetRef.current}px)`;
+      }
       raf = requestAnimationFrame(loop);
     };
 
@@ -73,6 +77,17 @@ export function Voices() {
       cancelAnimationFrame(raf);
       lastFrameRef.current = 0;
     };
+  }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0 }
+    );
+    obs.observe(section);
+    return () => obs.disconnect();
   }, []);
 
   const startDrag = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -173,7 +188,7 @@ export function Voices() {
   };
 
   return (
-    <section className="voices-section" style={{ padding: '40px 40px', position: 'relative', zIndex: 1 }}>
+    <section className="voices-section" ref={sectionRef} style={{ padding: '40px 40px', position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <SectionLabel n={t('voices.index')} text={t('voices.label')} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, color: 'rgba(255,255,255,0.5)' }}>
