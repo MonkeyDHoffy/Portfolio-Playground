@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLang } from '../../i18n/LanguageContext';
 import { LangToggle } from './LangToggle';
+import { ConfirmPopup } from '../ui/ConfirmPopup';
 
 const LINE = 'rgba(255,255,255,0.12)';
 
@@ -49,6 +50,13 @@ export function Header() {
   const [isCompact, setIsCompact] = useState(() => window.innerWidth <= 860);
   const [navGlow, setNavGlow] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
+  const [cvPopupOpen, setCvPopupOpen] = useState(false);
+  const [cvAnchorEl, setCvAnchorEl] = useState<HTMLElement | null>(null);
+
+  const openCvPopup = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setCvAnchorEl(e.currentTarget);
+    setCvPopupOpen(true);
+  };
 
   useEffect(() => {
     return () => { document.body.classList.remove('nav-hovered'); };
@@ -69,16 +77,15 @@ export function Header() {
     };
 
     const updateCompact = () => setIsCompact(window.innerWidth <= 860);
+    const handleResize = () => { updateActive(); updateCompact(); };
 
     updateActive();
     updateCompact();
     window.addEventListener('scroll', updateActive, { passive: true });
-    window.addEventListener('resize', updateActive);
-    window.addEventListener('resize', updateCompact);
+    window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('scroll', updateActive);
-      window.removeEventListener('resize', updateActive);
-      window.removeEventListener('resize', updateCompact);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -196,9 +203,9 @@ export function Header() {
             <a href="#contact" className={`nav-link${activeNav === 'contact' ? ' nav-link-active' : ''}`} style={navLink} aria-current={activeNav === 'contact' ? 'page' : undefined}>{t('nav.contact')}</a>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <a href="/assets/cv/Jannik_Hoff_Lebenslauf.pdf" download className="cv-download" style={cvLink}>
+            <button type="button" onClick={openCvPopup} className="cv-download" style={{ ...cvLink, cursor: 'pointer' }}>
               CV ↓
-            </a>
+            </button>
             <a href="https://github.com/MonkeyDHoffy" target="_blank" rel="noreferrer" aria-label="GitHub" className="social-link" style={iconLink}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.26.82-.577 0-.285-.01-1.04-.015-2.04-3.338.725-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.84 1.238 1.84 1.238 1.07 1.835 2.807 1.305 3.492.998.108-.776.42-1.305.763-1.605-2.665-.3-5.467-1.332-5.467-5.93 0-1.31.47-2.38 1.236-3.22-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.29-1.552 3.297-1.23 3.297-1.23.654 1.652.243 2.873.12 3.176.77.84 1.233 1.91 1.233 3.22 0 4.61-2.807 5.625-5.48 5.92.43.37.814 1.102.814 2.222 0 1.606-.015 2.9-.015 3.293 0 .32.217.695.825.577C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
@@ -220,9 +227,14 @@ export function Header() {
           <a href="#skills" onClick={closeMenu} className={`mobile-nav-link${activeNav === 'skills' ? ' is-active' : ''}`}>{t('nav.skills')}</a>
           <a href="#projects" onClick={closeMenu} className={`mobile-nav-link${activeNav === 'projects' ? ' is-active' : ''}`}>{t('nav.projects')}</a>
           <a href="#contact" onClick={closeMenu} className={`mobile-nav-link${activeNav === 'contact' ? ' is-active' : ''}`}>{t('nav.contact')}</a>
-          <a href="/assets/cv/Jannik_Hoff_Lebenslauf.pdf" download className="mobile-nav-action mobile-nav-cv" onClick={closeMenu}>
+          <button
+            type="button"
+            className="mobile-nav-action mobile-nav-cv"
+            onClick={(e) => { openCvPopup(e); closeMenu(); }}
+            style={{ cursor: 'pointer' }}
+          >
             CV herunterladen
-          </a>
+          </button>
           <div className="mobile-nav-actions">
             <a href="https://github.com/MonkeyDHoffy" target="_blank" rel="noreferrer" aria-label="GitHub" className="social-link" style={iconLink} onClick={closeMenu}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -470,6 +482,20 @@ export function Header() {
         }
       `}</style>
       </nav>
+
+      <ConfirmPopup
+        isOpen={cvPopupOpen}
+        anchorEl={cvAnchorEl}
+        icon="📄"
+        title={t('popup.cvTitle')}
+        message={t('popup.cvMessage')}
+        confirmLabel={t('popup.cvConfirm')}
+        cancelLabel={t('popup.cancel')}
+        confirmHref="/assets/cv/Jannik_Hoff_Lebenslauf.pdf"
+        confirmDownload
+        onConfirm={() => setCvPopupOpen(false)}
+        onCancel={() => setCvPopupOpen(false)}
+      />
     </>
   );
 }
