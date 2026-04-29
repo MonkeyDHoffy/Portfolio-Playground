@@ -254,8 +254,8 @@ export function Projects() {
                 e.currentTarget.blur();
               }}
               aria-label={t('projects.prev')}
-              className="nav-btn"
-            ><span style={{ display:'block', width:0, height:0, borderTop:'6px solid transparent', borderBottom:'6px solid transparent', borderRight:'9px solid currentColor', marginRight:1 }} /></button>
+              className="nav-alt-outline"
+            ><span className="triangle triangle-left" /></button>
             <div style={{ display: 'flex', gap: 8 }}>
               {projects.map((_, i) => (
                 <button
@@ -282,28 +282,50 @@ export function Projects() {
                 e.currentTarget.blur();
               }}
               aria-label={t('projects.next')}
-              className="nav-btn"
-            ><span style={{ display:'block', width:0, height:0, borderTop:'6px solid transparent', borderBottom:'6px solid transparent', borderLeft:'9px solid currentColor', marginLeft:1 }} /></button>
+              className="nav-alt-outline"
+            ><span className="triangle triangle-right" /></button>
           </div>
         </div>
       </div>
       <style>{`
+        .triangle {
+          display: block;
+          width: 0;
+          height: 0;
+          border-top: 6px solid transparent;
+          border-bottom: 6px solid transparent;
+        }
+        .triangle-left {
+          border-right: 9px solid currentColor;
+          margin-right: 1px;
+        }
+        .triangle-right {
+          border-left: 9px solid currentColor;
+          margin-left: 1px;
+        }
+        .nav-alt-outline {
+          width: 52px;
+          height: 36px;
+          border-radius: 999px;
+          border: 1px solid rgba(255,255,255,0.28);
+          background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+          color: rgba(255,255,255,0.82);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 160ms ease;
+        }
+        .nav-alt-outline:hover {
+          border-color: #FFB27A;
+          color: #FFB27A;
+          background: rgba(255,178,122,0.12);
+          transform: translateY(-1px);
+        }
+        .nav-alt-outline:focus-visible {
+          outline: 2px solid #3DCFB6;
+          outline-offset: 2px;
+        }
         .pc-front::after {
-          .nav-btn {
-            width: 44px; height: 44px; border-radius: 999px;
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.18);
-            color: rgba(255,255,255,0.45);
-            cursor: pointer;
-            display: inline-flex; align-items: center; justify-content: center;
-            transition: all 150ms ease;
-          }
-          .nav-btn:hover {
-            background: rgba(61,207,182,0.1);
-            border-color: #3DCFB6;
-            color: #3DCFB6;
-          }
-          .pc-front::after {
           content: '';
           position: absolute;
           top: -120%;
@@ -390,18 +412,3 @@ export function Projects() {
     </section>
   );
 }
-
-const navBtn: React.CSSProperties = {
-  width: 44,
-  height: 44,
-  borderRadius: 999,
-  background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.18)',
-  color: '#fff',
-  fontSize: 18,
-  cursor: 'pointer',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  transition: 'all 150ms ease',
-};
