@@ -406,26 +406,9 @@ export function Runner() {
           50% { box-shadow: 0 0 0 12px rgba(61, 207, 182, 0.04), 0 24px 56px rgba(61, 207, 182, 0.18); }
         }
 
-        @keyframes runner-ready-arrow {
-          0%, 100% { transform: translateX(0); opacity: 0.72; }
-          50% { transform: translateX(8px); opacity: 1; }
-        }
-
-        @keyframes runner-ready-sheen {
-          0% { transform: translateX(-140%) skewX(-18deg); opacity: 0; }
-          20% { opacity: 0.55; }
-          60% { opacity: 0.15; }
-          100% { transform: translateX(180%) skewX(-18deg); opacity: 0; }
-        }
-
         @keyframes runner-ready-spark {
           0%, 100% { transform: scale(0.92); opacity: 0.45; }
           50% { transform: scale(1.12); opacity: 1; }
-        }
-
-        @keyframes runner-glow-breathe {
-          0%, 100% { box-shadow: 0 0 0 1px rgba(255,178,122,0.18), 0 0 24px 4px rgba(255,178,122,0.22), 0 0 60px 12px rgba(255,178,122,0.1); }
-          50% { box-shadow: 0 0 0 1px rgba(255,178,122,0.38), 0 0 44px 12px rgba(255,178,122,0.4), 0 0 100px 28px rgba(255,178,122,0.18); }
         }
 
         @keyframes runner-mobile-ripple {
@@ -502,7 +485,7 @@ export function Runner() {
               opacity: glowActive ? 1 : 0,
               transition: 'opacity 0.4s ease',
               boxShadow: '0 0 0 1px rgba(255,178,122,0.25), 0 0 32px 8px rgba(255,178,122,0.3), 0 0 80px 20px rgba(255,178,122,0.14)',
-              animation: glowActive ? 'runner-glow-breathe 3.2s ease-in-out infinite' : 'none',
+              animation: glowActive ? 'element-aura-breathe 3.2s ease-in-out infinite' : 'none',
             }}
           />
           <div
@@ -681,13 +664,6 @@ export function Runner() {
                 overflow: 'hidden',
                 animation: 'runner-ready-bob 2.1s ease-in-out infinite',
               }}>
-                <div aria-hidden style={{
-                  position: 'absolute',
-                  inset: '-20% auto -20% -35%',
-                  width: '45%',
-                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent)',
-                  animation: 'runner-ready-sheen 2.8s ease-in-out infinite',
-                }} />
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -722,20 +698,9 @@ export function Runner() {
                   fontWeight: 700,
                   color: TEAL,
                   letterSpacing: '0.08em',
-                  textShadow: `0 0 18px ${TEAL}55`,
+                  textShadow: 'none',
                 }}>
-                  <span aria-hidden style={{
-                    display: 'inline-block',
-                    fontSize: 18,
-                    animation: 'runner-ready-arrow 1s ease-in-out infinite',
-                  }}>▶</span>
                   <span>{t('runner.ready')}</span>
-                  <span aria-hidden style={{
-                    display: 'inline-block',
-                    fontSize: 18,
-                    animation: 'runner-ready-arrow 1s ease-in-out infinite',
-                    animationDelay: '0.16s',
-                  }}>▶</span>
                 </div>
                 <div style={{
                   fontSize: 11,

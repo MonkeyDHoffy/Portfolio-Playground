@@ -104,20 +104,6 @@ export function About() {
           outline: 2px solid ${TEAL};
           outline-offset: 8px;
         }
-        @keyframes about-element-aura-breathe {
-          0%, 100% {
-            box-shadow:
-              0 0 0 1px rgba(255,178,122,0.18),
-              0 0 24px 4px rgba(255,178,122,0.22),
-              0 0 60px 12px rgba(255,178,122,0.1);
-          }
-          50% {
-            box-shadow:
-              0 0 0 1px rgba(255,178,122,0.38),
-              0 0 44px 12px rgba(255,178,122,0.4),
-              0 0 100px 28px rgba(255,178,122,0.18);
-          }
-        }
         @media (prefers-reduced-motion: reduce) {
           .about-intro-hover,
           .about-photo-trigger {
@@ -244,7 +230,7 @@ function AboutPhotoFlip() {
           opacity: auraActive ? 1 : 0,
           transition: 'opacity 400ms ease',
           boxShadow: '0 0 0 1px rgba(255,178,122,0.25), 0 0 32px 8px rgba(255,178,122,0.3), 0 0 80px 20px rgba(255,178,122,0.14)',
-          animation: auraActive && !reducedMotion ? 'about-element-aura-breathe 3.2s ease-in-out infinite' : 'none',
+          animation: auraActive && !reducedMotion ? 'element-aura-breathe 3.2s ease-in-out infinite' : 'none',
         }}
       />
       <button
