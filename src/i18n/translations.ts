@@ -111,6 +111,9 @@ export const translations = {
     restart:  { de: 'Noch mal?', en: 'Try again?' },
     gameOver: { de: 'GAME OVER', en: 'GAME OVER' },
     ready:    { de: 'Klick zum Starten', en: 'Click to start' },
+    actionStart:   { de: 'Spiel starten', en: 'Start run' },
+    actionJump:    { de: 'Jump', en: 'Jump' },
+    actionRestart: { de: 'Restart', en: 'Restart' },
   },
 
   contact: {

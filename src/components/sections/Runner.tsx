@@ -20,7 +20,7 @@ const PIPE_W = 30;
 const BIRD_X = 140;
 const BIRD_SIZE = 30;
 const BIRD_HALF = BIRD_SIZE / 2;
-const BIRD_IMG = '/assets/aboutme/avatar.png';
+const BIRD_IMG = '/assets/aboutme/avatar.jpg';
 const PICKUP_SIZE = 18;
 const PICKUP_HALF = PICKUP_SIZE / 2;
 const PICKUP_BONUS = 1;
@@ -62,6 +62,9 @@ export function Runner() {
     { x: 340, w: 380, h: 70 },
     { x: 760, w: 320, h: 40 },
   ]);
+  const [isPhone, setIsPhone] = useState(() => window.innerWidth <= 860);
+  const [mobileBtnPressed, setMobileBtnPressed] = useState(false);
+  const [mobileRipples, setMobileRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
 
   const vyRef = useRef(0);
   const birdYRef = useRef(WORLD_H * 0.5);
@@ -83,6 +86,12 @@ export function Runner() {
   scoreRef.current = score;
   pointsCaughtRef.current = pointsCaught;
   birdYRef.current = birdY;
+
+  useEffect(() => {
+    const onResize = () => setIsPhone(window.innerWidth <= 860);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const flap = useCallback(() => {
     if (!runningRef.current) return;
@@ -353,6 +362,24 @@ export function Runner() {
     flap();
   };
 
+  const handleMobileAction = useCallback(() => {
+    if (status === 'ready') {
+      start();
+      return;
+    }
+    if (status === 'gameover') {
+      start();
+      return;
+    }
+    flap();
+  }, [flap, start, status]);
+
+  const mobileActionLabel = status === 'running'
+    ? t('runner.actionJump')
+    : status === 'gameover'
+      ? t('runner.actionRestart')
+      : t('runner.actionStart');
+
   const skyGradient = `linear-gradient(180deg,
     rgba(61,207,182,0.10) 0%,
     rgba(184,164,255,0.10) 45%,
@@ -391,6 +418,17 @@ export function Runner() {
           50% { transform: scale(1.12); opacity: 1; }
         }
 
+        @keyframes runner-mobile-ripple {
+          0% {
+            transform: translate(-50%, -50%) scale(0.2);
+            opacity: 0.5;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(2.2);
+            opacity: 0;
+          }
+        }
+
         @media (max-width: 860px) {
           .runner-section {
             padding-left: 0 !important;
@@ -407,6 +445,26 @@ export function Runner() {
             border-right: 0 !important;
             border-radius: 0 !important;
           }
+          .runner-mobile-controls {
+            padding: 18px 12px 0;
+          }
+        }
+
+        .runner-tap-surface,
+        .runner-mobile-action-btn {
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+          user-select: none;
+          -webkit-user-select: none;
+          outline: none;
+        }
+
+        .runner-tap-surface:focus,
+        .runner-tap-surface:focus-visible,
+        .runner-mobile-action-btn:focus,
+        .runner-mobile-action-btn:focus-visible {
+          outline: none;
+          box-shadow: none;
         }
       `}</style>
       <div className="runner-shell" style={{ maxWidth: 1180, margin: '0 auto' }}>
@@ -419,7 +477,7 @@ export function Runner() {
         </div>
 
         <div
-          className="runner-arena"
+          className="runner-arena runner-tap-surface"
           onPointerDown={handlePress}
           role="button"
           tabIndex={0}
@@ -429,6 +487,7 @@ export function Runner() {
             border: `1px solid ${LINE}`, overflow: 'hidden', cursor: 'pointer',
             userSelect: 'none',
             touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent',
           }}
         >
           {Array.from({ length: 18 }).map((_, i) => (
@@ -676,21 +735,110 @@ export function Runner() {
                 <div style={{ fontSize: 12, color: DIM, marginBottom: 12 }}>
                   CLICK · TAP
                 </div>
-                <button
-                  type="button"
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={() => start()}
-                  style={{
-                    padding: '8px 16px', borderRadius: 999,
-                    background: TEAL, color: '#000',
-                    border: '2px solid #000', boxShadow: '3px 3px 0 #000',
-                    fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                  }}
-                >{t('runner.restart')} ↵</button>
+                {!isPhone && (
+                  <button
+                    type="button"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={() => start()}
+                    style={{
+                      padding: '8px 16px', borderRadius: 999,
+                      background: TEAL, color: '#000',
+                      border: '2px solid #000', boxShadow: '3px 3px 0 #000',
+                      fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    }}
+                  >{t('runner.restart')} ↵</button>
+                )}
               </div>
             </div>
           )}
         </div>
+
+        {isPhone && (
+          <div className="runner-mobile-controls" style={{ width: '100%' }}>
+            <div style={{
+              padding: '16px 14px 22px',
+              borderRadius: 20,
+              background: 'linear-gradient(145deg, rgba(61,207,182,0.16), rgba(184,164,255,0.14) 58%, rgba(255,178,122,0.15))',
+              border: `1px solid ${LINE}`,
+              boxShadow: '0 16px 38px rgba(0,0,0,0.24)',
+            }}>
+              <button
+                className="runner-mobile-action-btn"
+                type="button"
+                onPointerDown={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const id = Date.now() + Math.random();
+                  setMobileBtnPressed(true);
+                  setMobileRipples((prev) => [...prev, {
+                    id,
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top,
+                  }]);
+                  window.setTimeout(() => {
+                    setMobileRipples((prev) => prev.filter((r) => r.id !== id));
+                  }, 520);
+                }}
+                onPointerUp={() => setMobileBtnPressed(false)}
+                onPointerCancel={() => setMobileBtnPressed(false)}
+                onPointerLeave={() => setMobileBtnPressed(false)}
+                onClick={handleMobileAction}
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  minHeight: 82,
+                  borderRadius: 18,
+                  border: '2px solid rgba(0,0,0,0.72)',
+                  color: '#06100d',
+                  background: readyAccentGradient,
+                  boxShadow: mobileBtnPressed
+                    ? '0 8px 16px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.2)'
+                    : '0 14px 28px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.2)',
+                  transform: mobileBtnPressed ? 'scale(0.96)' : 'scale(1)',
+                  transition: 'transform 140ms cubic-bezier(.22,.9,.3,1), box-shadow 140ms ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
+                  WebkitTouchCallout: 'none',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  outline: 'none',
+                }}
+              >
+                {mobileRipples.map((ripple) => (
+                  <span
+                    key={ripple.id}
+                    aria-hidden
+                    style={{
+                      position: 'absolute',
+                      left: ripple.x,
+                      top: ripple.y,
+                      width: 36,
+                      height: 36,
+                      borderRadius: '50%',
+                      border: '2px solid rgba(255,255,255,0.72)',
+                      pointerEvents: 'none',
+                      animation: 'runner-mobile-ripple 520ms ease-out forwards',
+                    }}
+                  />
+                ))}
+                <span style={{
+                  position: 'relative',
+                  zIndex: 1,
+                  fontFamily: 'var(--ff-mono)',
+                  fontSize: 18,
+                  fontWeight: 800,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                }}>
+                  {mobileActionLabel}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -42,6 +42,8 @@ export function Contact() {
   const [toast, setToast] = useState<Toast | null>(null);
   const typingIntervalRef = useRef<number | null>(null);
   const typingActiveRef = useRef(false);
+  const messageFieldRef = useRef<HTMLTextAreaElement | null>(null);
+  const viewportTimerRef = useRef<number[]>([]);
 
   const stopTypingAnimation = useCallback(() => {
     if (typingIntervalRef.current !== null) {
@@ -50,6 +52,45 @@ export function Contact() {
     }
     typingActiveRef.current = false;
   }, []);
+
+  const clearViewportTimers = useCallback(() => {
+    viewportTimerRef.current.forEach((timer) => window.clearTimeout(timer));
+    viewportTimerRef.current = [];
+  }, []);
+
+  const alignMessageField = useCallback((focusField: boolean) => {
+    const textarea = messageFieldRef.current;
+    if (!textarea) return;
+
+    clearViewportTimers();
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const initialBehavior: ScrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
+    const snapToField = (behavior: ScrollBehavior) => {
+      textarea.scrollIntoView({ behavior, block: 'center', inline: 'nearest' });
+    };
+
+    snapToField(initialBehavior);
+
+    if (focusField) {
+      const focusTimer = window.setTimeout(() => {
+        try {
+          textarea.focus({ preventScroll: true });
+        } catch {
+          textarea.focus();
+        }
+        const len = textarea.value.length;
+        textarea.setSelectionRange(len, len);
+        snapToField('auto');
+      }, prefersReducedMotion ? 0 : 140);
+      viewportTimerRef.current.push(focusTimer);
+    }
+
+    [220, 420].forEach((delay) => {
+      const timer = window.setTimeout(() => snapToField('auto'), prefersReducedMotion ? 0 : delay);
+      viewportTimerRef.current.push(timer);
+    });
+  }, [clearViewportTimers]);
 
   useEffect(() => {
     if (!toast) return;
@@ -88,7 +129,7 @@ export function Contact() {
       setForm((prev) => ({ ...prev, message: '' }));
 
       if (detail.scrollToContact) {
-        document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        alignMessageField(false);
       }
 
       const fullText = detail.message;
@@ -104,10 +145,7 @@ export function Contact() {
         if (i >= fullText.length) {
           stopTypingAnimation();
           if (detail.focusField) {
-            const textarea = document.querySelector<HTMLTextAreaElement>('textarea[name="message"]');
-            textarea?.focus();
-            const len = textarea?.value.length ?? 0;
-            textarea?.setSelectionRange(len, len);
+            alignMessageField(true);
           }
         }
       }, speedMs);
@@ -117,8 +155,9 @@ export function Contact() {
     return () => {
       window.removeEventListener('runner:send-highscore', onSendHighscore as EventListener);
       stopTypingAnimation();
+      clearViewportTimers();
     };
-  }, [stopTypingAnimation]);
+  }, [alignMessageField, clearViewportTimers, stopTypingAnimation]);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -323,6 +362,7 @@ export function Contact() {
               placeholder={errors.message ?? t('contact.form.messagePh')}
               name="message" value={form.message}
               onChange={onChange} textarea rows={5} required hasError={Boolean(errors.message)} spellCheck={false}
+              textareaRef={messageFieldRef}
             />
             <button
               type="submit" disabled={sending}
@@ -403,6 +443,7 @@ export function Contact() {
 
 function Field({
   placeholder, name, type = 'text', value, onChange, required, autoComplete, textarea, rows, hasError, spellCheck,
+  textareaRef,
 }: {
   placeholder: string;
   name: string;
@@ -415,6 +456,7 @@ function Field({
   rows?: number;
   hasError?: boolean;
   spellCheck?: boolean;
+  textareaRef?: React.Ref<HTMLTextAreaElement>;
 }) {
   const base: React.CSSProperties = {
     width: '100%',
@@ -441,6 +483,6 @@ function Field({
     },
   };
   return textarea
-    ? <textarea {...common} rows={rows ?? 4} style={{ ...base, minHeight: 130 }} />
+    ? <textarea {...common} ref={textareaRef} rows={rows ?? 4} style={{ ...base, minHeight: 130, scrollMarginTop: 120 }} />
     : <input {...common} type={type} autoComplete={autoComplete} style={base} />;
 }
