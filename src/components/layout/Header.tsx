@@ -45,7 +45,12 @@ export function Header() {
   const [activeNav, setActiveNav] = useState<string>('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [isCompact, setIsCompact] = useState(() => window.innerWidth <= 860);
+  const [navGlow, setNavGlow] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    return () => { document.body.classList.remove('nav-hovered'); };
+  }, []);
 
   useEffect(() => {
     const updateActive = () => {
@@ -115,6 +120,8 @@ export function Header() {
       )}
       <nav
         ref={navRef}
+        onMouseEnter={() => { setNavGlow(true); document.body.classList.add('nav-hovered'); }}
+        onMouseLeave={() => { setNavGlow(false); document.body.classList.remove('nav-hovered'); }}
         style={{
           position: 'sticky', top: 20, zIndex: 30, margin: '20px clamp(12px, 4vw, 24px) 0',
           padding: isCompact ? '12px 14px' : '12px 20px',
@@ -125,6 +132,20 @@ export function Header() {
           gap: 12,
         }}
       >
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: -6,
+            borderRadius: 1005,
+            pointerEvents: 'none',
+            zIndex: 10,
+            opacity: navGlow ? 1 : 0,
+            transition: 'opacity 0.4s ease',
+            boxShadow: '0 0 0 1px rgba(255,178,122,0.25), 0 0 32px 8px rgba(255,178,122,0.3), 0 0 80px 20px rgba(255,178,122,0.14)',
+            animation: navGlow ? 'element-aura-breathe 3.2s ease-in-out infinite' : 'none',
+          }}
+        />
       <a href="#top" style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#fff', textDecoration: 'none', minWidth: 0 }}>
         <img
           src="/jhicon.png"
@@ -385,6 +406,20 @@ export function Header() {
           .mobile-nav-panel,
           .menu-toggle-bars span {
             transition: none;
+          }
+        }
+        @keyframes element-aura-breathe {
+          0%, 100% {
+            box-shadow:
+              0 0 0 1px rgba(255,178,122,0.18),
+              0 0 24px 4px rgba(255,178,122,0.22),
+              0 0 60px 12px rgba(255,178,122,0.1);
+          }
+          50% {
+            box-shadow:
+              0 0 0 1px rgba(255,178,122,0.38),
+              0 0 44px 12px rgba(255,178,122,0.4),
+              0 0 100px 28px rgba(255,178,122,0.18);
           }
         }
         @media (max-width: 860px) {

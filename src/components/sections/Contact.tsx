@@ -40,6 +40,11 @@ export function Contact() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [errors, setErrors] = useState<FormErrors>({});
   const [sending, setSending] = useState(false);
+  const [formGlow, setFormGlow] = useState(false);
+
+  useEffect(() => {
+    return () => { document.body.classList.remove('contact-form-hovered'); };
+  }, []);
   const [toast, setToast] = useState<Toast | null>(null);
   const typingIntervalRef = useRef<number | null>(null);
   const typingActiveRef = useRef(false);
@@ -332,6 +337,25 @@ export function Contact() {
             </div>
           </div>
 
+          <div
+            style={{ position: 'relative', alignSelf: 'stretch' }}
+            onMouseEnter={() => { setFormGlow(true); document.body.classList.add('contact-form-hovered'); }}
+            onMouseLeave={() => { setFormGlow(false); document.body.classList.remove('contact-form-hovered'); }}
+          >
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute',
+                inset: -6,
+                borderRadius: 26,
+                pointerEvents: 'none',
+                zIndex: 10,
+                opacity: formGlow ? 1 : 0,
+                transition: 'opacity 0.4s ease',
+                boxShadow: '0 0 0 1px rgba(255,178,122,0.25), 0 0 32px 8px rgba(255,178,122,0.3), 0 0 80px 20px rgba(255,178,122,0.14)',
+                animation: formGlow ? 'element-aura-breathe 3.2s ease-in-out infinite' : 'none',
+              }}
+            />
           <form onSubmit={onSubmit} noValidate className="contact-form" style={{
             display: 'flex', flexDirection: 'column', gap: 18,
             padding: 28,
@@ -379,6 +403,7 @@ export function Contact() {
               {sending ? t('contact.form.sending') : t('contact.form.submit')}
             </button>
           </form>
+          </div>
         </div>
       </div>
 
@@ -428,6 +453,20 @@ export function Contact() {
 
         @media (max-width: 860px) {
           .contact-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+        }
+        @keyframes element-aura-breathe {
+          0%, 100% {
+            box-shadow:
+              0 0 0 1px rgba(255,178,122,0.18),
+              0 0 24px 4px rgba(255,178,122,0.22),
+              0 0 60px 12px rgba(255,178,122,0.1);
+          }
+          50% {
+            box-shadow:
+              0 0 0 1px rgba(255,178,122,0.38),
+              0 0 44px 12px rgba(255,178,122,0.4),
+              0 0 100px 28px rgba(255,178,122,0.18);
+          }
         }
         @keyframes vc-toast-in {
           from { transform: translateY(20px); opacity: 0; }
