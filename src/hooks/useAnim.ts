@@ -56,6 +56,23 @@ export function useInViewOnce<T extends HTMLElement>(
   return seen;
 }
 
+/**
+ * Returns `true` while the referenced element intersects the viewport.
+ * Toggles on every intersection change — unlike `useInViewOnce`, this fires repeatedly.
+ * Starts as `true` to avoid a paused-animation flash on initial mount.
+ */
+export function useInView<T extends HTMLElement>(ref: RefObject<T>): boolean {
+  const [inView, setInView] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [ref]);
+  return inView;
+}
+
 /** Auto-reveal: fades in sections/articles/headings when scrolled into view. */
 export function useAutoScrollReveal<T extends HTMLElement>(rootRef: RefObject<T>) {
   useEffect(() => {
