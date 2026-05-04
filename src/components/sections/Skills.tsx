@@ -215,17 +215,6 @@ function SkillTile({
             }} />
           )}
           <div style={{
-            position: 'absolute', top: 14, right: 14,
-            padding: '4px 10px', borderRadius: 999,
-            background: color, color: '#000',
-            border: '2px solid #000',
-            fontFamily: 'var(--ff-mono)',
-            fontSize: 11, fontWeight: 700, letterSpacing: '0.02em',
-            zIndex: 1,
-          }}>
-            {skill.years}y
-          </div>
-          <div style={{
             width: 48, height: 48, borderRadius: 12,
             background: color,
             border: '2px solid #000',
@@ -261,7 +250,6 @@ function SkillTile({
             display: 'flex', justifyContent: 'space-between',
           }}>
             <span>/ {displayLabel.toLowerCase()}</span>
-            <span>{skill.level}%</span>
           </div>
           <div
             className={isPhone ? 'skills-back-note-clamp' : undefined}

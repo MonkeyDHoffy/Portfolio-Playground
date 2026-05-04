@@ -32,6 +32,12 @@ export function Voices() {
   const sectionRef = useRef<HTMLElement>(null);
   const isVisibleRef = useRef(true);
   const [isDragging, setIsDragging] = useState(false);
+  const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const glowRafRef = useRef(0);
+  const hoveredCardElRef = useRef<HTMLElement | null>(null);
+  const glowTargetRef = useRef<{ x: number; y: number; w: number; h: number; active: boolean }>({ x: 0, y: 0, w: 0, h: 0, active: false });
+  const glowCurrentRef = useRef<{ x: number; y: number; w: number; h: number; opacity: number }>({ x: 0, y: 0, w: 0, h: 0, opacity: 0 });
   const marqueeVoices = [...voices, ...voices];
 
   const [liPopup, setLiPopup] = useState<{
@@ -88,6 +94,51 @@ export function Voices() {
     );
     obs.observe(section);
     return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('voice-card-hovered');
+      cancelAnimationFrame(glowRafRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    const animate = () => {
+      const t = glowTargetRef.current;
+      const c = glowCurrentRef.current;
+      const el = glowRef.current;
+      if (!el) { glowRafRef.current = requestAnimationFrame(animate); return; }
+
+      // Continuously update target from the live card position (handles dragging)
+      if (t.active && hoveredCardElRef.current) {
+        const r = hoveredCardElRef.current.getBoundingClientRect();
+        t.x = r.left;
+        t.y = r.top;
+        t.w = r.width;
+        t.h = r.height;
+      }
+
+      const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
+      const opacityTarget = t.active ? 1 : 0;
+      c.opacity = lerp(c.opacity, opacityTarget, 0.1);
+      if (t.active) {
+        c.x = lerp(c.x, t.x, 0.18);
+        c.y = lerp(c.y, t.y, 0.18);
+        c.w = lerp(c.w, t.w, 0.18);
+        c.h = lerp(c.h, t.h, 0.18);
+      }
+
+      el.style.opacity = String(Math.round(c.opacity * 1000) / 1000);
+      el.style.left = `${c.x - 6}px`;
+      el.style.top = `${c.y - 6}px`;
+      el.style.width = `${c.w + 12}px`;
+      el.style.height = `${c.h + 12}px`;
+
+      glowRafRef.current = requestAnimationFrame(animate);
+    };
+    glowRafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(glowRafRef.current);
   }, []);
 
   const startDrag = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -231,6 +282,23 @@ export function Voices() {
                   transform: `rotate(${((i % 4) - 1.5) * 0.35}deg)`,
                   position: 'relative',
                   flexShrink: 0,
+                }}
+                onMouseEnter={(e) => {
+                  setHoveredCardId(`${v.id}-${i}`);
+                  document.body.classList.add('voice-card-hovered');
+                  hoveredCardElRef.current = e.currentTarget as HTMLElement;
+                  const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                  glowTargetRef.current = { x: r.left, y: r.top, w: r.width, h: r.height, active: true };
+                  glowCurrentRef.current.x = r.left;
+                  glowCurrentRef.current.y = r.top;
+                  glowCurrentRef.current.w = r.width;
+                  glowCurrentRef.current.h = r.height;
+                }}
+                onMouseLeave={() => {
+                  setHoveredCardId(null);
+                  document.body.classList.remove('voice-card-hovered');
+                  hoveredCardElRef.current = null;
+                  glowTargetRef.current.active = false;
                 }}
                 onClick={(e) => {
                   if (!v.profileUrl || v.wink) return;
@@ -380,6 +448,19 @@ export function Voices() {
         }
       `}</style>
 
+      <div
+        ref={glowRef}
+        aria-hidden
+        style={{
+          position: 'fixed',
+          borderRadius: 24,
+          pointerEvents: 'none',
+          zIndex: 9999,
+          opacity: 0,
+          boxShadow: '0 0 0 1px rgba(255,178,122,0.25), 0 0 32px 8px rgba(255,178,122,0.3), 0 0 80px 20px rgba(255,178,122,0.14)',
+          animation: hoveredCardId ? 'element-aura-breathe 3.2s ease-in-out infinite' : 'none',
+        }}
+      />
       <ConfirmPopup
         isOpen={liPopup.open}
         anchorEl={liPopup.anchorEl}
